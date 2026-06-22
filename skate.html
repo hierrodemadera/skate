@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKATE</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#d9d9d9;--fg:#111;--muted:#888;--border:#bbb;
+  --win:#f5f5f5;--shadow:0 2px 10px rgba(0,0,0,0.14);--hover:rgba(0,0,0,0.05);
+}
+body{font-family:'Courier New',Courier,monospace;background:var(--bg);color:var(--fg);
+  font-size:13px;line-height:1.5;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{background:var(--bg);padding:8px 14px 0;flex-shrink:0;}
+.topbar-row{display:flex;align-items:center;padding-bottom:8px;}
+.topbar h1{font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
+.app-tabs{display:flex;align-items:flex-end;gap:4px;}
+.app-tab{padding:5px 16px;font-family:inherit;font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;border:1px solid var(--border);
+  border-bottom:none;background:rgba(0,0,0,0.06);color:var(--muted);cursor:pointer;
+  border-radius:3px 3px 0 0;transition:all 0.1s;}
+.app-tab.active{background:var(--win);color:var(--fg);}
+
+/* VIEWS */
+.view{display:none;flex:1;overflow:hidden;padding:10px;gap:10px;}
+.view.active{display:flex;}
+#view-esquema{flex-direction:column;}
+#view-entrenamiento{flex-direction:row;}
+
+/* WINDOW */
+.window{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:0 3px 3px 3px;
+  display:flex;flex-direction:column;overflow:hidden;background:var(--win);}
+.win-tb{padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);flex-shrink:0;
+  display:flex;align-items:center;gap:8px;background:inherit;}
+
+/* SCHEME TOOLBAR */
+.scheme-tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:7px 12px;
+  background:var(--win);border:1px solid var(--border);border-bottom:none;
+  border-radius:3px 3px 0 0;flex-shrink:0;}
+input[type=search]{background:none;border:none;border-bottom:1px solid var(--border);
+  font-family:inherit;font-size:12px;padding:3px 0;color:var(--fg);outline:none;width:180px;}
+input[type=search]::placeholder{color:var(--muted);}
+input[type=search]:focus{border-bottom-color:var(--fg);}
+.sep{color:var(--border);}
+.flbl{font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
+button.filter{background:none;border:1px solid var(--border);padding:2px 8px;
+  font-family:inherit;font-size:10px;cursor:pointer;color:var(--muted);text-transform:uppercase;}
+button.filter:hover{border-color:var(--fg);color:var(--fg);}
+button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
+#collapse-all{margin-left:auto;background:none;border:none;font-family:inherit;
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+#collapse-all:hover{color:var(--fg);}
+
+/* FAMILIES */
+.stats{font-size:10px;color:var(--muted);margin-bottom:8px;}
+.win-content{overflow-y:auto;flex:1;padding:10px 14px;}
+.family{border-bottom:1px solid var(--border);}
+.fhdr{display:flex;align-items:baseline;gap:10px;padding:10px 0;cursor:pointer;
+  user-select:none;background:none;border:none;width:100%;text-align:left;font-family:inherit;}
+.fhdr:hover .fname{opacity:0.6;}
+.ticon{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.fname{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.fdesc{font-size:11px;color:var(--muted);}
+.fcount{margin-left:auto;font-size:11px;color:var(--muted);flex-shrink:0;}
+.fbody{display:none;padding-bottom:14px;}
+.fbody.open{display:block;}
+.sfname{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);margin:8px 0 4px 18px;}
+.tricks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));padding-left:18px;}
+.trick{display:flex;align-items:center;gap:5px;padding:3px 4px 3px 0;
+  border-radius:2px;transition:background 0.1s;position:relative;}
+.trick:hover{background:var(--hover);}
+.tchk{width:11px;height:11px;flex-shrink:0;border:1px solid #aaa;border-radius:1px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.tchk.done{border-color:var(--fg);}
+.tchk.done::after{content:'';display:block;width:6px;height:4px;
+  border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
+  transform:rotate(-45deg) translate(1px,-1px);}
+.tname{font-size:12px;flex:1;cursor:pointer;user-select:none;}
+.tadd{width:16px;height:16px;flex-shrink:0;background:none;border:none;cursor:pointer;
+  font-size:14px;line-height:1;color:var(--muted);padding:0;font-family:inherit;
+  opacity:0;transition:opacity 0.1s;}
+.trick:hover .tadd{opacity:1;}
+.tadd:hover{color:var(--fg);}
+.trick.hidden{display:none;}
+.empty-msg{display:none;padding:20px 0;font-size:11px;color:var(--muted);}
+
+/* FILTER DROPDOWNS */
+.fdd-btn{background:none;border:1px solid var(--border);padding:3px 10px;font-family:inherit;
+  font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);
+  cursor:pointer;border-radius:2px;display:flex;align-items:center;gap:5px;}
+.fdd-btn:hover{border-color:var(--fg);color:var(--fg);}
+.fdd-btn.active{border-color:var(--fg);color:var(--fg);font-weight:700;}
+.fdd-arrow{font-size:9px;line-height:1;}
+.fdd-menu{position:fixed;z-index:700;background:var(--win);border:1px solid var(--border);
+  box-shadow:var(--shadow);border-radius:3px;min-width:180px;display:none;
+  padding:6px 0;overflow:hidden;}
+.fdd-menu.open{display:block;}
+.fdd-section{padding:4px 12px 2px;font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--muted);}
+.fdd-sep{height:1px;background:var(--border);margin:5px 0;}
+.fdd-item{display:flex;align-items:center;gap:10px;padding:6px 14px;
+  cursor:pointer;font-size:12px;user-select:none;}
+.fdd-item:hover{background:var(--hover);}
+.fdd-radio{width:13px;height:13px;border-radius:50%;border:1px solid #aaa;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.fdd-radio.checked{border-color:var(--fg);}
+.fdd-radio.checked::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--fg);display:block;}
+
+/* CONTEXT MENU */
+.ctx-menu{position:fixed;z-index:900;background:var(--win);border:1px solid var(--border);
+  box-shadow:var(--shadow);border-radius:2px;min-width:180px;display:none;overflow:hidden;}
+.ctx-menu.open{display:block;}
+.ctx-item{padding:7px 14px;font-size:12px;cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:8px;}
+.ctx-item:hover{background:var(--hover);}
+.ctx-item.danger:hover{color:#b00;}
+.ctx-sep{height:1px;background:var(--border);margin:3px 0;}
+
+/* DROPDOWN */
+.ddmenu{position:fixed;z-index:800;background:var(--win);border:1px solid var(--border);
+  box-shadow:var(--shadow);border-radius:2px;min-width:210px;max-height:280px;
+  display:none;flex-direction:column;overflow:hidden;}
+.ddmenu.open{display:flex;}
+.ddhdr{padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px;
+  font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+.ddscroll{overflow-y:auto;flex:1;}
+.ddroutine{padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);}
+.ddroutine:hover{background:var(--hover);}
+.ddr-name{font-weight:700;}
+.ddr-meta{font-size:10px;color:var(--muted);}
+.ddblocks{display:none;background:rgba(0,0,0,0.03);}
+.ddblocks.open{display:block;}
+.ddblock{padding:4px 10px 4px 20px;cursor:pointer;font-size:11px;color:var(--muted);}
+.ddblock:hover{color:var(--fg);background:var(--hover);}
+
+.dd-newblock{padding:3px 10px 4px 20px;font-size:10px;color:var(--muted);cursor:pointer;
+  letter-spacing:0.06em;text-transform:uppercase;}
+.dd-newblock:hover{color:var(--fg);}
+.dd-empty{padding:12px;font-size:11px;color:var(--muted);text-align:center;}
+
+/* TRAINING */
+#panel-routines{width:230px;flex-shrink:0;}
+#panel-detail{flex:1;min-width:0;}
+.sort-bar{padding:6px 10px;border-bottom:1px solid var(--border);
+  display:flex;gap:5px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+
+
+.rlist{overflow-y:auto;flex:1;padding:6px;}
+.ritem{padding:7px 8px;border:1px solid transparent;border-radius:2px;cursor:pointer;margin-bottom:3px;
+  display:flex;align-items:center;gap:8px;}
+.ritem:hover{background:var(--hover);}
+.ritem.active{border-color:var(--border);background:rgba(0,0,0,0.04);}
+.ritem-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid var(--border);}
+.ritem-info{flex:1;min-width:0;}
+.ritem-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ritem-meta{font-size:10px;color:var(--muted);}
+.rnew{display:block;width:calc(100% - 12px);margin:4px 6px;padding:6px 0;
+  background:none;border:1px dashed var(--border);font-family:inherit;font-size:11px;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;}
+.rnew:hover{border-color:var(--fg);color:var(--fg);}
+.detail-empty{display:flex;align-items:center;justify-content:center;
+  height:100%;font-size:11px;color:var(--muted);text-align:center;padding:24px;}
+.dhdr{padding:8px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.color-btn{width:16px;height:16px;border-radius:50%;border:1px solid var(--border);
+  cursor:pointer;flex-shrink:0;background:#fff;}
+.color-btn:hover{border-color:var(--fg);}
+.dtitle{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--fg);outline:none;flex:1;}
+.dtitle::placeholder{color:var(--muted);font-weight:400;text-transform:none;}
+.dmeta{font-size:10px;color:var(--muted);flex-shrink:0;}
+.dactions{display:flex;gap:6px;margin-left:auto;}
+.bsm{background:none;border:1px solid var(--border);font-family:inherit;
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 9px;}
+.bsm:hover{border-color:var(--fg);color:var(--fg);}
+.bsm.danger:hover{border-color:#b00;color:#b00;}
+
+/* BLOCKS AREA */
+.blocks-area{padding:10px 14px;overflow-y:auto;flex:1;}
+
+/* general tricks zone */
+.general-zone{margin-bottom:12px;border:1px solid var(--border);border-radius:2px;
+  background:rgba(255,255,255,0.15);}
+.gz-hdr{padding:5px 10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;}
+.gz-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);flex:1;}
+.gz-tricks{padding:4px 10px;min-height:24px;}
+
+/* block */
+.block{margin-bottom:10px;border:1px solid var(--border);border-radius:2px;background:var(--blk-c-bg,rgba(255,255,255,0.2));transition:background 0.15s;}
+.blk-hdr{padding:5px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.blk-color{width:12px;height:12px;border-radius:50%;border:1px solid var(--border);cursor:pointer;flex-shrink:0;background:#fff;}
+.blk-color:hover{border-color:var(--fg);}
+.blk-name{background:none;border:none;font-family:inherit;font-size:11px;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);outline:none;flex:1;}
+.blk-name::placeholder{color:#bbb;font-weight:400;text-transform:none;}
+.blk-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;padding:0;}
+.blk-rm:hover{color:#b00;}
+.blk-tricks{padding:4px 10px;min-height:24px;}
+.btrick{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;
+  border-bottom:1px solid rgba(0,0,0,0.05);}
+.btrick:last-child{border-bottom:none;}
+.bchk{width:11px;height:11px;flex-shrink:0;border:1px solid #aaa;border-radius:1px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.bchk.done{border-color:var(--fg);}
+.bchk.done::after{content:'';display:block;width:6px;height:4px;
+  border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
+  transform:rotate(-45deg) translate(1px,-1px);}
+.btrick-name{flex:1;}
+.btrm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;
+  padding:0;opacity:0;transition:opacity 0.1s;}
+.btrick:hover .btrm{opacity:1;}
+.btrm:hover{color:#b00;}
+.blk-add{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;}
+.blk-add:hover{color:var(--fg);}
+.add-blk-btn{background:none;border:1px dashed var(--border);font-family:inherit;font-size:10px;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;
+  padding:6px 10px;width:100%;text-align:left;border-radius:2px;margin-top:2px;}
+.add-blk-btn:hover{border-color:var(--fg);color:var(--fg);}
+.breakdown{padding:7px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);
+  flex-shrink:0;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.bdlbl{letter-spacing:0.06em;text-transform:uppercase;margin-right:2px;}
+.bdtag{padding:1px 6px;border:1px solid var(--border);border-radius:2px;font-size:10px;}
+
+/* COLOR PICKER POPUP */
+.cpopup{position:fixed;z-index:950;background:var(--win);border:1px solid var(--border);
+  box-shadow:var(--shadow);border-radius:3px;padding:10px;display:none;flex-direction:column;gap:8px;width:220px;}
+.cpopup.open{display:flex;}
+.cpopup canvas{border-radius:2px;cursor:crosshair;display:block;width:200px;height:150px;}
+.cpopup-row{display:flex;align-items:center;gap:6px;width:200px;}
+.cpopup-preview{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;}
+.cpopup-hex{background:none;border:none;border-bottom:1px solid var(--border);
+  font-family:inherit;font-size:12px;padding:2px 0;outline:none;flex:1;color:var(--fg);min-width:0;}
+.cpopup-ok{background:var(--fg);color:#fff;border:none;font-family:inherit;
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 8px;cursor:pointer;flex-shrink:0;}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:400;
+  display:none;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--win);border:1px solid var(--border);box-shadow:var(--shadow);
+  border-radius:3px;width:500px;max-width:95vw;max-height:72vh;display:flex;flex-direction:column;}
+.mhdr{padding:9px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.mtitle{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.mclose{margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:0;line-height:1;}
+.mclose:hover{color:var(--fg);}
+.msbar{padding:7px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.msbar input{width:100%;background:none;border:none;border-bottom:1px solid var(--border);
+  font-family:inherit;font-size:12px;padding:3px 0;color:var(--fg);outline:none;}
+.msbar input:focus{border-bottom-color:var(--fg);}
+.mbody{overflow-y:auto;flex:1;padding:6px 14px;}
+.mfam{border-bottom:1px solid var(--border);}
+.mfhdr{display:flex;align-items:baseline;gap:8px;padding:8px 0;cursor:pointer;
+  user-select:none;background:none;border:none;width:100%;text-align:left;font-family:inherit;}
+.mfhdr:hover .mfname{opacity:0.6;}
+.mftog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.mfname{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.mfcnt{margin-left:auto;font-size:10px;color:var(--muted);}
+.mfbody{display:none;padding-bottom:8px;}
+.mfbody.open{display:block;}
+.msfname{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--muted);padding:4px 0 3px 18px;margin-top:4px;}
+.mtrick{display:flex;align-items:center;gap:6px;padding:3px 4px 3px 18px;
+  border-radius:2px;cursor:pointer;font-size:12px;}
+.mtrick:hover{background:var(--hover);}
+.mtrick.already{cursor:default;opacity:0.4;}
+.mtrick.already:hover{background:none;}
+.mchk{width:11px;height:11px;border:1px solid #aaa;border-radius:1px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;}
+.mchk.sel{border-color:var(--fg);background:var(--fg);}
+.mchk.sel::after{content:'';display:block;width:6px;height:4px;
+  border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;
+  transform:rotate(-45deg) translate(1px,-1px);}
+.mfooter{padding:8px 14px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.mselcnt{font-size:11px;color:var(--muted);flex:1;}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--fg);color:#fff;font-size:11px;letter-spacing:0.08em;
+  padding:6px 16px;opacity:0;transition:all 0.18s;pointer-events:none;font-family:inherit;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:680px){.tricks-grid{grid-template-columns:1fr;}.fdesc{display:none;}#panel-routines{width:160px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-row"><h1>SKATE</h1></div>
+  <div class="app-tabs">
+    <button class="app-tab active" data-tab="esquema">Esquema</button>
+    <button class="app-tab" data-tab="entrenamiento">Entrenamiento</button>
+  </div>
+</div>
+
+<!-- ESQUEMA -->
+<div class="view active" id="view-esquema">
+  <div class="scheme-tb">
+    <input type="search" id="search" placeholder="buscar truco..." autocomplete="off" spellcheck="false">
+    <span class="sep">·</span>
+    <button class="fdd-btn" id="fdd-terreno-btn">terreno <span class="fdd-arrow">▾</span></button>
+    <button class="fdd-btn" id="fdd-nivel-btn">nivel <span class="fdd-arrow">▾</span></button>
+    <button id="collapse-all">[ cerrar todo ]</button>
+  </div>
+  <div class="window" id="win-scheme" style="border-radius:0 3px 3px 3px;">
+    <div class="win-content">
+      <div class="stats" id="stats"></div>
+      <div id="families"></div>
+      <div class="empty-msg" id="empty">— sin resultados —</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRENAMIENTO -->
+<div class="view" id="view-entrenamiento">
+  <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;">
+    <div class="win-tb">Rutinas</div>
+    <div class="sort-bar">
+      <button class="fdd-btn" id="fdd-sort-btn">reciente <span class="fdd-arrow">▾</span></button>
+    </div>
+    <button class="rnew" id="btn-new">+ nueva rutina</button>
+    <div class="rlist" id="rlist"></div>
+  </div>
+  <div class="window" id="panel-detail" style="flex:1;min-width:0;border-radius:3px;">
+    <div class="detail-empty" id="detail-empty">← selecciona una rutina o crea una nueva</div>
+    <div id="detail-content" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+      <div class="dhdr">
+        <div class="color-btn" id="routine-color-btn" title="Color de rutina"></div>
+        <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
+        <span class="dmeta" id="dmeta"></span>
+        <div class="dactions">
+          <button class="bsm danger" id="btn-del">borrar</button>
+        </div>
+      </div>
+      <div class="blocks-area" id="blocks-area"></div>
+      <div style="padding:0 14px 10px;flex-shrink:0;">
+        <button class="add-blk-btn" id="btn-add-blk">+ añadir bloque</button>
+      </div>
+      <div class="breakdown" id="breakdown">
+        <span class="bdlbl">cobertura</span>
+        <span id="bdtags">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TRICK PICKER -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal">
+    <div class="mhdr">
+      <span class="mtitle" id="mtitle">Añadir trucos</span>
+      <button id="mcollapseall" style="background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;margin-left:auto;margin-right:8px;">[ cerrar todo ]</button>
+      <button class="mclose" id="mclose">×</button>
+    </div>
+    <div class="msbar"><input type="search" id="msearch" placeholder="buscar truco..." autocomplete="off" spellcheck="false"></div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mfooter">
+      <span class="mselcnt" id="mselcnt"></span>
+      <button class="bsm" id="mconfirm" style="background:var(--fg);color:#fff;border-color:var(--fg);">añadir</button>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER DROPDOWN MENUS -->
+<div class="fdd-menu" id="fdd-terreno-menu">
+  <div class="fdd-section">Terreno</div>
+  <div class="fdd-sep"></div>
+  <div class="fdd-item" data-filter="terreno" data-value=""><span class="fdd-radio checked"></span>todos</div>
+  <div class="fdd-item" data-filter="terreno" data-value="flat"><span class="fdd-radio"></span>flat</div>
+  <div class="fdd-item" data-filter="terreno" data-value="ledge"><span class="fdd-radio"></span>ledge</div>
+  <div class="fdd-item" data-filter="terreno" data-value="rail"><span class="fdd-radio"></span>rail</div>
+  <div class="fdd-item" data-filter="terreno" data-value="quarter"><span class="fdd-radio"></span>quarter</div>
+  <div class="fdd-item" data-filter="terreno" data-value="bowl"><span class="fdd-radio"></span>bowl</div>
+</div>
+<div class="fdd-menu" id="fdd-nivel-menu">
+  <div class="fdd-section">Nivel</div>
+  <div class="fdd-sep"></div>
+  <div class="fdd-item" data-filter="nivel" data-value=""><span class="fdd-radio checked"></span>todos</div>
+  <div class="fdd-item" data-filter="nivel" data-value="basico"><span class="fdd-radio"></span>básico</div>
+  <div class="fdd-item" data-filter="nivel" data-value="intermedio"><span class="fdd-radio"></span>intermedio</div>
+  <div class="fdd-item" data-filter="nivel" data-value="avanzado"><span class="fdd-radio"></span>avanzado</div>
+  <div class="fdd-item" data-filter="nivel" data-value="pro"><span class="fdd-radio"></span>pro</div>
+</div>
+<div class="fdd-menu" id="fdd-sort-menu">
+  <div class="fdd-section">Ordenar rutinas</div>
+  <div class="fdd-sep"></div>
+  <div class="fdd-item" data-sort="fecha-desc"><span class="fdd-radio checked"></span>más reciente</div>
+  <div class="fdd-item" data-sort="fecha-asc"><span class="fdd-radio"></span>más antigua</div>
+  <div class="fdd-item" data-sort="nombre"><span class="fdd-radio"></span>nombre A-Z</div>
+  <div class="fdd-item" data-sort="trucos"><span class="fdd-radio"></span>más trucos</div>
+</div>
+
+<!-- DROPDOWN (scheme + button) -->
+<div class="ddmenu" id="ddmenu">
+  <div class="ddhdr">Añadir a rutina</div>
+  <div class="ddscroll" id="ddscroll"></div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctx-menu">
+  <div class="ctx-item" id="ctx-copy">copiar nombre</div>
+  <div class="ctx-item" id="ctx-check">marcar conseguido</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctx-add">añadir a rutina →</div>
+</div>
+
+<!-- COLOR PICKER POPUP -->
+<div class="cpopup" id="cpopup">
+  <canvas id="cpcanvas" width="200" height="150"></canvas>
+  <div class="cpopup-row">
+    <div class="cpopup-preview" id="cppreview"></div>
+    <input class="cpopup-hex" id="cphex" maxlength="7" spellcheck="false">
+    <button class="cpopup-ok" id="cpok">ok</button>
+  </div>
+  <button id="cpnone" style="background:none;border:1px dashed var(--border);font-family:inherit;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 0;width:200px;text-align:center;">× quitar color</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ── DATA ──
+const DATA = [
+  {
+    id: "ollies",
+    name: "Ollies",
+    desc: "la base de todo — elevación y rotaciones corporales",
+    subfamilies: [
+      {
+        name: "Ollie base",
+        tricks: [
+          { name: "Ollie", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Fakie Ollie", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Nollie", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Switch Ollie", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "One-Foot Ollie (Ollie North)", terreno: ["flat","quarter"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Rotaciones 180",
+        tricks: [
+          { name: "Frontside 180", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Backside 180", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Halfcab (Fakie FS 180)", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Fakie Backside 180", terreno: ["flat","ledge","quarter"], nivel: "basico" },
+          { name: "Nollie Frontside 180", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Nollie Backside 180", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Switch Frontside 180", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Switch Backside 180", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Rotaciones 360",
+        tricks: [
+          { name: "Frontside 360", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside 360", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Caballerial (Fakie BS 360)", terreno: ["flat","quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Caballerial (Fakie FS 360)", terreno: ["flat","quarter","bowl"], nivel: "avanzado" },
+          { name: "Nollie Frontside 360", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Nollie Backside 360", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Switch Frontside 360", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Switch Backside 360", terreno: ["flat","quarter"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Rotaciones 540 / 720 / 900 (vert)",
+        tricks: [
+          { name: "Frontside 540", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Backside 540", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "720", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "900", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "1080", terreno: ["quarter","bowl"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "flips",
+    name: "Flips",
+    desc: "la tabla rota en el eje longitudinal",
+    subfamilies: [
+      {
+        name: "Kickflips",
+        tricks: [
+          { name: "Kickflip", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Double Kickflip", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Triple Kickflip", terreno: ["flat"], nivel: "pro" },
+          { name: "Fakie Kickflip", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Nollie Kickflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Switch Kickflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Late Kickflip", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Heelflips",
+        tricks: [
+          { name: "Heelflip", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Double Heelflip", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Triple Heelflip", terreno: ["flat"], nivel: "pro" },
+          { name: "Fakie Heelflip", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Nollie Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Switch Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Kickflip con rotación corporal",
+        tricks: [
+          { name: "Frontside Flip (FS 180 Kickflip)", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Flip (BS 180 Kickflip)", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Halfcab Flip (Fakie FS 180 Kickflip)", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Caballerial Kickflip (Fakie BS 360 Kickflip)", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Switch Frontside Flip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Switch Backside Flip", terreno: ["flat","ledge"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Heelflip con rotación corporal",
+        tricks: [
+          { name: "Frontside Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Backside Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Halfcab Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Caballerial Heelflip", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Switch Frontside Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Switch Backside Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Hardflips e Inwards",
+        tricks: [
+          { name: "Hardflip", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Inward Heelflip", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Fakie Hardflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Fakie Inward Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Nollie Hardflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Nollie Inward Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Switch Hardflip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Switch Inward Heelflip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "360 Hardflip", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Imposibles",
+        tricks: [
+          { name: "Impossible", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Front Foot Impossible", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Nollie Impossible", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Switch Impossible", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Double Impossible", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Pressure Flips",
+        tricks: [
+          { name: "Pressure Flip", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Frontside Pressure Flip", terreno: ["flat"], nivel: "intermedio" },
+          { name: "360 Pressure Flip", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Hospital / Casper Flips",
+        tricks: [
+          { name: "Hospital Flip", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Casper Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Nollie Casper Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Anti Casper Flip", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Fingerflips",
+        tricks: [
+          { name: "Fingerflip", terreno: ["flat","quarter"], nivel: "intermedio" },
+          { name: "Ollie Fingerflip", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Fingerflip 360", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Otros flips",
+        tricks: [
+          { name: "Sex Change (Twisted Flip)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Underflip", terreno: ["flat"], nivel: "pro" },
+          { name: "Kickflip Underflip", terreno: ["flat"], nivel: "pro" },
+          { name: "Forward Flip (Dolphin Flip)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Ghetto Bird", terreno: ["flat"], nivel: "pro" },
+          { name: "Gazelle Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Nollie Laser Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Haslam Flip", terreno: ["flat"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "shoves",
+    name: "Shoves",
+    desc: "la tabla rota en el eje horizontal sin flip",
+    subfamilies: [
+      {
+        name: "Shove-its base",
+        tricks: [
+          { name: "Shove-it (sin pop)", terreno: ["flat"], nivel: "basico" },
+          { name: "Backside Pop Shove-it", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Pop Shove-it", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
+          { name: "Fakie Backside Pop Shove-it", terreno: ["flat","ledge","quarter"], nivel: "basico" },
+          { name: "Fakie Frontside Pop Shove-it", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Nollie Backside Pop Shove-it", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Nollie Frontside Pop Shove-it", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Switch Backside Pop Shove-it", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Switch Frontside Pop Shove-it", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Late Shove-it", terreno: ["flat"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "360 Shoves",
+        tricks: [
+          { name: "Backside 360 Shove-it", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Frontside 360 Shove-it", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Fakie Backside 360 Shove-it", terreno: ["flat","quarter"], nivel: "intermedio" },
+          { name: "Fakie Frontside 360 Shove-it", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Nollie 360 Shove-it", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Switch 360 Shove-it", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "540 Shoves",
+        tricks: [
+          { name: "540 Shove-it", terreno: ["flat","quarter"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Bigspins (360 Shove + 180 body)",
+        tricks: [
+          { name: "Backside Bigspin", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Bigspin", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Fakie Backside Bigspin", terreno: ["flat","quarter"], nivel: "intermedio" },
+          { name: "Fakie Frontside Bigspin", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Nollie Backside Bigspin", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Nollie Frontside Bigspin", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Switch Backside Bigspin", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Switch Frontside Bigspin", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Biggerspin / Gazelle",
+        tricks: [
+          { name: "Biggerspin (540 Shove + 180 body)", terreno: ["flat","quarter"], nivel: "pro" },
+          { name: "Gazelle Spin (540 Shove + 360 body)", terreno: ["flat","quarter"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "flip-shove",
+    name: "Flip + Shove",
+    desc: "combinación de rotación longitudinal y horizontal",
+    subfamilies: [
+      {
+        name: "Varial Kickflips (BS Shove + Kickflip)",
+        tricks: [
+          { name: "Varial Kickflip", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Fakie Varial Kickflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Nollie Varial Kickflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Switch Varial Kickflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Varial Heelflips (FS Shove + Heelflip)",
+        tricks: [
+          { name: "Varial Heelflip", terreno: ["flat","ledge","quarter","bowl"], nivel: "intermedio" },
+          { name: "Fakie Varial Heelflip", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Nollie Varial Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Switch Varial Heelflip", terreno: ["flat","ledge"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Tre Flips (BS 360 Shove + Kickflip)",
+        tricks: [
+          { name: "Tre Flip (360 Flip)", terreno: ["flat","ledge","quarter","bowl"], nivel: "avanzado" },
+          { name: "Fakie Tre Flip", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Nollie Tre Flip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Switch Tre Flip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Dragon Flip (360 Shove + Double Kickflip)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Laser Flips (FS 360 Shove + Heelflip)",
+        tricks: [
+          { name: "Laser Flip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Fakie Laser Flip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Nollie Laser Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Switch Laser Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "Double Laser Flip", terreno: ["flat"], nivel: "pro" },
+          { name: "360 Inward Heelflip (BS 360 Shove + Heelflip)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "360 Hardflip (FS 360 Shove + Kickflip)",
+        tricks: [
+          { name: "360 Hardflip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Fakie 360 Hardflip", terreno: ["flat"], nivel: "pro" },
+          { name: "Nollie 360 Hardflip", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Bigflips (360 Shove + Flip + 180 body)",
+        tricks: [
+          { name: "Bigflip (BS Bigspin Kickflip)", terreno: ["flat","ledge","quarter"], nivel: "avanzado" },
+          { name: "Frontside Bigflip", terreno: ["flat","ledge"], nivel: "pro" },
+          { name: "Fakie Bigflip", terreno: ["flat","quarter"], nivel: "avanzado" },
+          { name: "Big Heel (FS Bigspin Heelflip)", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Inward Bigflip (360 Inward Heel + 180 body)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "540 Flips y superiores",
+        tricks: [
+          { name: "Biggerflip (540 Shove + Kickflip + 180 body)", terreno: ["flat"], nivel: "pro" },
+          { name: "540 Flip", terreno: ["flat","quarter"], nivel: "pro" },
+          { name: "720 Flip", terreno: ["flat","quarter"], nivel: "pro" },
+          { name: "Gazelle Flip (540 Shove + Kickflip + 360 body)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Nightmare Flip",
+        tricks: [
+          { name: "Nightmare Flip (BS Shove + Double Kickflip)", terreno: ["flat"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "grinds",
+    name: "Grinds",
+    desc: "los trucks contactan y deslizan sobre el obstáculo",
+    subfamilies: [
+      {
+        name: "50-50 (ambos trucks)",
+        tricks: [
+          { name: "50-50", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Frontside 50-50", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Backside 50-50", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Fakie 50-50", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Nollie 50-50", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Switch 50-50", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Slappy 50-50 (sin ollie)", terreno: ["ledge"], nivel: "basico" },
+        ]
+      },
+      {
+        name: "5-0 (truck trasero)",
+        tricks: [
+          { name: "5-0", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Frontside 5-0", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Backside 5-0", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Fakie 5-0", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Nollie 5-0", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch 5-0", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Nosegrind (truck delantero)",
+        tricks: [
+          { name: "Nosegrind", terreno: ["ledge","rail","quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Nosegrind", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Backside Nosegrind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Fakie Nosegrind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Nosegrind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Nosegrind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Slappy Nosegrind (sin ollie)", terreno: ["ledge"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Smith Grind (truck trasero, nose interior)",
+        tricks: [
+          { name: "Smith Grind", terreno: ["ledge","rail","quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Smith", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Backside Smith", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Fakie Smith", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Smith", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Smith", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Feeble Grind (truck trasero, nose exterior)",
+        tricks: [
+          { name: "Feeble Grind", terreno: ["ledge","rail","quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Feeble", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Backside Feeble", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Fakie Feeble", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Feeble", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Feeble", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Crooked Grind (truck delantero, cola angled exterior)",
+        tricks: [
+          { name: "Crooked Grind", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Frontside Crooked", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Backside Crooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Fakie Crooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Crooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Crooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Overcrooked (truck delantero, cola angled interior)",
+        tricks: [
+          { name: "Overcrooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Frontside Overcrooked", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Backside Overcrooked", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Nollie Overcrooked", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Switch Overcrooked", terreno: ["ledge","rail"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Salad / Suski (variantes del 5-0)",
+        tricks: [
+          { name: "Salad Grind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Frontside Salad", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Backside Salad", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Suski Grind", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Frontside Suski", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Backside Suski", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Willy / Losi (variantes del Nosegrind)",
+        tricks: [
+          { name: "Willy Grind (Nosesmith)", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Losi Grind (Nosefeeble)", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Spinning grinds",
+        tricks: [
+          { name: "Hurricane (BS 180 Fakie Feeble)", terreno: ["ledge","rail","quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Hurricane", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Sugarcane (270 Fakie Smith)", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Barley Grind (180 Switch Smith)", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Bennett Grind (FS Barley)", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Layback Grind", terreno: ["ledge","quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Otros grinds",
+        tricks: [
+          { name: "Tailblock Grind", terreno: ["ledge","quarter"], nivel: "avanzado" },
+          { name: "Slash Grind", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Primo Grind", terreno: ["ledge"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "slides",
+    name: "Slides",
+    desc: "la tabla contacta con el obstáculo — el deck desliza, no los trucks",
+    subfamilies: [
+      {
+        name: "Boardslide (front truck cruza el obstáculo)",
+        tricks: [
+          { name: "Backside Boardslide", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Boardslide", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Fakie Boardslide", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Nollie Boardslide", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Switch Boardslide", terreno: ["ledge","rail"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Noseslide (nose del deck)",
+        tricks: [
+          { name: "Noseslide", terreno: ["ledge","rail","quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Noseslide", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Backside Noseslide", terreno: ["ledge","rail"], nivel: "intermedio" },
+          { name: "Fakie Noseslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Noseslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Noseslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Tailslide (tail del deck)",
+        tricks: [
+          { name: "Tailslide", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Frontside Tailslide", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Backside Tailslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Fakie Tailslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Tailslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Tailslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Bluntslide (tail + ruedas traseras sobre el obstáculo)",
+        tricks: [
+          { name: "Bluntslide", terreno: ["ledge","rail","quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Bluntslide", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Backside Bluntslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Fakie Bluntslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Bluntslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Bluntslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Noseblunt Slide (nose + ruedas delanteras)",
+        tricks: [
+          { name: "Noseblunt Slide", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Frontside Noseblunt", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Backside Noseblunt", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Nollie Noseblunt", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Switch Noseblunt", terreno: ["ledge","rail"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Lipslide (back truck cruza el obstáculo)",
+        tricks: [
+          { name: "Backside Lipslide", terreno: ["ledge","rail","quarter"], nivel: "intermedio" },
+          { name: "Frontside Lipslide", terreno: ["ledge","rail","quarter"], nivel: "avanzado" },
+          { name: "Fakie Lipslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Nollie Lipslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+          { name: "Switch Lipslide", terreno: ["ledge","rail"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Darkslide (deck invertido sobre el obstáculo)",
+        tricks: [
+          { name: "Darkslide", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Darklipslide", terreno: ["ledge","rail"], nivel: "pro" },
+          { name: "Blindslide (semi-kickflip to BS darkslide)", terreno: ["ledge","rail"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Slides especiales",
+        tricks: [
+          { name: "Casperslide", terreno: ["ledge","flat"], nivel: "pro" },
+          { name: "Crail Slide (tailslide + nose grab)", terreno: ["ledge","quarter"], nivel: "avanzado" },
+          { name: "Nailslide (Bananaslide — nose + tail simultáneo)", terreno: ["ledge"], nivel: "pro" },
+          { name: "Primoslide (deck en posición rail)", terreno: ["ledge","flat"], nivel: "pro" },
+          { name: "Cess Slide (4 ruedas en transición)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Bertlemann Slide (4 ruedas + mano en suelo)", terreno: ["flat","bowl"], nivel: "basico" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "manuals",
+    name: "Manuals",
+    desc: "equilibrio en movimiento sobre dos ruedas — conector universal",
+    subfamilies: [
+      {
+        name: "Manuals básicos",
+        tricks: [
+          { name: "Manual", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "Nose Manual", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "Fakie Manual", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "Fakie Nose Manual", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "Switch Manual", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Switch Nose Manual", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Nollie Manual", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Nollie Nose Manual", terreno: ["flat","ledge"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "One foot / One wheel",
+        tricks: [
+          { name: "One Foot Manual", terreno: ["flat"], nivel: "avanzado" },
+          { name: "One Foot Nose Manual", terreno: ["flat"], nivel: "avanzado" },
+          { name: "One Wheel Manual", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Variantes especiales",
+        tricks: [
+          { name: "Hang Ten Manual (ambos pies en nose)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Heelie (ambos pies en tail)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "English Manual", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Swedish Manual", terreno: ["flat"], nivel: "avanzado" },
+          { name: "G-Turn (Nose Manual con giro)", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "grabs",
+    name: "Grabs",
+    desc: "la mano agarra la tabla en el aire",
+    subfamilies: [
+      {
+        name: "Back hand toeside (familia Indy)",
+        tricks: [
+          { name: "Indy (BS air, back hand toeside entre los pies)", terreno: ["quarter","bowl","flat"], nivel: "basico" },
+          { name: "Mute (BS air, front hand toeside entre los pies)", terreno: ["quarter","bowl","flat"], nivel: "basico" },
+          { name: "Crail (back hand toeside, entre front foot y nose)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Roastbeef (back hand entre piernas, heelside)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Stalefish (back hand heelside, arm alrededor pierna trasera)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Front hand heelside (familia Melon/Lien)",
+        tricks: [
+          { name: "Melon (Melancholy — front hand heelside entre los pies)", terreno: ["quarter","bowl","flat"], nivel: "basico" },
+          { name: "Lien Air (front hand heelside, FS air)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Method (Melon tweaked, board detrás de la espalda)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Weddle (Mute Air — front hand toeside hacia el nose)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Chicken Salad (front hand entre piernas, heelside)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Nose / Tail / Dobles",
+        tricks: [
+          { name: "Nose Grab", terreno: ["quarter","bowl","flat"], nivel: "basico" },
+          { name: "Tail Grab", terreno: ["quarter","bowl","flat"], nivel: "basico" },
+          { name: "Rocket Air (ambas manos en nose, pies en tail)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Cannonball (nose + tail simultáneo)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Double Grab (ambas manos en la tabla)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Nuclear (back hand heelside, entre front foot y nose)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Seatbelt (front hand tail, cruzando el cuerpo)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "One-foot / No-foot",
+        tricks: [
+          { name: "Airwalk (BS air, front hand nose, ambos pies off)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Judo Air (BS air, front foot kick forward)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Frigid Air (anti-judo, front foot kick backward)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Benihana (tail grab, back foot kick)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Madonna (Lien to tail, front foot kick down)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Sean Penn (como Madonna pero backside)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Tailwalk (como Airwalk pero grabbing tail)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Tweaks y variantes de estilo",
+        tricks: [
+          { name: "Japan Air (Mute con board detrás de las rodillas)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Nosebone (Nose Grab con pierna delantera estirada)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Tailbone (Tail Grab con pierna trasera estirada)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Stiffy (Indy con ambas piernas estiradas)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Crossbone (Lien con pierna delantera estirada)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Del Mar Indy (Tuck-Knee Indy)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Body Jar (BS air nose grab, tail toca el coping)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Saran Wrap (front leg swung around nose)", terreno: ["quarter","bowl"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Airs de transición y rotación",
+        tricks: [
+          { name: "Frontside Air", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Backside Air", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Slob Air (FS air, front hand toeside — Mute frontside)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Christ Air (BS air, board en una mano, crucifijo)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "McTwist (BS 540 invertido + Mute)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Gay Twist (Fakie Mute 360 / Caballerial + Mute)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Varial Air (FS air, mano entre las piernas)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "lips",
+    name: "Lip Tricks",
+    desc: "trucos en el borde (coping) de rampas y quarterpipes",
+    subfamilies: [
+      {
+        name: "Rocks (nose del deck sobre el coping)",
+        tricks: [
+          { name: "Rock to Fakie", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Fakie Rock", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Backside Rock and Roll", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Rock and Roll", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Sally Rock", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Pogo Rock (air straight up to rock and roll)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Stalls básicos",
+        tricks: [
+          { name: "Axle Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Axle Stall (FS)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Pivot Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Pivot Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Tail Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Tail Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Nose Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Nose Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Nose Pick (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Nose Pick (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Blunt to Fakie (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Blunt to Fakie (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Nose Blunt Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Nose Blunt Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Dark Stall", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Crailtap (tail stall + crail grab)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Tailtap (tail toca coping, front truck en aire)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Tailblock (balance en bottom del tail)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Stalls de grind",
+        tricks: [
+          { name: "Smith Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Smith Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Feeble Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Feeble Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Hurricane Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Hurricane Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Sugarcane Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Crooked Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Crooked Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Disasters (180 ollie, deck perpendicular sobre coping)",
+        tricks: [
+          { name: "Backside Disaster", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Disaster", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "New Deal (nosepick to disaster)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Footplants / Boneless",
+        tricks: [
+          { name: "Boneless One", terreno: ["quarter","bowl","flat"], nivel: "intermedio" },
+          { name: "Fastplant (Footplant)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Staple Gun (back foot en coping)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Sweeper (FS nose grab footplant)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Texas Plant (back foot planta en coping, FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Texas Two-Step (Texas Plant + switch foot)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Bean Plant (nosegrab/lien, front foot planta)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Bastard Plant (BS Boneless to Fakie)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Lien Plant (FS Fastplant grabbing lien)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Indy Plant (BS footplant grabbing Indy)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Slob Plant (FS Fastplant grabbing slob)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Half Shave Plant (no comply slob grab)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "I Can Hear Fine (BS Boneless grabbing Mute)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Thruster (fakie tail grab footplant)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Layback Air (FS, rear hand en coping, grabbing slob)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Inverts / Handplants",
+        tricks: [
+          { name: "Invert (BS handplant, back hand en coping)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Andrecht (BS handplant, outer edge grab)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Eggplant (BS, front hand en coping, back hand Indy)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Invert (front hand en coping)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Fall Guy (FS invert to fakie)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Good Buddy (fakie invert, no fully extended)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Everybody (fakie invert, fully extended)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Sad Plant (invert, front leg fully extended)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Tuck-Knee Invert (Japan Air grab, tweaked)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Poliki (Underplant — lien air handplant)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Smithvert (invert tweaked BS, toes tocan tail)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Miller Flip (FS invert 360 to fakie)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Jolly Mambo (stalled FS invert, tail swings to fakie)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Phillips 66 (fakie, back hand en coping, frontflip out)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Ho-Ho (ambas manos en coping simultáneo)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Gymnast Plant (no-footed, ambas manos en coping)", terreno: ["quarter","bowl"], nivel: "pro" },
+          { name: "Woolly Mammoth (fakie FS handplant to nose blunt)", terreno: ["quarter","bowl"], nivel: "pro" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "off-board",
+    name: "Off-Board",
+    desc: "un pie planta en el suelo o el cuerpo se separa de la tabla",
+    subfamilies: [
+      {
+        name: "No Comply (front foot planta, back foot popea)",
+        tricks: [
+          { name: "No Comply", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "No Comply FS 180", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "No Comply BS 180", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "No Comply 360", terreno: ["flat"], nivel: "intermedio" },
+          { name: "No Comply Revert", terreno: ["flat"], nivel: "intermedio" },
+          { name: "No Comply Kickflip (De Comply)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "No Comply Shove-it", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Flamingo (No Comply, back foot envuelve la tabla)", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Boneless (front foot planta + mano agarra)",
+        tricks: [
+          { name: "Boneless", terreno: ["flat","ledge","quarter"], nivel: "basico" },
+          { name: "Frontside Boneless", terreno: ["flat","ledge","quarter"], nivel: "basico" },
+          { name: "Backside Boneless", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Boneless 180", terreno: ["flat","ledge","quarter"], nivel: "intermedio" },
+          { name: "Street Plant (handplant en flat)", terreno: ["flat"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Entradas y drops",
+        tricks: [
+          { name: "Caveman (saltar sobre la tabla sosteniéndola)", terreno: ["flat","ledge","rail"], nivel: "basico" },
+          { name: "Acid Drop (rodar directo off obstáculo sin pop)", terreno: ["ledge","quarter"], nivel: "basico" },
+          { name: "Bomb Drop (saltar desde altura sobre la tabla)", terreno: ["ledge","quarter"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Miscelánea off-board",
+        tricks: [
+          { name: "Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)", terreno: ["flat","ledge"], nivel: "basico" },
+          { name: "Ghostride (step off rolling, volver a subir)", terreno: ["flat"], nivel: "basico" },
+          { name: "Ghostride Flip (ghostride + flip del board con el pie)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Strawberry Milkshake (board gira en suelo, rider da pasos sobre él)", terreno: ["flat"], nivel: "intermedio" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "freestyle",
+    name: "Freestyle",
+    desc: "trucos de suelo flat — posiciones, pivots y flips sin obstáculo",
+    subfamilies: [
+      {
+        name: "Posiciones de balance estático",
+        tricks: [
+          { name: "Casper (tabla invertida, tail en suelo)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Anti-Casper (Casper sobre el nose)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Casper Disaster (heelside railstand a 180 pivot)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Railstand (tabla de canto, rider encima)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Heelside Railstand", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Toeside Railstand", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Cooperstand (Railstand, un pie en rueda otro en nose)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Truckstand / 50-50 Freestyle (board vertical, pie en truck)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Pogo (tabla vertical, pie en truck inferior, manos en nose)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Switchfoot Pogo (Pogo alternando pie en cada hop)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Handstands",
+        tricks: [
+          { name: "Handstand (equilibrio en manos sobre la tabla)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "TV Stand (Handstand en posición 50-50)", terreno: ["flat"], nivel: "pro" },
+          { name: "YoYo Plant (one-hand handstand, board en otra mano)", terreno: ["flat"], nivel: "pro" },
+          { name: "YoHo Plant (YoYo Plant + segunda mano en suelo)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Pivots y walks",
+        tricks: [
+          { name: "360 Spin (giros consecutivos sobre la tabla)", terreno: ["flat"], nivel: "basico" },
+          { name: "End-Over (serie de pivots 180 alternados sobre el nose)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Jaywalk (End-Over avanzado, pie libre llega al punto de destino)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Monster Walk (pivots FS+FS o BS+BS consecutivos)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Spacewalk (Nose Manual con ruedas traseras oscilando)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Sidewinder (kickturns FS/BS alternados en movimiento)", terreno: ["flat"], nivel: "basico" },
+          { name: "Walk The Dog (vaivén de End-Over con movimiento)", terreno: ["flat"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Flips de freestyle",
+        tricks: [
+          { name: "Old School Kickflip (rail flip sin pop de tail)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Nosehook Impossible (front foot enganchado bajo nose)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "M-80 (kickflip + body varial inverso, 180 al revés)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Incredible (board alrededor del pie, dirección frontside)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Incredible FS-BS (Incredible en ambas direcciones)", terreno: ["flat"], nivel: "pro" },
+          { name: "Kickback (half flip backward + 1.5 flip forward)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Calf Wrap (Flamingo / Figure Four — board envuelve la pierna)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Butter Flip (desde Heelside Railstand, pop + grab con mano)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Gingersnap (Hang Ten Flip — nollie hardflip desde nose)", terreno: ["flat"], nivel: "pro" },
+          { name: "Sal Flip (BS 180 + late shove-it inverso)", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      },
+      {
+        name: "Slides de suelo",
+        tricks: [
+          { name: "Primo Slide (deslizar sobre el canto del deck)", terreno: ["flat"], nivel: "avanzado" },
+          { name: "Coco Slide / Coco Wheelie (Primo Slide sobre ruedas, deck en aire)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Transfers de truck (desde Pogo / 50-50)",
+        tricks: [
+          { name: "Fan Flip (Pogo + fingerflip + aterrizaje en Pogo)", terreno: ["flat"], nivel: "pro" },
+          { name: "Carousel (half Impossible de 50-50 a switch 50-50)", terreno: ["flat"], nivel: "pro" },
+          { name: "Broken Fingers (Half Truckhook Impossible a 50-50)", terreno: ["flat"], nivel: "pro" },
+          { name: "San Francisco Flip (No-Handed 50-50 + Carousel crossfoot)", terreno: ["flat"], nivel: "pro" },
+        ]
+      },
+      {
+        name: "Miscelánea freestyle",
+        tricks: [
+          { name: "Daffy (dos tablas — pie en nose manual + pie en tail manual)", terreno: ["flat"], nivel: "avanzado" },
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "misc",
+    name: "Misc",
+    desc: "trucos sin familia mecánica propia — entorno, cuerpo y rodaje",
+    subfamilies: [
+      {
+        name: "Trucos de pared",
+        tricks: [
+          { name: "Wallride (Backside)", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Wallride (Frontside)", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Wallie (ollie usando la pared como rampa)", terreno: ["flat","ledge"], nivel: "intermedio" },
+        ]
+      },
+      {
+        name: "Trucos de obstáculo urbano",
+        tricks: [
+          { name: "Pole Jam (montar sobre un poste doblado)", terreno: ["flat"], nivel: "intermedio" },
+          { name: "Firecracker (bajar escaleras, tail golpea cada escalón)", terreno: ["flat"], nivel: "basico" },
+        ]
+      },
+      {
+        name: "Modificadores de cuerpo",
+        tricks: [
+          { name: "Body Varial (cuerpo 180°, tabla estática)", terreno: ["flat","ledge","quarter"], nivel: "basico" },
+          { name: "Revert (180° pivot con momentum tras aterrizar, sin pop)", terreno: ["flat","quarter"], nivel: "basico" },
+        ]
+      },
+      {
+        name: "Técnicas de rodaje",
+        tricks: [
+          { name: "Kickturn (FS)", terreno: ["flat","quarter"], nivel: "basico" },
+          { name: "Kickturn (BS)", terreno: ["flat","quarter"], nivel: "basico" },
+          { name: "Tic-Tac (kickturns alternados FS/BS para ganar impulso)", terreno: ["flat"], nivel: "basico" },
+          { name: "Powerslide (deslizar 4 ruedas lateralmente para frenar)", terreno: ["flat"], nivel: "basico" },
+          { name: "Roll In (entrar rodando a una rampa desde el deck)", terreno: ["quarter","bowl"], nivel: "basico" },
+        ]
+      },
+      {
+        name: "Posiciones de estilo",
+        tricks: [
+          { name: "Coffin (rodar tumbado boca arriba sobre la tabla)", terreno: ["flat"], nivel: "basico" },
+        ]
+      }
+    ]
+  }
+
+];
+
+
+// ── STORAGE ──
+const SK={
+  checks:()=>{try{return new Set(JSON.parse(localStorage.getItem('sk_checks')||'[]'));}catch{return new Set();}},
+  saveChecks:s=>localStorage.setItem('sk_checks',JSON.stringify([...s])),
+  routines:()=>{try{return JSON.parse(localStorage.getItem('sk_routines')||'[]');}catch{return[];}},
+  saveRoutines:r=>localStorage.setItem('sk_routines',JSON.stringify(r)),
+};
+let checked=SK.checks(),routines=SK.routines();
+let activeRid=null,modalTarget=null,modalSel=new Set(),currentSort='fecha-desc';
+let ddTrick=null,ddOpen=false,ctxTrick=null,cpTarget=null,cpCallback=null;
+
+// ── TOAST ──
+const toastEl=document.getElementById('toast');let toastT;
+function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),1500);}
+
+// ── TABS ──
+document.querySelectorAll('.app-tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.app-tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('view-'+t.dataset.tab).classList.add('active');
+}));
+
+// ── UTILS ──
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function tcount(r){let n=(r.general||[]).length;r.blocks.forEach(b=>n+=b.tricks.length);return n;}
+
+// ─────────────────────────────
+// ── COLOR PICKER ──
+// ─────────────────────────────
+const cpEl=document.getElementById('cpopup');
+const cpCanvas=document.getElementById('cpcanvas');
+const cpCtx=cpCanvas.getContext('2d');
+const cpPreview=document.getElementById('cppreview');
+const cpHex=document.getElementById('cphex');
+let cpCurrentColor='#ffffff';
+
+function drawColorWheel(){
+  const W=cpCanvas.width,H=cpCanvas.height;
+  // hue/saturation gradient (square)
+  for(let x=0;x<W;x++){
+    for(let y=0;y<H;y++){
+      const hue=x/W*360;
+      const sat=1-y/H;
+      const [r,g,b]=hslToRgb(hue,sat,0.5);
+      cpCtx.fillStyle=`rgb(${r},${g},${b})`;
+      cpCtx.fillRect(x,y,1,1);
+    }
+  }
+}
+
+function hslToRgb(h,s,l){
+  let r,g,b;
+  if(s===0){r=g=b=l;}else{
+    const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+    r=hue2rgb(p,q,(h/360+1/3));
+    g=hue2rgb(p,q,h/360);
+    b=hue2rgb(p,q,(h/360-1/3));
+  }
+  return[Math.round(r*255),Math.round(g*255),Math.round(b*255)];
+}
+function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+
+cpCanvas.addEventListener('click',e=>{
+  const rect=cpCanvas.getBoundingClientRect();
+  const x=Math.floor((e.clientX-rect.left)*(cpCanvas.width/rect.width));
+  const y=Math.floor((e.clientY-rect.top)*(cpCanvas.height/rect.height));
+  const d=cpCtx.getImageData(x,y,1,1).data;
+  const hex=rgbToHex(d[0],d[1],d[2]);
+  cpCurrentColor=hex;
+  cpPreview.style.background=hex;
+  cpHex.value=hex;
+});
+
+cpHex.addEventListener('input',e=>{
+  const v=e.target.value;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)){cpCurrentColor=v;cpPreview.style.background=v;}
+});
+
+document.getElementById('cpok').addEventListener('click',()=>{
+  if(cpCallback)cpCallback(cpCurrentColor);
+  cpEl.classList.remove('open');
+  cpTarget=null;cpCallback=null;
+});
+document.getElementById('cpnone').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(cpCallback)cpCallback('');
+  cpEl.classList.remove('open');
+  cpTarget=null;cpCallback=null;
+});
+
+function openColorPicker(anchorEl,currentColor,callback){
+  cpCurrentColor=currentColor||'#ffffff';
+  cpPreview.style.background=cpCurrentColor;
+  cpHex.value=cpCurrentColor;
+  cpCallback=callback;
+  drawColorWheel();
+  const rect=anchorEl.getBoundingClientRect();
+  let left=rect.left,top=rect.bottom+4;
+  if(left+220>window.innerWidth)left=window.innerWidth-225;
+  if(top+220>window.innerHeight)top=rect.top-225;
+  cpEl.style.left=left+'px';cpEl.style.top=top+'px';
+  cpEl.classList.add('open');
+}
+
+document.addEventListener('click',e=>{
+  if(cpEl.classList.contains('open')&&!cpEl.contains(e.target)){
+    cpEl.classList.remove('open');
+  }
+});
+
+// ─────────────────────────────
+// ── SCHEME ──
+// ─────────────────────────────
+const familiesEl=document.getElementById('families');
+let activeFilters={terreno:'',nivel:''};
+let searchQ='';
+
+DATA.forEach(family=>{
+  const sec=document.createElement('div');
+  sec.className='family';
+  sec.dataset.id=family.id;
+  const total=family.subfamilies.reduce((s,sf)=>s+sf.tricks.length,0);
+  const rows=family.subfamilies.map(sf=>`
+    <div class="subfamily">
+      <div class="sfname">${sf.name}</div>
+      <div class="tricks-grid">
+        ${sf.tricks.map(t=>{
+          const chk=checked.has(t.name);
+          return `<div class="trick" data-name="${t.name.toLowerCase()}" data-fullname="${t.name}" data-fam="${family.id}" data-terreno="${t.terreno.join(',')}" data-nivel="${t.nivel}">
+            <span class="tchk${chk?' done':''}"></span>
+            <span class="tname">${t.name}</span>
+            <button class="tadd" title="Añadir a rutina">+</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+
+  sec.innerHTML=`
+    <button class="fhdr" aria-expanded="false">
+      <span class="ticon">+</span>
+      <span class="fname">${family.name}</span>
+      <span class="fdesc">— ${family.desc}</span>
+      <span class="fcount">${total}</span>
+    </button>
+    <div class="fbody">${rows}</div>`;
+
+  const hdr=sec.querySelector('.fhdr'),body=sec.querySelector('.fbody'),icon=sec.querySelector('.ticon');
+  hdr.addEventListener('click',()=>{const o=body.classList.toggle('open');icon.textContent=o?'−':'+';hdr.setAttribute('aria-expanded',o);});
+
+  sec.querySelectorAll('.tchk').forEach(el=>{
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      const name=el.closest('.trick').dataset.fullname;
+      checked.has(name)?checked.delete(name):checked.add(name);
+      el.classList.toggle('done',checked.has(name));
+      SK.saveChecks(checked);
+    });
+  });
+
+  sec.querySelectorAll('.tname').forEach(el=>{
+    el.addEventListener('click',()=>{
+      navigator.clipboard.writeText(el.closest('.trick').dataset.fullname)
+        .then(()=>toast(el.closest('.trick').dataset.fullname));
+    });
+  });
+
+  sec.querySelectorAll('.tadd').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();closeCtx();closeDD();openDD(btn.closest('.trick').dataset.fullname,btn);});
+  });
+
+  // right-click context menu
+  sec.querySelectorAll('.trick').forEach(el=>{
+    el.addEventListener('contextmenu',e=>{
+      e.preventDefault();
+      ctxTrick=el.dataset.fullname;
+      const chk=checked.has(ctxTrick);
+      document.getElementById('ctx-check').textContent=chk?'desmarcar conseguido':'marcar conseguido';
+      const ctx=document.getElementById('ctx-menu');
+      let x=e.clientX,y=e.clientY;
+      if(x+200>window.innerWidth)x=window.innerWidth-205;
+      if(y+120>window.innerHeight)y=window.innerHeight-125;
+      ctx.style.left=x+'px';ctx.style.top=y+'px';
+      ctx.classList.add('open');
+    });
+  });
+
+  familiesEl.appendChild(sec);
+});
+
+// context menu actions
+document.getElementById('ctx-copy').addEventListener('click',()=>{
+  if(ctxTrick){navigator.clipboard.writeText(ctxTrick).then(()=>toast(ctxTrick));}
+  closeCtx();
+});
+document.getElementById('ctx-check').addEventListener('click',()=>{
+  if(ctxTrick){
+    checked.has(ctxTrick)?checked.delete(ctxTrick):checked.add(ctxTrick);
+    SK.saveChecks(checked);
+    document.querySelectorAll(`.trick[data-fullname="${ctxTrick}"] .tchk`).forEach(el=>{
+      el.classList.toggle('done',checked.has(ctxTrick));
+    });
+    toast(checked.has(ctxTrick)?'Marcado conseguido':'Desmarcado');
+  }
+  closeCtx();
+});
+document.getElementById('ctx-add').addEventListener('click',()=>{
+  if(ctxTrick){
+    const name=ctxTrick;
+    closeCtx();
+    // use ctx menu position as anchor via a temp element
+    const btn=document.querySelector(`.trick[data-fullname="${CSS.escape(name)}"] .tadd`);
+    if(btn){openDD(name,btn);}
+    else{
+      // fallback: open dd at center screen
+      ddTrick=name;
+      ddEl.style.left='50%';ddEl.style.top='50%';
+      ddEl.style.transform='translate(-50%,-50%)';
+      renderDD();ddEl.classList.add('open');ddOpen=true;
+    }
+  }
+});
+function closeCtx(){document.getElementById('ctx-menu').classList.remove('open');ctxTrick=null;}
+document.addEventListener('click',e=>{if(!document.getElementById('ctx-menu').contains(e.target))closeCtx();});
+
+// filters
+// ── FILTER DROPDOWNS ──
+let openFdd=null;
+
+function positionFdd(menuEl, btnEl){
+  const r=btnEl.getBoundingClientRect();
+  let left=r.left, top=r.bottom+3;
+  if(left+menuEl.offsetWidth>window.innerWidth) left=window.innerWidth-menuEl.offsetWidth-4;
+  menuEl.style.left=left+'px'; menuEl.style.top=top+'px';
+}
+
+function openFddMenu(menuId, btnEl){
+  if(openFdd===menuId){ closeFdd(); return; }
+  closeFdd();
+  openFdd=menuId;
+  const menu=document.getElementById(menuId);
+  menu.classList.add('open');
+  positionFdd(menu, btnEl);
+}
+
+function closeFdd(){
+  if(openFdd){ document.getElementById(openFdd)?.classList.remove('open'); openFdd=null; }
+}
+
+// terreno dropdown
+document.getElementById('fdd-terreno-btn').addEventListener('click',function(e){
+  e.stopPropagation(); openFddMenu('fdd-terreno-menu',this);
+});
+// nivel dropdown
+document.getElementById('fdd-nivel-btn').addEventListener('click',function(e){
+  e.stopPropagation(); openFddMenu('fdd-nivel-menu',this);
+});
+// sort dropdown
+document.getElementById('fdd-sort-btn').addEventListener('click',function(e){
+  e.stopPropagation(); openFddMenu('fdd-sort-menu',this);
+});
+
+// filter items
+document.querySelectorAll('.fdd-item[data-filter]').forEach(item=>{
+  item.addEventListener('click',e=>{
+    e.stopPropagation();
+    const ft=item.dataset.filter, val=item.dataset.value;
+    activeFilters[ft]=val;
+    // update radios
+    document.querySelectorAll(`.fdd-item[data-filter="${ft}"] .fdd-radio`).forEach(r=>r.classList.remove('checked'));
+    item.querySelector('.fdd-radio').classList.add('checked');
+    // update button label
+    const btn=document.getElementById(`fdd-${ft}-btn`);
+    const label=val||'todos';
+    btn.innerHTML=`${ft} ${val?'<b>'+label+'</b>':label} <span class="fdd-arrow">▾</span>`;
+    btn.classList.toggle('active', !!val);
+    applyFilters();
+    closeFdd();
+  });
+});
+
+// sort items
+const sortLabels={'fecha-desc':'reciente','fecha-asc':'antigua','nombre':'nombre A-Z','trucos':'más trucos'};
+document.querySelectorAll('.fdd-item[data-sort]').forEach(item=>{
+  item.addEventListener('click',e=>{
+    e.stopPropagation();
+    const sort=item.dataset.sort;
+    currentSort=sort;
+    document.querySelectorAll('.fdd-item[data-sort] .fdd-radio').forEach(r=>r.classList.remove('checked'));
+    item.querySelector('.fdd-radio').classList.add('checked');
+    const btn=document.getElementById('fdd-sort-btn');
+    btn.innerHTML=`${sortLabels[sort]} <span class="fdd-arrow">▾</span>`;
+    renderRoutineList();
+    closeFdd();
+  });
+});
+
+document.addEventListener('click',()=>closeFdd());
+
+document.getElementById('search').addEventListener('input',e=>{searchQ=e.target.value.toLowerCase().trim();applyFilters();});
+document.getElementById('collapse-all').addEventListener('click',()=>{
+  document.querySelectorAll('.fbody.open').forEach(b=>{b.classList.remove('open');b.closest('.family').querySelector('.ticon').textContent='+';});
+});
+
+function applyFilters(){
+  let vis=0;
+  document.querySelectorAll('.family').forEach(fEl=>{
+    let fv=0;
+    fEl.querySelectorAll('.trick').forEach(t=>{
+      const ok=(!searchQ||t.dataset.name.includes(searchQ))
+        &&(!activeFilters.terreno||t.dataset.terreno.split(',').includes(activeFilters.terreno))
+        &&(!activeFilters.nivel||t.dataset.nivel===activeFilters.nivel);
+      t.classList.toggle('hidden',!ok);if(ok)fv++;
+    });
+    fEl.querySelectorAll('.subfamily').forEach(sf=>{sf.style.display=sf.querySelectorAll('.trick:not(.hidden)').length?'':'none';});
+    if(searchQ&&fv>0){fEl.querySelector('.fbody').classList.add('open');fEl.querySelector('.ticon').textContent='−';}
+    const noF=!searchQ&&!activeFilters.terreno&&!activeFilters.nivel;
+    fEl.querySelector('.fcount').textContent=noF?fEl.querySelectorAll('.trick').length:fv;
+    fEl.style.display=fv?'':'none';vis+=fv;
+  });
+  const total=document.querySelectorAll('.trick').length;
+  const noF=!searchQ&&!activeFilters.terreno&&!activeFilters.nivel;
+  document.getElementById('stats').textContent=noF?`${total} trucos · ${DATA.length} familias`:`${vis} / ${total}`;
+  document.getElementById('empty').style.display=vis?'none':'block';
+}
+
+// ─────────────────────────────
+// ── DROPDOWN ──
+// ─────────────────────────────
+const ddEl=document.getElementById('ddmenu');
+const ddScroll=document.getElementById('ddscroll');
+
+function openDD(trickName,anchor){
+  ddTrick=trickName;
+  const rect=anchor.getBoundingClientRect();
+  let left=rect.left,top=rect.bottom+4;
+  if(left+215>window.innerWidth)left=window.innerWidth-220;
+  if(top+290>window.innerHeight)top=rect.top-290;
+  ddEl.style.left=left+'px';ddEl.style.top=top+'px';
+  renderDD();ddEl.classList.add('open');ddOpen=true;
+}
+function closeDD(){ddEl.classList.remove('open');ddOpen=false;ddTrick=null;
+  document.querySelectorAll('.ddblocks.open').forEach(x=>x.classList.remove('open'));}
+
+function renderDD(){
+  ddScroll.innerHTML='';
+  if(!routines.length){
+    ddScroll.innerHTML='<div class="dd-empty">ninguna rutina todavía<br><span style="font-size:10px">ve a Entrenamiento</span></div>';return;
+  }
+  routines.forEach(r=>{
+    const div=document.createElement('div');div.className='ddroutine';
+    div.innerHTML=`<div class="ddr-name">${r.name||'Sin nombre'}</div>
+      <div class="ddr-meta">${tcount(r)} trucos</div>
+      <div class="ddblocks" id="ddb-${r.id}">
+        ${r.blocks.map(b=>`<div class="ddblock" data-rid="${r.id}" data-bid="${b.id}">${b.name||'(bloque sin nombre)'} <span style="font-size:10px;color:var(--muted)">${b.tricks.length}</span></div>`).join('')}
+        <div class="dd-newblock" data-rid="${r.id}">+ nuevo bloque</div>
+      </div>`;
+
+    div.querySelector('.ddr-name').addEventListener('click',()=>document.getElementById('ddb-'+r.id).classList.toggle('open'));
+    div.querySelector('.ddr-meta').addEventListener('click',()=>document.getElementById('ddb-'+r.id).classList.toggle('open'));
+
+    // add to block
+    div.querySelectorAll('.ddblock').forEach(bEl=>{
+      bEl.addEventListener('click',e=>{
+        e.stopPropagation();
+        const rt=routines.find(x=>x.id===bEl.dataset.rid);
+        const blk=rt?.blocks.find(b=>b.id===bEl.dataset.bid);
+        if(!blk)return;
+        if(!blk.tricks.includes(ddTrick)){blk.tricks.push(ddTrick);SK.saveRoutines(routines);toast(`Añadido a ${rt.name} › ${blk.name||'bloque'}`);}
+        else toast('Ya está en ese bloque');
+        if(activeRid===r.id){renderDetail();updateBreakdown();}
+        closeDD();
+      });
+    });
+
+    // new block - ask for name inline
+    div.querySelector('.dd-newblock').addEventListener('click',e=>{
+      e.stopPropagation();
+      const rt=routines.find(x=>x.id===r.id);
+      // replace the dd-newblock with an inline input
+      const nb=div.querySelector('.dd-newblock');
+      const inp=document.createElement('input');
+      inp.type='text';inp.placeholder='nombre del bloque...';
+      inp.style.cssText='width:calc(100% - 20px);margin:4px 10px;padding:3px 4px;font-family:inherit;font-size:11px;background:none;border:none;border-bottom:1px solid var(--border);outline:none;color:var(--fg);display:block;';
+      nb.replaceWith(inp);
+      inp.focus();
+      const confirm=(name)=>{
+        const blk={id:uid(),name:name.trim(),tricks:[ddTrick]};
+        rt.blocks.push(blk);SK.saveRoutines(routines);
+        toast(`Bloque "${blk.name||'nuevo'}" añadido a ${rt.name||'rutina'}`);
+        if(activeRid===r.id){renderDetail();updateBreakdown();}
+        closeDD();
+      };
+      inp.addEventListener('keydown',e2=>{
+        if(e2.key==='Enter'){e2.preventDefault();confirm(inp.value);}
+        if(e2.key==='Escape'){closeDD();}
+      });
+      inp.addEventListener('blur',()=>{if(inp.value.trim())confirm(inp.value);else closeDD();});
+    });
+
+    ddScroll.appendChild(div);
+  });
+}
+
+document.addEventListener('click',e=>{if(ddOpen&&!ddEl.contains(e.target))closeDD();});
+
+// ─────────────────────────────
+// ── TRAINING ──
+// ─────────────────────────────
+
+
+function sortedR(){
+  const a=[...routines];
+  if(currentSort==='fecha-desc')return a.sort((x,y)=>new Date(y.created)-new Date(x.created));
+  if(currentSort==='fecha-asc')return a.sort((x,y)=>new Date(x.created)-new Date(y.created));
+  if(currentSort==='nombre')return a.sort((x,y)=>(x.name||'').localeCompare(y.name||''));
+  if(currentSort==='trucos')return a.sort((x,y)=>tcount(y)-tcount(x));
+  return a;
+}
+
+function renderRoutineList(){
+  const el=document.getElementById('rlist');el.innerHTML='';
+  const sorted=sortedR();
+  if(!sorted.length){el.innerHTML='<div style="padding:12px 6px;font-size:11px;color:var(--muted);text-align:center;">ninguna todavía</div>';return;}
+  sorted.forEach(r=>{
+    const d=document.createElement('div');
+    d.className='ritem'+(r.id===activeRid?' active':'');
+    d.innerHTML=`<div class="ritem-dot" style="background:${r.color||'transparent'}"></div>
+      <div class="ritem-info">
+        <div class="ritem-name">${r.name||'Sin nombre'}</div>
+        <div class="ritem-meta">${tcount(r)} trucos · ${fmtDate(r.created)}</div>
+      </div>`;
+    d.addEventListener('click',()=>{activeRid=r.id;renderRoutineList();renderDetail();});
+    el.appendChild(d);
+  });
+}
+
+document.getElementById('btn-new').addEventListener('click',()=>{
+  const r={id:uid(),name:'',created:new Date().toISOString(),color:'',general:[],blocks:[{id:uid(),name:'',tricks:[]}]};
+  routines.unshift(r);SK.saveRoutines(routines);activeRid=r.id;
+  renderRoutineList();renderDetail();
+  setTimeout(()=>document.getElementById('dtitle').focus(),50);
+});
+
+document.getElementById('dtitle').addEventListener('input',e=>{
+  const r=routines.find(x=>x.id===activeRid);
+  if(r){r.name=e.target.value;SK.saveRoutines(routines);renderRoutineList();}
+});
+
+document.getElementById('btn-del').addEventListener('click',()=>{
+  if(!confirm('¿Borrar esta rutina?'))return;
+  routines=routines.filter(x=>x.id!==activeRid);activeRid=null;
+  SK.saveRoutines(routines);renderRoutineList();renderDetail();
+});
+
+document.getElementById('btn-add-blk').addEventListener('click',()=>{
+  const r=routines.find(x=>x.id===activeRid);if(!r)return;
+  r.blocks.push({id:uid(),name:'',tricks:[]});SK.saveRoutines(routines);renderDetail();
+});
+
+// routine color picker
+document.getElementById('routine-color-btn').addEventListener('click',function(e){
+  e.stopPropagation();
+  const r=routines.find(x=>x.id===activeRid);if(!r)return;
+  cpTarget=this;
+  openColorPicker(this,r.color||'#ffffff',color=>{
+    r.color=color;SK.saveRoutines(routines);
+    document.getElementById('routine-color-btn').style.background=color||'transparent';
+    renderRoutineList();
+  });
+});
+
+function renderDetail(){
+  const empty=document.getElementById('detail-empty');
+  const content=document.getElementById('detail-content');
+  const r=routines.find(x=>x.id===activeRid);
+  if(!r){empty.style.display='flex';content.style.display='none';return;}
+  empty.style.display='none';content.style.display='flex';
+  document.getElementById('dtitle').value=r.name||'';
+  document.getElementById('dmeta').textContent=fmtDate(r.created);
+  document.getElementById('routine-color-btn').style.background=r.color||'transparent';
+  renderBlocks(r);updateBreakdown();
+}
+
+function renderBlocks(r){
+  const area=document.getElementById('blocks-area');area.innerHTML='';
+
+  // general zone
+  if((r.general||[]).length>0||(r.blocks.length===0)){
+    const gz=document.createElement('div');gz.className='general-zone';
+    gz.innerHTML=`<div class="gz-hdr">
+      <span class="gz-label">general</span>
+      <button class="bsm" id="gz-add" style="padding:2px 7px;font-size:10px;">+ añadir trucos</button>
+    </div>
+    <div class="blk-tricks gz-tricks">
+      ${(r.general||[]).map((name,i)=>`
+        <div class="btrick">
+          <span class="bchk"></span>
+          <span class="btrick-name">${name}</span>
+          <button class="btrm" data-gi="${i}">×</button>
+        </div>`).join('')}
+    </div>`;
+    gz.querySelector('#gz-add').addEventListener('click',()=>openModal(activeRid,null));
+    gz.querySelectorAll('.btrick-name').forEach(el=>{
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>{
+        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
+      });
+    });
+    gz.querySelectorAll('.bchk').forEach(chk=>{
+      chk.addEventListener('click',()=>chk.classList.toggle('done'));
+    });
+    gz.querySelectorAll('.btrm').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=parseInt(btn.dataset.gi);
+        r.general.splice(i,1);SK.saveRoutines(routines);renderDetail();updateBreakdown();
+      });
+    });
+    area.appendChild(gz);
+  }
+
+  // blocks
+  r.blocks.forEach(block=>{
+    const bdiv=document.createElement('div');bdiv.className='block';
+    if(block.color)bdiv.style.setProperty('--blk-c-bg',hexToRgba(block.color,0.15));
+    bdiv.innerHTML=`<div class="blk-hdr">
+      <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
+      <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
+      <button class="blk-rm">×</button>
+    </div>
+    <div class="blk-tricks">
+      ${block.tricks.map((name,i)=>`
+        <div class="btrick">
+          <span class="bchk"></span>
+          <span class="btrick-name">${name}</span>
+          <button class="btrm" data-i="${i}">×</button>
+        </div>`).join('')}
+      <button class="blk-add">+ añadir trucos</button>
+    </div>`;
+
+    bdiv.querySelector('.blk-color').addEventListener('click',function(e){
+      e.stopPropagation();
+      openColorPicker(this,block.color||'#ffffff',color=>{
+        block.color=color;SK.saveRoutines(routines);
+        bdiv.querySelector('.blk-color').style.background=color||'transparent';
+        if(color){bdiv.style.setProperty('--blk-c-bg',hexToRgba(color,0.15));}
+        else{bdiv.style.removeProperty('--blk-c-bg');}
+      });
+    });
+    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;SK.saveRoutines(routines);});
+    bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
+      r.blocks=r.blocks.filter(b=>b.id!==block.id);SK.saveRoutines(routines);renderDetail();
+    });
+    bdiv.querySelectorAll('.bchk').forEach(chk=>{
+      chk.addEventListener('click',()=>chk.classList.toggle('done'));
+    });
+    bdiv.querySelectorAll('.btrm').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
+        SK.saveRoutines(routines);renderDetail();updateBreakdown();
+      });
+    });
+    bdiv.querySelectorAll('.btrick-name').forEach(el=>{
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>{
+        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
+      });
+    });
+    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(activeRid,block.id));
+    area.appendChild(bdiv);
+  });
+}
+
+function updateBreakdown(){
+  const r=routines.find(x=>x.id===activeRid);
+  const el=document.getElementById('bdtags');
+  if(!r){el.textContent='—';return;}
+  const counts={};
+  const allTricks=[...(r.general||[]),...r.blocks.flatMap(b=>b.tricks)];
+  allTricks.forEach(tname=>{
+    for(const fam of DATA){for(const sf of fam.subfamilies){
+      if(sf.tricks.some(t=>t.name===tname)){counts[fam.name]=(counts[fam.name]||0)+1;return;}
+    }}
+  });
+  const total=Object.values(counts).reduce((s,n)=>s+n,0);
+  if(!total){el.textContent='—';return;}
+  el.innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1])
+    .map(([name,n])=>`<span class="bdtag">${name} ${Math.round(n/total*100)}%</span>`).join(' ');
+}
+
+// ─────────────────────────────
+// ── MODAL ──
+// ─────────────────────────────
+function openModal(rid,bid){
+  modalTarget={rid,bid};modalSel.clear();
+  const r=routines.find(x=>x.id===rid);
+  const b=bid?r?.blocks.find(b=>b.id===bid):null;
+  document.getElementById('mtitle').textContent=bid?`Añadir trucos › ${b?.name||'bloque'}`:'Añadir trucos › general';
+  document.getElementById('msearch').value='';
+  renderModal('');
+  document.getElementById('modal-ov').classList.add('open');
+  setTimeout(()=>document.getElementById('msearch').focus(),50);
+}
+
+function renderModal(q){
+  const r=routines.find(x=>x.id===modalTarget?.rid);
+  const b=modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null;
+  const inTarget=new Set(b?b.tricks:(r?.general||[]));
+  const body=document.getElementById('mbody');body.innerHTML='';
+  DATA.forEach(family=>{
+    const sfs=family.subfamilies.map(sf=>({...sf,tricks:sf.tricks.filter(t=>!q||t.name.toLowerCase().includes(q))})).filter(sf=>sf.tricks.length);
+    if(!sfs.length)return;
+    const fdiv=document.createElement('div');fdiv.className='mfam';
+    const cnt=sfs.reduce((s,sf)=>s+sf.tricks.length,0);
+    fdiv.innerHTML=`<button class="mfhdr"><span class="mftog">${q?'−':'+'}</span><span class="mfname">${family.name}</span><span class="mfcnt">${cnt}</span></button>
+      <div class="mfbody${q?' open':''}">
+        ${sfs.map(sf=>`<div class="msfname">${sf.name}</div>
+          ${sf.tricks.map(t=>{
+            const al=inTarget.has(t.name),sel=modalSel.has(t.name);
+            return `<div class="mtrick${al?' already':''}" data-name="${t.name}">
+              <span class="mchk${sel?' sel':''}"></span><span>${t.name}</span>
+              ${al?'<span style="font-size:10px;color:var(--muted);margin-left:auto">✓</span>':''}
+            </div>`;
+          }).join('')}`).join('')}
+      </div>`;
+    const mfh=fdiv.querySelector('.mfhdr'),mfb=fdiv.querySelector('.mfbody'),mft=fdiv.querySelector('.mftog');
+    mfh.addEventListener('click',()=>{const o=mfb.classList.toggle('open');mft.textContent=o?'−':'+';});
+    fdiv.querySelectorAll('.mtrick:not(.already)').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const name=el.dataset.name;
+        if(modalSel.has(name)){
+          modalSel.delete(name);
+          el.querySelector('.mchk').classList.remove('sel');
+        } else {
+          modalSel.add(name);
+          el.querySelector('.mchk').classList.add('sel');
+        }
+        document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
+      });
+    });
+    body.appendChild(fdiv);
+  });
+  document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
+}
+
+document.getElementById('msearch').addEventListener('input',e=>renderModal(e.target.value.toLowerCase().trim()));
+document.getElementById('mclose').addEventListener('click',()=>document.getElementById('modal-ov').classList.remove('open'));
+document.getElementById('mcollapseall').addEventListener('click',()=>{
+  document.querySelectorAll('.mfbody.open').forEach(b=>{
+    b.classList.remove('open');
+    b.closest('.mfam').querySelector('.mftog').textContent='+';
+  });
+});
+document.getElementById('modal-ov').addEventListener('click',e=>{if(e.target===document.getElementById('modal-ov'))document.getElementById('modal-ov').classList.remove('open');});
+document.getElementById('mconfirm').addEventListener('click',()=>{
+  const r=routines.find(x=>x.id===modalTarget?.rid);
+  if(!r)return;
+  let added=0;
+  if(modalTarget.bid){
+    const b=r.blocks.find(b=>b.id===modalTarget.bid);
+    if(b)modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
+  }else{
+    if(!r.general)r.general=[];
+    modalSel.forEach(name=>{if(!r.general.includes(name)){r.general.push(name);added++;}});
+  }
+  SK.saveRoutines(routines);
+  document.getElementById('modal-ov').classList.remove('open');
+  renderDetail();updateBreakdown();
+  if(added)toast(`${added} trucos añadidos`);
+});
+
+// ── INIT ──
+applyFilters();renderRoutineList();renderDetail();
+
+</script>
+</body>
+</html>
