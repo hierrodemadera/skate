@@ -9,6 +9,14 @@
 :root{
   --bg:#d9d9d9;--fg:#111;--muted:#888;--border:#bbb;
   --win:#f5f5f5;--shadow:0 2px 10px rgba(0,0,0,0.14);--hover:rgba(0,0,0,0.05);
+  --c-family:#1501fe;
+  --c-subfamily:#fe0110;
+}
+:root.dark{
+  --bg:#1a1a1a;--fg:#e8e8e8;--muted:#666;--border:#333;
+  --win:#242424;--shadow:0 2px 10px rgba(0,0,0,0.5);--hover:rgba(255,255,255,0.05);
+  --c-family:#4fc1e9;
+  --c-subfamily:#fe0110;
 }
 body{font-family:'Courier New',Courier,monospace;background:var(--bg);color:var(--fg);
   font-size:13px;line-height:1.5;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
@@ -63,13 +71,13 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   user-select:none;background:none;border:none;width:100%;text-align:left;font-family:inherit;}
 .fhdr:hover .fname{opacity:0.6;}
 .ticon{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
-.fname{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.fname{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);}
 .fdesc{font-size:11px;color:var(--muted);}
 .fcount{margin-left:auto;font-size:11px;color:var(--muted);flex-shrink:0;}
 .fbody{display:none;padding-bottom:14px;}
 .fbody.open{display:block;}
 .sfname{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--muted);margin:8px 0 4px 18px;}
+  color:var(--c-subfamily);margin:8px 0 4px 18px;}
 .tricks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));padding-left:18px;}
 .trick{display:flex;align-items:center;gap:5px;padding:3px 4px 3px 0;
   border-radius:2px;transition:background 0.1s;position:relative;}
@@ -81,6 +89,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
   transform:rotate(-45deg) translate(1px,-1px);}
 .tname{font-size:12px;flex:1;cursor:pointer;user-select:none;}
+.tanno{color:var(--muted);font-size:11px;}
 .tadd{width:16px;height:16px;flex-shrink:0;background:none;border:none;cursor:pointer;
   font-size:14px;line-height:1;color:var(--muted);padding:0;font-family:inherit;
   opacity:0;transition:opacity 0.1s;}
@@ -146,15 +155,19 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 /* TRAINING */
 #panel-routines{width:230px;flex-shrink:0;}
 #panel-detail{flex:1;min-width:0;}
-.sort-bar{padding:6px 10px;border-bottom:1px solid var(--border);
-  display:flex;gap:5px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+
 
 
 .rlist{overflow-y:auto;flex:1;padding:6px;}
 .ritem{padding:7px 8px;border:1px solid transparent;border-radius:2px;cursor:pointer;margin-bottom:3px;
-  display:flex;align-items:center;gap:8px;}
+  display:flex;align-items:center;gap:8px;user-select:none;}
 .ritem:hover{background:var(--hover);}
 .ritem.active{border-color:var(--border);background:rgba(0,0,0,0.04);}
+.ritem.selected{background:rgba(0,0,0,0.08);border-color:var(--border);}
+.ritem.dragging{opacity:0.4;}
+.ritem.drag-over{border-top:2px solid var(--fg);}
+.drag-handle{color:var(--muted);font-size:11px;cursor:grab;flex-shrink:0;opacity:0;transition:opacity 0.1s;line-height:1;}
+.ritem:hover .drag-handle{opacity:1;}
 .ritem-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid var(--border);}
 .ritem-info{flex:1;min-width:0;}
 .ritem-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -180,6 +193,21 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .bsm:hover{border-color:var(--fg);color:var(--fg);}
 .bsm.danger:hover{border-color:#b00;color:#b00;}
 
+/* BLOCK NOTE */
+.blk-note-toggle{background:none;border:none;font-family:inherit;font-size:10px;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--blk-fg,var(--muted));cursor:pointer;
+  padding:4px 10px;display:flex;align-items:center;gap:5px;width:100%;opacity:0.7;}
+.blk-note-toggle:hover{color:var(--fg);}
+.blk-note-toggle .note-dot{width:5px;height:5px;border-radius:50%;background:var(--c-family);flex-shrink:0;display:none;}
+.blk-note-toggle .note-dot.has-note{display:block;}
+.blk-note-area{display:none;padding:0 10px 8px;}
+.blk-note-area.open{display:block;}
+.blk-note-input{width:100%;background:rgba(0,0,0,0.03);border:1px solid var(--border);
+  border-radius:2px;font-family:inherit;font-size:12px;color:var(--fg);
+  padding:6px 8px;resize:vertical;min-height:60px;outline:none;line-height:1.5;}
+.blk-note-input:focus{border-color:var(--muted);}
+.blk-note-input::placeholder{color:var(--muted);}
+
 /* BLOCKS AREA */
 .blocks-area{padding:10px 14px;overflow-y:auto;flex:1;}
 
@@ -197,8 +225,8 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .blk-color{width:12px;height:12px;border-radius:50%;border:1px solid var(--border);cursor:pointer;flex-shrink:0;background:#fff;}
 .blk-color:hover{border-color:var(--fg);}
 .blk-name{background:none;border:none;font-family:inherit;font-size:11px;font-weight:700;
-  letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);outline:none;flex:1;}
-.blk-name::placeholder{color:#bbb;font-weight:400;text-transform:none;}
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--blk-fg,var(--fg));outline:none;flex:1;}
+.blk-name::placeholder{color:var(--muted);font-weight:400;text-transform:none;}
 .blk-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;padding:0;}
 .blk-rm:hover{color:#b00;}
 .blk-tricks{padding:4px 10px;min-height:24px;}
@@ -211,13 +239,13 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .bchk.done::after{content:'';display:block;width:6px;height:4px;
   border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
   transform:rotate(-45deg) translate(1px,-1px);}
-.btrick-name{flex:1;}
+.btrick-name{flex:1;color:var(--blk-fg,var(--fg));}
 .btrm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;
   padding:0;opacity:0;transition:opacity 0.1s;}
 .btrick:hover .btrm{opacity:1;}
 .btrm:hover{color:#b00;}
 .blk-add{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;
-  text-transform:uppercase;color:var(--muted);cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;}
+  text-transform:uppercase;color:var(--blk-fg,var(--muted));cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;opacity:0.7;}
 .blk-add:hover{color:var(--fg);}
 .add-blk-btn{background:none;border:1px dashed var(--border);font-family:inherit;font-size:10px;
   letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;
@@ -237,7 +265,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .cpopup-preview{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;}
 .cpopup-hex{background:none;border:none;border-bottom:1px solid var(--border);
   font-family:inherit;font-size:12px;padding:2px 0;outline:none;flex:1;color:var(--fg);min-width:0;}
-.cpopup-ok{background:var(--fg);color:#fff;border:none;font-family:inherit;
+.cpopup-ok{background:var(--fg);color:var(--bg);border:none;font-family:inherit;
   font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 8px;cursor:pointer;flex-shrink:0;}
 
 /* MODAL */
@@ -261,7 +289,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   user-select:none;background:none;border:none;width:100%;text-align:left;font-family:inherit;}
 .mfhdr:hover .mfname{opacity:0.6;}
 .mftog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
-.mfname{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.mfname{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);}
 .mfcnt{margin-left:auto;font-size:10px;color:var(--muted);}
 .mfbody{display:none;padding-bottom:8px;}
 .mfbody.open{display:block;}
@@ -284,7 +312,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 /* TOAST */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(8px);
-  background:var(--fg);color:#fff;font-size:11px;letter-spacing:0.08em;
+  background:var(--fg);color:var(--bg);font-size:11px;letter-spacing:0.08em;
   padding:6px 16px;opacity:0;transition:all 0.18s;pointer-events:none;font-family:inherit;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -294,7 +322,10 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <body>
 
 <div class="topbar">
-  <div class="topbar-row"><h1>SKATE</h1></div>
+  <div class="topbar-row">
+    <h1>SKATE</h1>
+    <button id="theme-toggle" title="Cambiar tema" style="margin-left:auto;background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">☀ día</button>
+  </div>
   <div class="app-tabs">
     <button class="app-tab active" data-tab="esquema">Esquema</button>
     <button class="app-tab" data-tab="entrenamiento">Entrenamiento</button>
@@ -309,6 +340,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     <button class="fdd-btn" id="fdd-terreno-btn">terreno <span class="fdd-arrow">▾</span></button>
     <button class="fdd-btn" id="fdd-nivel-btn">nivel <span class="fdd-arrow">▾</span></button>
     <button id="collapse-all">[ cerrar todo ]</button>
+    <button class="fdd-btn" id="conseguidos-btn">conseguidos <span id="conseguidos-count">0</span> <span class="fdd-arrow">▾</span></button>
   </div>
   <div class="window" id="win-scheme" style="border-radius:0 3px 3px 3px;">
     <div class="win-content">
@@ -322,10 +354,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
   <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;">
-    <div class="win-tb">Rutinas</div>
-    <div class="sort-bar">
-      <button class="fdd-btn" id="fdd-sort-btn">reciente <span class="fdd-arrow">▾</span></button>
-    </div>
+    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button></div>
     <button class="rnew" id="btn-new">+ nueva rutina</button>
     <div class="rlist" id="rlist"></div>
   </div>
@@ -364,9 +393,27 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     <div class="mbody" id="mbody"></div>
     <div class="mfooter">
       <span class="mselcnt" id="mselcnt"></span>
-      <button class="bsm" id="mconfirm" style="background:var(--fg);color:#fff;border-color:var(--fg);">añadir</button>
+      <button class="bsm" id="mconfirm" style="background:var(--fg);color:var(--bg);border-color:var(--fg);">añadir</button>
     </div>
   </div>
+</div>
+
+<!-- CONSEGUIDOS DROPDOWN -->
+<div class="fdd-menu" id="conseguidos-menu" style="min-width:260px;max-height:380px;">
+  <div class="fdd-section" style="display:flex;align-items:center;gap:8px;">
+    <span>Conseguidos</span>
+    <button id="conseguidos-clear" style="margin-left:auto;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;">[ limpiar todo ]</button>
+  </div>
+  <div class="fdd-sep"></div>
+  <div id="conseguidos-list" style="overflow-y:auto;max-height:320px;padding:4px 0;"></div>
+</div>
+
+<!-- ROUTINE CONTEXT MENU -->
+<div class="ctx-menu" id="rctx-menu">
+  <div class="ctx-item" id="rctx-duplicate">duplicar</div>
+  <div class="ctx-item" id="rctx-color">cambiar color</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" id="rctx-delete">borrar</div>
 </div>
 
 <!-- FILTER DROPDOWN MENUS -->
@@ -1081,20 +1128,20 @@ const DATA = [
       {
         name: "Stalls básicos",
         tricks: [
-          { name: "Axle Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
-          { name: "Axle Stall (FS)", terreno: ["quarter","bowl"], nivel: "basico" },
-          { name: "Pivot Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
-          { name: "Pivot Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Tail Stall (BS)", terreno: ["quarter","bowl"], nivel: "basico" },
-          { name: "Tail Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Nose Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Nose Stall (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Nose Pick (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Nose Pick (FS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Blunt to Fakie (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Blunt to Fakie (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Nose Blunt Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Nose Blunt Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Axle Stall", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Axle Stall", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Backside Pivot Stall", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Pivot Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Tail Stall", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Tail Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Nose Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Nose Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Nose Pick", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Nose Pick", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Blunt to Fakie", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Blunt to Fakie", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Nose Blunt Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Nose Blunt Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
           { name: "Dark Stall", terreno: ["quarter","bowl"], nivel: "pro" },
           { name: "Crailtap (tail stall + crail grab)", terreno: ["quarter","bowl"], nivel: "avanzado" },
           { name: "Tailtap (tail toca coping, front truck en aire)", terreno: ["quarter","bowl"], nivel: "avanzado" },
@@ -1104,15 +1151,15 @@ const DATA = [
       {
         name: "Stalls de grind",
         tricks: [
-          { name: "Smith Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Smith Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Feeble Stall (BS)", terreno: ["quarter","bowl"], nivel: "intermedio" },
-          { name: "Feeble Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Hurricane Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Hurricane Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Smith Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Smith Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Feeble Stall", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Feeble Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Hurricane Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Hurricane Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
           { name: "Sugarcane Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Crooked Stall (BS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
-          { name: "Crooked Stall (FS)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Backside Crooked Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Frontside Crooked Stall", terreno: ["quarter","bowl"], nivel: "avanzado" },
         ]
       },
       {
@@ -1305,8 +1352,8 @@ const DATA = [
       {
         name: "Trucos de pared",
         tricks: [
-          { name: "Wallride (Backside)", terreno: ["flat","ledge"], nivel: "intermedio" },
-          { name: "Wallride (Frontside)", terreno: ["flat","ledge"], nivel: "avanzado" },
+          { name: "Backside Wallride", terreno: ["flat","ledge"], nivel: "intermedio" },
+          { name: "Frontside Wallride", terreno: ["flat","ledge"], nivel: "avanzado" },
           { name: "Wallie (ollie usando la pared como rampa)", terreno: ["flat","ledge"], nivel: "intermedio" },
         ]
       },
@@ -1327,8 +1374,8 @@ const DATA = [
       {
         name: "Técnicas de rodaje",
         tricks: [
-          { name: "Kickturn (FS)", terreno: ["flat","quarter"], nivel: "basico" },
-          { name: "Kickturn (BS)", terreno: ["flat","quarter"], nivel: "basico" },
+          { name: "Frontside Kickturn", terreno: ["flat","quarter"], nivel: "basico" },
+          { name: "Backside Kickturn", terreno: ["flat","quarter"], nivel: "basico" },
           { name: "Tic-Tac (kickturns alternados FS/BS para ganar impulso)", terreno: ["flat"], nivel: "basico" },
           { name: "Powerslide (deslizar 4 ruedas lateralmente para frenar)", terreno: ["flat"], nivel: "basico" },
           { name: "Roll In (entrar rodando a una rampa desde el deck)", terreno: ["quarter","bowl"], nivel: "basico" },
@@ -1338,6 +1385,26 @@ const DATA = [
         name: "Posiciones de estilo",
         tricks: [
           { name: "Coffin (rodar tumbado boca arriba sobre la tabla)", terreno: ["flat"], nivel: "basico" },
+        ]
+      },
+      {
+        name: "Entradas a transición",
+        tricks: [
+          { name: "Tail Drop (tail en coping, caer hacia adelante)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Frontside Tail Drop", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Backside Tail Drop", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "Fakie Drop In (nose en coping, entrar rodando hacia atrás)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Switch Drop In", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Axle Drop In (ambos trucks en coping, giro 90° al caer)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Frontside Axle Drop In", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Backside Axle Drop In", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Switch Frontside Axle Drop In", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Switch Backside Axle Drop In", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Rock Drop (desde posición rock, caer hacia adelante)", terreno: ["quarter","bowl"], nivel: "intermedio" },
+          { name: "Roll In (entrar rodando desde plataforma adyacente)", terreno: ["quarter","bowl"], nivel: "basico" },
+          { name: "5-0 Drop In (desde posición 5-0 stall, caer hacia adelante)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Nose Pick Drop In (desde posición nose pick, caer hacia adelante)", terreno: ["quarter","bowl"], nivel: "avanzado" },
+          { name: "Boneless Drop In (boneless desde deck hacia la transición)", terreno: ["quarter","bowl"], nivel: "avanzado" },
         ]
       }
     ]
@@ -1372,6 +1439,14 @@ document.querySelectorAll('.app-tab').forEach(t=>t.addEventListener('click',()=>
 // ── UTILS ──
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function hexToMixedWhite(hex,a){
+  // mix color with white at opacity a → solid pastel result
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const mr=Math.round(r*a+255*(1-a));
+  const mg=Math.round(g*a+255*(1-a));
+  const mb=Math.round(b*a+255*(1-a));
+  return `rgb(${mr},${mg},${mb})`;
+}
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});}
 function tcount(r){let n=(r.general||[]).length;r.blocks.forEach(b=>n+=b.tricks.length);return n;}
 
@@ -1478,9 +1553,12 @@ DATA.forEach(family=>{
       <div class="tricks-grid">
         ${sf.tricks.map(t=>{
           const chk=checked.has(t.name);
-          return `<div class="trick" data-name="${t.name.toLowerCase()}" data-fullname="${t.name}" data-fam="${family.id}" data-terreno="${t.terreno.join(',')}" data-nivel="${t.nivel}">
+          const parenIdx=t.name.indexOf('(');
+          const cleanName=parenIdx>-1?t.name.slice(0,parenIdx).trim():t.name;
+          const annotation=parenIdx>-1?' '+t.name.slice(parenIdx):'';
+          return `<div class="trick" data-name="${t.name.toLowerCase()}" data-fullname="${cleanName}" data-fam="${family.id}" data-terreno="${t.terreno.join(',')}" data-nivel="${t.nivel}">
             <span class="tchk${chk?' done':''}"></span>
-            <span class="tname">${t.name}</span>
+            <span class="tname">${cleanName}<span class="tanno">${annotation}</span></span>
             <button class="tadd" title="Añadir a rutina">+</button>
           </div>`;
         }).join('')}
@@ -1503,9 +1581,16 @@ DATA.forEach(family=>{
     el.addEventListener('click',e=>{
       e.stopPropagation();
       const name=el.closest('.trick').dataset.fullname;
-      checked.has(name)?checked.delete(name):checked.add(name);
+      if(checked.has(name)){
+        checked.delete(name);
+        delete checksTs[name];
+      } else {
+        checked.add(name);
+        checksTs[name]=new Date().toISOString();
+      }
       el.classList.toggle('done',checked.has(name));
-      SK.saveChecks(checked);
+      SK.saveChecks(checked);saveChecksTs(checksTs);
+      document.getElementById('conseguidos-count').textContent=checked.size;
     });
   });
 
@@ -1546,8 +1631,10 @@ document.getElementById('ctx-copy').addEventListener('click',()=>{
 });
 document.getElementById('ctx-check').addEventListener('click',()=>{
   if(ctxTrick){
-    checked.has(ctxTrick)?checked.delete(ctxTrick):checked.add(ctxTrick);
-    SK.saveChecks(checked);
+    if(checked.has(ctxTrick)){checked.delete(ctxTrick);delete checksTs[ctxTrick];}
+    else{checked.add(ctxTrick);checksTs[ctxTrick]=new Date().toISOString();}
+    SK.saveChecks(checked);saveChecksTs(checksTs);
+    document.getElementById('conseguidos-count').textContent=checked.size;
     document.querySelectorAll(`.trick[data-fullname="${ctxTrick}"] .tchk`).forEach(el=>{
       el.classList.toggle('done',checked.has(ctxTrick));
     });
@@ -1637,6 +1724,7 @@ document.querySelectorAll('.fdd-item[data-sort]').forEach(item=>{
     e.stopPropagation();
     const sort=item.dataset.sort;
     currentSort=sort;
+    manualOrder=null; // reset manual order when choosing a sort
     document.querySelectorAll('.fdd-item[data-sort] .fdd-radio').forEach(r=>r.classList.remove('checked'));
     item.querySelector('.fdd-radio').classList.add('checked');
     const btn=document.getElementById('fdd-sort-btn');
@@ -1647,6 +1735,102 @@ document.querySelectorAll('.fdd-item[data-sort]').forEach(item=>{
 });
 
 document.addEventListener('click',()=>closeFdd());
+
+// ── CONSEGUIDOS ──
+const CHECKS_TS = 'sk_checks_ts'; // {name: isoDate}
+function loadChecksTs(){try{return JSON.parse(localStorage.getItem(CHECKS_TS)||'{}');}catch{return{};}}
+function saveChecksTs(obj){localStorage.setItem(CHECKS_TS,JSON.stringify(obj));}
+let checksTs = loadChecksTs();
+
+function updateConseguidos(){
+  const count=checked.size;
+  document.getElementById('conseguidos-count').textContent=count;
+  const list=document.getElementById('conseguidos-list');
+  if(!count){list.innerHTML='<div style="padding:8px 14px;font-size:11px;color:var(--muted);">ninguno todavía</div>';return;}
+
+  // group by family
+  const byFamily={};
+  DATA.forEach(fam=>{
+    const tricks=[];
+    fam.subfamilies.forEach(sf=>{
+      sf.tricks.forEach(t=>{
+        if(checked.has(t.name)){
+          tricks.push({name:t.name,date:checksTs[t.name]||''});
+        }
+      });
+    });
+    if(tricks.length){
+      tricks.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      byFamily[fam.id]={name:fam.name,tricks};
+    }
+  });
+
+  list.innerHTML='';
+  Object.values(byFamily).forEach(fam=>{
+    const famDiv=document.createElement('div');
+    famDiv.style.cssText='border-bottom:1px solid var(--border);';
+
+    // family header
+    const famHdr=document.createElement('div');
+    famHdr.style.cssText='display:flex;align-items:center;gap:6px;padding:6px 14px;cursor:pointer;';
+    famHdr.innerHTML=`<span style="font-size:10px;color:var(--c-family,#4a90d9);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;flex:1;">${fam.name} <span style="color:var(--muted);font-weight:400;">${fam.tricks.length}</span></span>
+      <button style="background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;" class="cg-clear" data-fam="${fam.name}">limpiar</button>
+      <span style="font-size:10px;color:var(--muted);" class="cg-tog">▾</span>`;
+
+    const famBody=document.createElement('div');
+    famBody.style.display='none';
+    famBody.innerHTML=fam.tricks.map(e=>`
+      <div style="display:flex;align-items:baseline;gap:8px;padding:4px 14px 4px 20px;border-bottom:1px solid rgba(0,0,0,0.04);font-size:12px;">
+        <span style="flex:1;">${e.name}</span>
+        <span style="font-size:10px;color:var(--muted);flex-shrink:0;">${e.date?new Date(e.date).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'}):''}</span>
+      </div>`).join('');
+
+    // toggle
+    famHdr.addEventListener('click',e=>{
+      if(e.target.classList.contains('cg-clear'))return;
+      const open=famBody.style.display==='block';
+      famBody.style.display=open?'none':'block';
+      famHdr.querySelector('.cg-tog').textContent=open?'▾':'▸';
+    });
+
+    // clear family
+    famHdr.querySelector('.cg-clear').addEventListener('click',e=>{
+      e.stopPropagation();
+      const famData=DATA.find(f=>f.name===e.target.dataset.fam);
+      if(!famData)return;
+      if(!confirm(`¿Limpiar todos los conseguidos de ${famData.name}?`))return;
+      famData.subfamilies.forEach(sf=>sf.tricks.forEach(t=>{
+        checked.delete(t.name);delete checksTs[t.name];
+      }));
+      SK.saveChecks(checked);saveChecksTs(checksTs);
+      document.querySelectorAll('.tchk.done').forEach(el=>{
+        const name=el.closest('.trick')?.dataset.fullname;
+        if(name&&!checked.has(name))el.classList.remove('done');
+      });
+      document.getElementById('conseguidos-count').textContent=checked.size;
+      updateConseguidos();
+    });
+
+    famDiv.appendChild(famHdr);
+    famDiv.appendChild(famBody);
+    list.appendChild(famDiv);
+  });
+}
+
+document.getElementById('conseguidos-btn').addEventListener('click',function(e){
+  e.stopPropagation();
+  openFddMenu('conseguidos-menu', this);
+  updateConseguidos();
+});
+
+document.getElementById('conseguidos-clear').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!confirm('¿Limpiar todos los checks?'))return;
+  checked.clear();checksTs={};
+  SK.saveChecks(checked);saveChecksTs(checksTs);
+  document.querySelectorAll('.tchk.done').forEach(el=>el.classList.remove('done'));
+  updateConseguidos();
+});
 
 document.getElementById('search').addEventListener('input',e=>{searchQ=e.target.value.toLowerCase().trim();applyFilters();});
 document.getElementById('collapse-all').addEventListener('click',()=>{
@@ -1698,6 +1882,44 @@ function renderDD(){
   if(!routines.length){
     ddScroll.innerHTML='<div class="dd-empty">ninguna rutina todavía<br><span style="font-size:10px">ve a Entrenamiento</span></div>';return;
   }
+  // nueva rutina desde dropdown
+  const newRutBtn=document.createElement('div');
+  newRutBtn.style.cssText='padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--border);';
+  newRutBtn.textContent='+ nueva rutina';
+  newRutBtn.addEventListener('mouseenter',()=>newRutBtn.style.color='var(--fg)');
+  newRutBtn.addEventListener('mouseleave',()=>newRutBtn.style.color='var(--muted)');
+  newRutBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    // replace button with inline input for routine name
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;align-items:center;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);';
+    const inp=document.createElement('input');
+    inp.type='text';inp.placeholder='nombre de la rutina...';
+    inp.style.cssText='flex:1;font-family:inherit;font-size:11px;background:none;border:none;border-bottom:1px solid var(--border);outline:none;color:var(--fg);padding:2px 0;min-width:0;';
+    const okBtn=document.createElement('button');
+    okBtn.textContent='crear';
+    okBtn.style.cssText='background:var(--fg);color:var(--bg);border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;cursor:pointer;flex-shrink:0;';
+    wrap.appendChild(inp);wrap.appendChild(okBtn);
+    newRutBtn.replaceWith(wrap);
+    inp.focus();
+    let confirmed=false;
+    const confirm=(name)=>{
+      if(confirmed)return;confirmed=true;
+      const r={id:uid(),name:name.trim()||'Nueva rutina',created:new Date().toISOString(),color:'',general:[],blocks:[{id:uid(),name:'',tricks:[ddTrick]}]};
+      routines.unshift(r);SK.saveRoutines(routines);
+      activeRid=r.id;
+      renderRoutineList();renderDetail();
+      toast(`Rutina "${r.name}" creada`);
+      renderDD();
+    };
+    okBtn.addEventListener('click',e2=>{e2.stopPropagation();confirm(inp.value);});
+    inp.addEventListener('keydown',e2=>{
+      if(e2.key==='Enter'){e2.preventDefault();confirm(inp.value);}
+      if(e2.key==='Escape'){closeDD();}
+    });
+  });
+  ddScroll.appendChild(newRutBtn);
+
   routines.forEach(r=>{
     const div=document.createElement('div');div.className='ddroutine';
     div.innerHTML=`<div class="ddr-name">${r.name||'Sin nombre'}</div>
@@ -1769,22 +1991,132 @@ function sortedR(){
   return a;
 }
 
+let selectedRids=new Set();
+let lastClickedRid=null;
+let rctxTargetRid=null;
+let manualOrder=null; // null = use sort, array of ids = manual order
+
+function getOrderedRoutines(){
+  if(manualOrder){
+    const map=Object.fromEntries(routines.map(r=>[r.id,r]));
+    return manualOrder.map(id=>map[id]).filter(Boolean);
+  }
+  return sortedR();
+}
+
 function renderRoutineList(){
   const el=document.getElementById('rlist');el.innerHTML='';
-  const sorted=sortedR();
-  if(!sorted.length){el.innerHTML='<div style="padding:12px 6px;font-size:11px;color:var(--muted);text-align:center;">ninguna todavía</div>';return;}
-  sorted.forEach(r=>{
+  const list=getOrderedRoutines();
+  if(!list.length){el.innerHTML='<div style="padding:12px 6px;font-size:11px;color:var(--muted);text-align:center;">ninguna todavía</div>';return;}
+  let dragSrcId=null;
+
+  list.forEach((r,idx)=>{
     const d=document.createElement('div');
-    d.className='ritem'+(r.id===activeRid?' active':'');
-    d.innerHTML=`<div class="ritem-dot" style="background:${r.color||'transparent'}"></div>
+    d.className='ritem'+(r.id===activeRid?' active':'')+(selectedRids.has(r.id)?' selected':'');
+    d.dataset.rid=r.id;
+    d.draggable=true;
+    d.innerHTML=`<span class="drag-handle" title="Arrastrar">⠿</span>
+      <div class="ritem-dot" style="background:${r.color||'transparent'}"></div>
       <div class="ritem-info">
         <div class="ritem-name">${r.name||'Sin nombre'}</div>
         <div class="ritem-meta">${tcount(r)} trucos · ${fmtDate(r.created)}</div>
       </div>`;
-    d.addEventListener('click',()=>{activeRid=r.id;renderRoutineList();renderDetail();});
+
+    // click: select active + ctrl/shift selection
+    d.addEventListener('click',e=>{
+      if(e.ctrlKey||e.metaKey){
+        // toggle selection
+        if(selectedRids.has(r.id))selectedRids.delete(r.id);
+        else selectedRids.add(r.id);
+        lastClickedRid=r.id;
+        renderRoutineList();return;
+      }
+      if(e.shiftKey&&lastClickedRid){
+        // range select
+        const ids=list.map(x=>x.id);
+        const a=ids.indexOf(lastClickedRid),b=ids.indexOf(r.id);
+        const [from,to]=[Math.min(a,b),Math.max(a,b)];
+        ids.slice(from,to+1).forEach(id=>selectedRids.add(id));
+        renderRoutineList();return;
+      }
+      selectedRids.clear();
+      activeRid=r.id;lastClickedRid=r.id;
+      renderRoutineList();renderDetail();
+    });
+
+    // right-click
+    d.addEventListener('contextmenu',e=>{
+      e.preventDefault();e.stopPropagation();
+      rctxTargetRid=r.id;
+      const menu=document.getElementById('rctx-menu');
+      let x=e.clientX,y=e.clientY;
+      if(x+180>window.innerWidth)x=window.innerWidth-185;
+      if(y+120>window.innerHeight)y=window.innerHeight-125;
+      menu.style.left=x+'px';menu.style.top=y+'px';
+      menu.classList.add('open');
+    });
+
+    // drag
+    d.addEventListener('dragstart',e=>{
+      dragSrcId=r.id;
+      d.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      // init manual order if not set
+      if(!manualOrder)manualOrder=list.map(x=>x.id);
+    });
+    d.addEventListener('dragend',()=>{d.classList.remove('dragging');document.querySelectorAll('.ritem').forEach(x=>x.classList.remove('drag-over'));});
+    d.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';d.classList.add('drag-over');});
+    d.addEventListener('dragleave',()=>d.classList.remove('drag-over'));
+    d.addEventListener('drop',e=>{
+      e.preventDefault();d.classList.remove('drag-over');
+      if(!dragSrcId||dragSrcId===r.id)return;
+      if(!manualOrder)manualOrder=list.map(x=>x.id);
+      const from=manualOrder.indexOf(dragSrcId);
+      const to=manualOrder.indexOf(r.id);
+      if(from===-1||to===-1)return;
+      manualOrder.splice(from,1);manualOrder.splice(to,0,dragSrcId);
+      // update sort btn to show "libre"
+      document.getElementById('fdd-sort-btn').innerHTML='libre <span class="fdd-arrow">▾</span>';
+      renderRoutineList();
+    });
+
     el.appendChild(d);
   });
 }
+
+// routine context menu actions
+document.getElementById('rctx-duplicate').addEventListener('click',()=>{
+  const r=routines.find(x=>x.id===rctxTargetRid);if(!r)return;
+  const copy=JSON.parse(JSON.stringify(r));
+  copy.id=uid();copy.name=(r.name||'Sin nombre')+' (copia)';copy.created=new Date().toISOString();
+  routines.unshift(copy);SK.saveRoutines(routines);
+  if(manualOrder)manualOrder.unshift(copy.id);
+  renderRoutineList();closeRctx();
+});
+document.getElementById('rctx-color').addEventListener('click',()=>{
+  const r=routines.find(x=>x.id===rctxTargetRid);if(!r)return;
+  const dot=document.querySelector(`.ritem[data-rid="${rctxTargetRid}"] .ritem-dot`);
+  closeRctx();
+  if(dot){
+    openColorPicker(dot,r.color||'#ffffff',color=>{
+      r.color=color;SK.saveRoutines(routines);
+      if(activeRid===r.id)document.getElementById('routine-color-btn').style.background=color||'transparent';
+      renderRoutineList();
+    });
+  }
+});
+document.getElementById('rctx-delete').addEventListener('click',()=>{
+  const toDelete=selectedRids.size>1?[...selectedRids]:[rctxTargetRid];
+  const names=toDelete.map(id=>routines.find(r=>r.id===id)?.name||'Sin nombre');
+  if(!confirm(`¿Borrar ${toDelete.length>1?toDelete.length+' rutinas':'"'+names[0]+'"'}?`))return;
+  routines=routines.filter(r=>!toDelete.includes(r.id));
+  if(manualOrder)manualOrder=manualOrder.filter(id=>!toDelete.includes(id));
+  toDelete.forEach(id=>selectedRids.delete(id));
+  if(toDelete.includes(activeRid)){activeRid=null;renderDetail();}
+  SK.saveRoutines(routines);renderRoutineList();closeRctx();
+});
+function closeRctx(){document.getElementById('rctx-menu').classList.remove('open');rctxTargetRid=null;}
+document.addEventListener('click',e=>{if(!document.getElementById('rctx-menu').contains(e.target))closeRctx();});
 
 document.getElementById('btn-new').addEventListener('click',()=>{
   const r={id:uid(),name:'',created:new Date().toISOString(),color:'',general:[],blocks:[{id:uid(),name:'',tricks:[]}]};
@@ -1873,7 +2205,11 @@ function renderBlocks(r){
   // blocks
   r.blocks.forEach(block=>{
     const bdiv=document.createElement('div');bdiv.className='block';
-    if(block.color)bdiv.style.setProperty('--blk-c-bg',hexToRgba(block.color,0.15));
+    if(block.color){
+      bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
+      bdiv.style.setProperty('--blk-fg','#111');
+    }
+    const hasNote=!!(block.note&&block.note.trim());
     bdiv.innerHTML=`<div class="blk-hdr">
       <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
       <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
@@ -1887,6 +2223,13 @@ function renderBlocks(r){
           <button class="btrm" data-i="${i}">×</button>
         </div>`).join('')}
       <button class="blk-add">+ añadir trucos</button>
+    </div>
+    <button class="blk-note-toggle">
+      <span class="note-dot${hasNote?' has-note':''}"></span>
+      ${hasNote?'nota ▾':'+ nota'}
+    </button>
+    <div class="blk-note-area${hasNote?' open':''}">
+      <textarea class="blk-note-input" placeholder="anotaciones, objetivos, referencias...">${block.note||''}</textarea>
     </div>`;
 
     bdiv.querySelector('.blk-color').addEventListener('click',function(e){
@@ -1894,8 +2237,13 @@ function renderBlocks(r){
       openColorPicker(this,block.color||'#ffffff',color=>{
         block.color=color;SK.saveRoutines(routines);
         bdiv.querySelector('.blk-color').style.background=color||'transparent';
-        if(color){bdiv.style.setProperty('--blk-c-bg',hexToRgba(color,0.15));}
-        else{bdiv.style.removeProperty('--blk-c-bg');}
+        if(color){
+          bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
+          bdiv.style.setProperty('--blk-fg','#111');
+        } else {
+          bdiv.style.removeProperty('--blk-c-bg');
+          bdiv.style.removeProperty('--blk-fg');
+        }
       });
     });
     bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;SK.saveRoutines(routines);});
@@ -1918,6 +2266,26 @@ function renderBlocks(r){
       });
     });
     bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(activeRid,block.id));
+
+    // note toggle
+    const noteToggle=bdiv.querySelector('.blk-note-toggle');
+    const noteArea=bdiv.querySelector('.blk-note-area');
+    const noteDot=bdiv.querySelector('.note-dot');
+    noteToggle.addEventListener('click',()=>{
+      const open=noteArea.classList.toggle('open');
+      const hasN=!!(block.note&&block.note.trim());
+      noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?(hasN?'nota ▾':'nota ▾'):(hasN?'nota ▸':'+ nota')}`;
+      if(open)noteArea.querySelector('.blk-note-input').focus();
+    });
+
+    // note save
+    bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
+      block.note=e.target.value;
+      SK.saveRoutines(routines);
+      const hasN=!!(block.note&&block.note.trim());
+      noteDot.classList.toggle('has-note',hasN);
+    });
+
     area.appendChild(bdiv);
   });
 }
@@ -2020,8 +2388,21 @@ document.getElementById('mconfirm').addEventListener('click',()=>{
   if(added)toast(`${added} trucos añadidos`);
 });
 
+// ── THEME ──
+const THEME_KEY='sk_theme';
+function applyTheme(dark){
+  document.documentElement.classList.toggle('dark',dark);
+  document.getElementById('theme-toggle').textContent=dark?'☾ noche':'☀ día';
+  localStorage.setItem(THEME_KEY,dark?'dark':'light');
+}
+document.getElementById('theme-toggle').addEventListener('click',()=>{
+  applyTheme(!document.documentElement.classList.contains('dark'));
+});
+
 // ── INIT ──
+applyTheme(localStorage.getItem(THEME_KEY)==='dark');
 applyFilters();renderRoutineList();renderDetail();
+document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
 </body>
