@@ -310,6 +310,28 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .mselcnt{font-size:11px;color:var(--muted);flex:1;}
 
+/* PROGRESSION PANEL */
+.prog-trick{border-bottom:1px solid var(--border);padding:8px 12px;}
+.prog-trick-hdr{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.prog-tog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.prog-trick-name{font-size:12px;font-weight:700;flex:1;}
+.prog-pct{font-size:10px;color:var(--muted);}
+.prog-minidots{display:flex;align-items:center;margin-left:4px;}
+.prog-trick-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:0;line-height:1;margin-left:4px;}
+.prog-trick-rm:hover{color:#b00;}
+.prog-body{display:none;padding-top:8px;}
+.prog-step{display:flex;align-items:flex-start;gap:8px;padding:3px 0;cursor:pointer;user-select:none;}
+.prog-step.locked{cursor:default;opacity:0.35;}
+.prog-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;margin-top:2px;transition:background 0.15s,border-color 0.15s;}
+.prog-step.done .prog-dot{border-color:transparent;}
+.prog-step-name{font-size:11px;font-weight:700;}
+.prog-step-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.prog-add-step{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;margin-top:4px;}
+.prog-add-step:hover{color:var(--fg);}
+.prog-empty{padding:16px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
+#panel-prog-float{position:fixed;z-index:600;background:var(--win);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.2);border-radius:3px;width:280px;max-height:420px;display:none;flex-direction:column;overflow:hidden;}
+#panel-prog-float .win-tb{padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;}
+
 /* TOAST */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(8px);
   background:var(--fg);color:var(--bg);font-size:11px;letter-spacing:0.08em;
@@ -354,14 +376,16 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
   <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;">
-    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button></div>
+    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
+      <button id="btn-prog" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:2px 7px;margin-left:4px;white-space:nowrap;">prog ▾</button>
+    </div>
     <button class="rnew" id="btn-new">+ nueva rutina</button>
     <div class="rlist" id="rlist"></div>
   </div>
   <div class="window" id="panel-detail" style="flex:1;min-width:0;border-radius:3px;">
     <div class="detail-empty" id="detail-empty">← selecciona una rutina o crea una nueva</div>
     <div id="detail-content" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-      <div class="dhdr">
+      <div class="dhdr" id="detail-header-bar">
         <div class="color-btn" id="routine-color-btn" title="Color de rutina"></div>
         <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
         <span class="dmeta" id="dmeta"></span>
@@ -443,6 +467,18 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div class="fdd-item" data-sort="fecha-asc"><span class="fdd-radio"></span>más antigua</div>
   <div class="fdd-item" data-sort="nombre"><span class="fdd-radio"></span>nombre A-Z</div>
   <div class="fdd-item" data-sort="trucos"><span class="fdd-radio"></span>más trucos</div>
+</div>
+
+<!-- PROGRESSION FLOATING PANEL -->
+<div id="panel-prog-float">
+  <div class="win-tb">
+    Progresión
+    <button id="prog-clear-all" style="margin-left:auto;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;">[ limpiar ]</button>
+    <button id="prog-close" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0 0 0 8px;line-height:1;">×</button>
+  </div>
+  <div style="overflow-y:auto;flex:1;" id="prog-list">
+    <div class="prog-empty" id="prog-empty">Añade trucos desde el esquema<br>con el botón +</div>
+  </div>
 </div>
 
 <!-- DROPDOWN (scheme + button) -->
@@ -1882,6 +1918,19 @@ function renderDD(){
   if(!routines.length){
     ddScroll.innerHTML='<div class="dd-empty">ninguna rutina todavía<br><span style="font-size:10px">ve a Entrenamiento</span></div>';return;
   }
+  // seguir progresión option
+  const progBtn = document.createElement('div');
+  progBtn.style.cssText = 'padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--border);';
+  progBtn.textContent = '◎ seguir progresión';
+  progBtn.addEventListener('mouseenter', () => progBtn.style.color = 'var(--fg)');
+  progBtn.addEventListener('mouseleave', () => progBtn.style.color = 'var(--muted)');
+  progBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    addToProgression(ddTrick);
+    closeDD();
+  });
+  ddScroll.appendChild(progBtn);
+
   // nueva rutina desde dropdown
   const newRutBtn=document.createElement('div');
   newRutBtn.style.cssText='padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--border);';
@@ -2149,6 +2198,9 @@ document.getElementById('routine-color-btn').addEventListener('click',function(e
   openColorPicker(this,r.color||'#ffffff',color=>{
     r.color=color;SK.saveRoutines(routines);
     document.getElementById('routine-color-btn').style.background=color||'transparent';
+    // tint the detail header bar
+    const dhdr=document.getElementById('detail-header-bar');
+    if(dhdr){dhdr.style.background=color?hexToMixedWhite(color,0.25):'';}
     renderRoutineList();
   });
 });
@@ -2162,6 +2214,8 @@ function renderDetail(){
   document.getElementById('dtitle').value=r.name||'';
   document.getElementById('dmeta').textContent=fmtDate(r.created);
   document.getElementById('routine-color-btn').style.background=r.color||'transparent';
+  const dhdr=document.getElementById('detail-header-bar');
+  if(dhdr){dhdr.style.background=r.color?hexToMixedWhite(r.color,0.25):'';}
   renderBlocks(r);updateBreakdown();
 }
 
@@ -2399,9 +2453,165 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
   applyTheme(!document.documentElement.classList.contains('dark'));
 });
 
+// ── PROGRESSION ──
+const PROG_KEY = 'sk_prog';
+const DEFAULT_STEPS = [
+  {name:'Parado', desc:'sin movimiento, aprendiendo el gesto'},
+  {name:'En movimiento', desc:'rodando con velocidad'},
+  {name:'Obstáculo pequeño', desc:'bordillo, escalón, crack'},
+  {name:'Obstáculo mediano', desc:'ledge, rail, gap'},
+  {name:'Obstáculo grande', desc:'rampa, bowl, escaleras'},
+];
+function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY)||'[]');}catch{return[];}}
+function saveProg(){localStorage.setItem(PROG_KEY,JSON.stringify(progData));}
+let progData = loadProg();
+let progPanelVisible = false;
+const progOpenStates = {};
+
+function stepColor(idx, total){
+  const colors = ['#4fc3f7','#26c6da','#26a69a','#d4e157','#ffa726','#ef5350'];
+  const ratio = idx / (total - 1 || 1);
+  const scaled = ratio * (colors.length - 1);
+  const lo = Math.floor(scaled), hi = Math.min(lo + 1, colors.length - 1);
+  const t = scaled - lo;
+  function hex2rgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+  const [r1,g1,b1] = hex2rgb(colors[lo]);
+  const [r2,g2,b2] = hex2rgb(colors[hi]);
+  return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
+}
+
+function renderProg(){
+  const list = document.getElementById('prog-list');
+  const empty = document.getElementById('prog-empty');
+  list.querySelectorAll('.prog-trick').forEach(el => el.remove());
+  if(!progData.length){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  progData.forEach((entry, ei) => {
+    const div = document.createElement('div');
+    div.className = 'prog-trick';
+    const doneCount = entry.steps.filter(s => s.done).length;
+    const total = entry.steps.length;
+    const pct = total ? Math.round(doneCount / total * 100) : 0;
+    const miniDots = entry.steps.map((s,si) =>
+      `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done ? stepColor(si,total) : 'var(--border)'};"></span>`
+    ).join('');
+
+    div.innerHTML = `
+      <div class="prog-trick-hdr">
+        <span class="prog-tog">${progOpenStates[ei] ? '−' : '+'}</span>
+        <span class="prog-trick-name">${entry.trickName}</span>
+        <span class="prog-minidots">${miniDots}</span>
+        <span class="prog-pct">${pct}%</span>
+        <button class="prog-trick-rm">×</button>
+      </div>
+      <div class="prog-body" style="display:${progOpenStates[ei] ? 'block' : 'none'};">
+        <div class="prog-bar"></div>
+        <button class="prog-add-step">+ escalón</button>
+      </div>`;
+
+    const hdr = div.querySelector('.prog-trick-hdr');
+    const body = div.querySelector('.prog-body');
+    const tog = div.querySelector('.prog-tog');
+    hdr.addEventListener('click', e => {
+      if(e.target.classList.contains('prog-trick-rm')) return;
+      progOpenStates[ei] = !progOpenStates[ei];
+      body.style.display = progOpenStates[ei] ? 'block' : 'none';
+      tog.textContent = progOpenStates[ei] ? '−' : '+';
+    });
+
+    const bar = div.querySelector('.prog-bar');
+    entry.steps.forEach((step, si) => {
+      const stepDiv = document.createElement('div');
+      stepDiv.className = 'prog-step' + (step.done ? ' done' : '');
+      stepDiv.innerHTML = `<span class="prog-dot" style="${step.done ? `background:${stepColor(si,total)};border-color:transparent;` : ''}"></span>
+        <div><div class="prog-step-name">${step.name}</div><div class="prog-step-desc">${step.desc}</div></div>`;
+      stepDiv.addEventListener('click', () => {
+        const isLocked = si > 0 && !entry.steps[si-1].done;
+        if(isLocked) return;
+        step.done = !step.done;
+        if(!step.done) entry.steps.slice(si+1).forEach(s => s.done = false);
+        saveProg();
+        // update DOM without re-render
+        const doneNow = entry.steps.filter(s => s.done).length;
+        div.querySelector('.prog-pct').textContent = Math.round(doneNow/total*100) + '%';
+        div.querySelector('.prog-minidots').innerHTML = entry.steps.map((s,j) =>
+          `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done ? stepColor(j,total) : 'var(--border)'};"></span>`
+        ).join('');
+        bar.querySelectorAll('.prog-step').forEach((sd, j) => {
+          const s = entry.steps[j];
+          sd.classList.toggle('done', !!s.done);
+          sd.querySelector('.prog-dot').style.background = s.done ? stepColor(j,total) : '';
+          sd.querySelector('.prog-dot').style.borderColor = s.done ? 'transparent' : '';
+        });
+      });
+      bar.appendChild(stepDiv);
+    });
+
+    div.querySelector('.prog-trick-rm').addEventListener('click', e => {
+      e.stopPropagation();
+      progData.splice(ei, 1);
+      saveProg(); renderProg();
+    });
+
+    div.querySelector('.prog-add-step').addEventListener('click', () => {
+      const name = prompt('Nombre del escalón:','');
+      if(!name) return;
+      const desc = prompt('Descripción (opcional):','') || '';
+      entry.steps.push({name, desc, done:false});
+      saveProg(); renderProg();
+    });
+
+    list.appendChild(div);
+  });
+}
+
+function openProgPanel(){
+  const btn = document.getElementById('btn-prog');
+  const panel = document.getElementById('panel-prog-float');
+  const rect = btn.getBoundingClientRect();
+  let left = rect.right - 280;
+  if(left < 8) left = 8;
+  panel.style.left = left + 'px';
+  panel.style.top = (rect.bottom + 6) + 'px';
+  panel.style.display = 'flex';
+  progPanelVisible = true;
+  btn.textContent = 'prog ▴';
+}
+function closeProgPanel(){
+  document.getElementById('panel-prog-float').style.display = 'none';
+  progPanelVisible = false;
+  const btn = document.getElementById('btn-prog');
+  if(btn) btn.textContent = 'prog ▾';
+}
+
+document.getElementById('btn-prog').addEventListener('click', function(e){
+  e.stopPropagation();
+  progPanelVisible ? closeProgPanel() : openProgPanel();
+});
+document.getElementById('prog-close').addEventListener('click', closeProgPanel);
+document.getElementById('prog-clear-all').addEventListener('click', e => {
+  e.stopPropagation();
+  if(!confirm('¿Limpiar toda la progresión?')) return;
+  progData = []; saveProg(); renderProg();
+});
+
+function addToProgression(trickName){
+  if(progData.find(e => e.trickName === trickName)){ toast('Ya está en progresión'); return; }
+  progData.push({ trickName, steps: DEFAULT_STEPS.map(s => ({...s, done:false})) });
+  saveProg(); renderProg();
+  // switch to training tab and open panel
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelector('.app-tab[data-tab="entrenamiento"]').classList.add('active');
+  document.getElementById('view-entrenamiento').classList.add('active');
+  setTimeout(() => openProgPanel(), 50);
+  toast(`"${trickName}" añadido a progresión`);
+}
+
 // ── INIT ──
 applyTheme(localStorage.getItem(THEME_KEY)==='dark');
-applyFilters();renderRoutineList();renderDetail();
+applyFilters();renderRoutineList();renderDetail();renderProg();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
