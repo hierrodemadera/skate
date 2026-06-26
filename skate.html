@@ -332,8 +332,49 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .prog-add-step{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;margin-top:4px;}
 .prog-add-step:hover{color:var(--fg);}
 .prog-empty{padding:16px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
-#panel-prog-float{position:fixed;z-index:600;background:var(--win);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.2);border-radius:3px;width:280px;max-height:420px;display:none;flex-direction:column;overflow:hidden;}
-#panel-prog-float .win-tb{padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;}
+
+
+/* PROGRESSION */
+#view-progresion{flex-direction:row;}
+#prog-selector .win-tb,#prog-detail .win-tb{flex-shrink:0;}
+.prog-fam{border-bottom:1px solid var(--border);}
+.prog-fam-hdr{display:flex;align-items:baseline;gap:8px;padding:8px 10px;cursor:pointer;
+  background:none;border:none;width:100%;text-align:left;font-family:inherit;user-select:none;}
+.prog-fam-hdr:hover .prog-fam-name{opacity:0.6;}
+.prog-fam-tog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.prog-fam-name{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);}
+.prog-fam-body{display:none;padding-bottom:6px;}
+.prog-fam-body.open{display:block;}
+.prog-sf-name{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--c-subfamily);padding:5px 10px 2px 18px;}
+.prog-trick-row{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 18px;
+  cursor:pointer;font-size:12px;border-radius:2px;}
+.prog-trick-row:hover{background:var(--hover);}
+.prog-trick-row.added{color:var(--muted);}
+.prog-trick-chk{width:11px;height:11px;border:1px solid #aaa;border-radius:1px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;}
+.prog-trick-chk.sel{border-color:var(--fg);background:var(--fg);}
+.prog-trick-chk.sel::after{content:'';display:block;width:6px;height:4px;
+  border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;
+  transform:rotate(-45deg) translate(1px,-1px);}
+
+/* prog entry */
+.prog-entry{border-bottom:1px solid var(--border);padding:10px 14px;}
+.prog-entry-hdr{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.prog-entry-tog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.prog-entry-name{font-size:12px;font-weight:700;flex:1;}
+.prog-entry-pct{font-size:10px;color:var(--muted);}
+.prog-entry-dots{display:flex;align-items:center;margin-left:4px;}
+.prog-entry-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:0;line-height:1;margin-left:4px;}
+.prog-entry-rm:hover{color:#b00;}
+.prog-entry-body{display:none;padding-top:8px;}
+.prog-step-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;cursor:pointer;user-select:none;}
+.prog-step-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;margin-top:2px;transition:all 0.15s;}
+.prog-step-row.done .prog-step-dot{border-color:transparent;}
+.prog-step-row.locked{cursor:default;opacity:0.35;}
+.prog-step-label{font-size:11px;font-weight:700;}
+.prog-step-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.prog-empty{padding:20px 14px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
 
 /* TOAST */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(8px);
@@ -354,6 +395,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div class="app-tabs">
     <button class="app-tab active" data-tab="esquema">Esquema</button>
     <button class="app-tab" data-tab="entrenamiento">Entrenamiento</button>
+    <button class="app-tab" data-tab="progresion">Progresión</button>
   </div>
 </div>
 
@@ -379,9 +421,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
   <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;">
-    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
-      <button id="btn-prog" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:2px 7px;margin-left:4px;white-space:nowrap;">prog ▾</button>
-    </div>
+    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button></div>
     <button class="rnew" id="btn-new">+ nueva rutina</button>
     <div class="rlist" id="rlist"></div>
   </div>
@@ -404,6 +444,29 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
         <span class="bdlbl">cobertura</span>
         <span id="bdtags">—</span>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESIÓN VIEW -->
+<div class="view" id="view-progresion">
+  <!-- LEFT: trick selector -->
+  <div class="window" id="prog-selector" style="width:260px;flex-shrink:0;border-radius:3px;">
+    <div class="win-tb">Trucos</div>
+    <div style="padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <input type="search" id="prog-search" placeholder="buscar truco..." autocomplete="off" spellcheck="false" style="width:100%;background:none;border:none;border-bottom:1px solid var(--border);font-family:inherit;font-size:12px;padding:3px 0;color:var(--fg);outline:none;">
+    </div>
+    <div style="overflow-y:auto;flex:1;" id="prog-scheme"></div>
+  </div>
+
+  <!-- RIGHT: progression list -->
+  <div class="window" id="prog-detail" style="flex:1;min-width:0;border-radius:3px;">
+    <div class="win-tb">
+      <span>Progresión</span>
+      <button id="prog-clear-all" style="margin-left:auto;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;">[ limpiar todo ]</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;" id="prog-list">
+      <div class="prog-empty" id="prog-empty">← selecciona trucos del panel izquierdo</div>
     </div>
   </div>
 </div>
@@ -472,18 +535,6 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div class="fdd-item" data-sort="trucos"><span class="fdd-radio"></span>más trucos</div>
 </div>
 
-<!-- PROGRESSION FLOATING PANEL -->
-<div id="panel-prog-float">
-  <div class="win-tb">
-    Progresión
-    <button id="prog-clear-all" style="margin-left:auto;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;">[ limpiar ]</button>
-    <button id="prog-close" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0 0 0 8px;line-height:1;">×</button>
-  </div>
-  <div style="overflow-y:auto;flex:1;" id="prog-list">
-    <div class="prog-empty" id="prog-empty">Añade trucos desde el esquema<br>con el botón +</div>
-  </div>
-</div>
-
 <!-- DROPDOWN (scheme + button) -->
 <div class="ddmenu" id="ddmenu">
   <div class="ddhdr">Añadir a rutina</div>
@@ -510,6 +561,22 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- STEP SELECTOR MODAL -->
+<div class="modal-ov" id="step-sel-ov" style="z-index:800;">
+  <div class="modal" style="width:460px;max-height:75vh;">
+    <div class="mhdr">
+      <span class="mtitle" id="step-sel-title">Elige escalones</span>
+      <button id="step-sel-all" style="margin-left:auto;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;margin-right:8px;">seleccionar todo</button>
+      <button class="mclose" id="step-sel-close">×</button>
+    </div>
+    <div class="mbody" id="step-sel-body" style="padding:10px 14px;"></div>
+    <div class="mfooter">
+      <span class="mselcnt" id="step-sel-count"></span>
+      <button class="bsm" id="step-sel-confirm" style="background:var(--fg);color:var(--bg);border-color:var(--fg);">añadir</button>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -2457,164 +2524,332 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
 });
 
 // ── PROGRESSION ──
-const PROG_KEY = 'sk_prog';
-const DEFAULT_STEPS = [
-  {name:'Parado', desc:'sin movimiento, aprendiendo el gesto'},
-  {name:'En movimiento', desc:'rodando con velocidad'},
-  {name:'Obstáculo pequeño', desc:'bordillo, escalón, crack'},
-  {name:'Obstáculo mediano', desc:'ledge, rail, gap'},
-  {name:'Obstáculo grande', desc:'rampa, bowl, escaleras'},
+const PROG_KEY = 'sk_prog_v2';
+const PROG_STEPS = [
+  // FLAT / CALLE
+  {name:'Parado', desc:'sin rodar, solo aprendiendo el movimiento', group:'flat'},
+  {name:'En movimiento lento', desc:'rodando despacio', group:'flat'},
+  {name:'En movimiento rápido', desc:'a velocidad normal de skating', group:'flat'},
+  {name:'Bajando un bordillo', desc:'caer desde un bordillo mientras haces el truco', group:'flat'},
+  {name:'Subiendo un bordillo', desc:'subir encima de un bordillo con el truco', group:'flat'},
+  {name:'Gap pequeño', desc:'saltar un hueco pequeño entre dos superficies', group:'flat'},
+  {name:'2-3 escalones', desc:'bajar una escalera pequeña', group:'flat'},
+  {name:'4-6 escalones', desc:'escalera mediana, más velocidad', group:'flat'},
+  {name:'7+ escalones', desc:'escalera grande', group:'flat'},
+  {name:'Ledge o rail', desc:'sobre un obstáculo de calle — bordillo o barra', group:'flat'},
+  // MANUALES
+  {name:'Manual out', desc:'haces el truco y terminas rodando en dos ruedas', group:'manual'},
+  {name:'Nose manual out', desc:'haces el truco y terminas en dos ruedas delanteras', group:'manual'},
+  {name:'Manual in', desc:'llegas rodando en dos ruedas y sacas el truco al final', group:'manual'},
+  {name:'Nose manual in', desc:'llegas en dos ruedas delanteras y sacas el truco', group:'manual'},
+  {name:'Manual → truco → manual', desc:'encadenado completo: manual, truco, manual', group:'manual'},
+  // TRANSICIÓN
+  {name:'Bank', desc:'rampa inclinada sin curva — como una cuesta', group:'trans'},
+  {name:'Bank to flat', desc:'bajar de la rampa al suelo plano haciendo el truco', group:'trans'},
+  {name:'Bank to fakie', desc:'subir la rampa, hacer el truco y bajar de espaldas', group:'trans'},
+  {name:'Quarter pipe pequeño', desc:'rampa curva pequeña con borde arriba', group:'trans'},
+  {name:'Quarter pipe mediano', desc:'rampa curva más alta, más velocidad', group:'trans'},
+  {name:'Mini ramp', desc:'dos rampas curvas enfrentadas, vas de una a otra', group:'trans'},
+  {name:'Bowl', desc:'piscina de cemento con curvas en todas direcciones', group:'trans'},
+  {name:'Half pipe con vert', desc:'rampa grande con sección vertical — la más difícil', group:'trans'},
 ];
+
 function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY)||'[]');}catch{return[];}}
 function saveProg(){localStorage.setItem(PROG_KEY,JSON.stringify(progData));}
-let progData = loadProg();
-let progPanelVisible = false;
+let progData = loadProg(); // [{trickName, steps:[{idx, done}]}]
 const progOpenStates = {};
 
-function stepColor(idx, total){
-  const colors = ['#4fc3f7','#26c6da','#26a69a','#d4e157','#ffa726','#ef5350'];
-  const ratio = idx / (total - 1 || 1);
-  const scaled = ratio * (colors.length - 1);
-  const lo = Math.floor(scaled), hi = Math.min(lo + 1, colors.length - 1);
-  const t = scaled - lo;
-  function hex2rgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
-  const [r1,g1,b1] = hex2rgb(colors[lo]);
-  const [r2,g2,b2] = hex2rgb(colors[hi]);
+function stepColor(idx){
+  const colors=['#4fc3f7','#26c6da','#26a69a','#d4e157','#ffa726','#ef5350'];
+  const ratio=idx/(PROG_STEPS.length-1);
+  const scaled=ratio*(colors.length-1);
+  const lo=Math.floor(scaled),hi=Math.min(lo+1,colors.length-1);
+  const t=scaled-lo;
+  function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+  const [r1,g1,b1]=h2r(colors[lo]);const[r2,g2,b2]=h2r(colors[hi]);
   return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
 }
 
-function renderProg(){
-  const list = document.getElementById('prog-list');
-  const empty = document.getElementById('prog-empty');
-  list.querySelectorAll('.prog-trick').forEach(el => el.remove());
-  if(!progData.length){ empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
+function renderProgList(){
+  const list=document.getElementById('prog-list');
+  const empty=document.getElementById('prog-empty');
+  list.querySelectorAll('.prog-entry').forEach(el=>el.remove());
+  if(!progData.length){empty.style.display='block';return;}
+  empty.style.display='none';
 
-  progData.forEach((entry, ei) => {
-    const div = document.createElement('div');
-    div.className = 'prog-trick';
-    const doneCount = entry.steps.filter(s => s.done).length;
-    const total = entry.steps.length;
-    const pct = total ? Math.round(doneCount / total * 100) : 0;
-    const miniDots = entry.steps.map((s,si) =>
-      `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done ? stepColor(si,total) : 'var(--border)'};"></span>`
-    ).join('');
+  progData.forEach((entry,ei)=>{
+    const activeSteps=entry.steps; // array of {idx, done}
+    const doneCount=activeSteps.filter(s=>s.done).length;
+    const total=activeSteps.length;
+    const pct=total?Math.round(doneCount/total*100):0;
 
-    div.innerHTML = `
-      <div class="prog-trick-hdr">
-        <span class="prog-tog">${progOpenStates[ei] ? '−' : '+'}</span>
-        <span class="prog-trick-name">${entry.trickName}</span>
-        <span class="prog-minidots">${miniDots}</span>
-        <span class="prog-pct">${pct}%</span>
-        <button class="prog-trick-rm">×</button>
+    const dots=activeSteps.map(s=>`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done?stepColor(s.idx):'var(--border)'};"></span>`).join('');
+
+    const div=document.createElement('div');
+    div.className='prog-entry';
+    div.innerHTML=`
+      <div class="prog-entry-hdr">
+        <span class="prog-entry-tog">${progOpenStates[ei]?'−':'+'}</span>
+        <span class="prog-entry-name">${entry.trickName}</span>
+        <span class="prog-entry-dots">${dots}</span>
+        <span class="prog-entry-pct">${pct}%</span>
+        <button class="prog-entry-rm">×</button>
       </div>
-      <div class="prog-body" style="display:${progOpenStates[ei] ? 'block' : 'none'};">
-        <div class="prog-bar"></div>
-        <button class="prog-add-step">+ escalón</button>
+      <div class="prog-entry-body" style="display:${progOpenStates[ei]?'block':'none'};">
+        <div class="prog-steps-list"></div>
+        <button class="prog-edit-steps" style="background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:6px 0;display:block;width:100%;text-align:left;margin-top:4px;">+ editar escalones</button>
       </div>`;
 
-    const hdr = div.querySelector('.prog-trick-hdr');
-    const body = div.querySelector('.prog-body');
-    const tog = div.querySelector('.prog-tog');
-    hdr.addEventListener('click', e => {
-      if(e.target.classList.contains('prog-trick-rm')) return;
-      progOpenStates[ei] = !progOpenStates[ei];
-      body.style.display = progOpenStates[ei] ? 'block' : 'none';
-      tog.textContent = progOpenStates[ei] ? '−' : '+';
+    const hdr=div.querySelector('.prog-entry-hdr');
+    const body=div.querySelector('.prog-entry-body');
+    const tog=div.querySelector('.prog-entry-tog');
+    hdr.addEventListener('click',e=>{
+      if(e.target.classList.contains('prog-entry-rm'))return;
+      progOpenStates[ei]=!progOpenStates[ei];
+      body.style.display=progOpenStates[ei]?'block':'none';
+      tog.textContent=progOpenStates[ei]?'−':'+';
     });
 
-    const bar = div.querySelector('.prog-bar');
-    entry.steps.forEach((step, si) => {
-      const stepDiv = document.createElement('div');
-      stepDiv.className = 'prog-step' + (step.done ? ' done' : '');
-      stepDiv.innerHTML = `<span class="prog-dot" style="${step.done ? `background:${stepColor(si,total)};border-color:transparent;` : ''}"></span>
-        <div><div class="prog-step-name">${step.name}</div><div class="prog-step-desc">${step.desc}</div></div>`;
-      stepDiv.addEventListener('click', () => {
-        const isLocked = si > 0 && !entry.steps[si-1].done;
-        if(isLocked) return;
-        step.done = !step.done;
-        if(!step.done) entry.steps.slice(si+1).forEach(s => s.done = false);
+    // render steps
+    const stepsList=div.querySelector('.prog-steps-list');
+    activeSteps.forEach((step,si)=>{
+      const info=PROG_STEPS[step.idx];
+      const isLocked=si>0&&!activeSteps[si-1].done;
+      const row=document.createElement('div');
+      row.className='prog-step-row'+(step.done?' done':'')+(isLocked?' locked':'');
+      row.innerHTML=`<span class="prog-step-dot" style="${step.done?`background:${stepColor(step.idx)};border-color:transparent;`:''}"></span>
+        <div><div class="prog-step-label">${info?info.name:'Paso '+(si+1)}</div><div class="prog-step-desc">${info?info.desc:''}</div></div>`;
+      row.addEventListener('click',()=>{
+        if(si>0&&!activeSteps[si-1].done)return;
+        step.done=!step.done;
+        if(!step.done)activeSteps.slice(si+1).forEach(s=>s.done=false);
         saveProg();
-        // update DOM without re-render
-        const doneNow = entry.steps.filter(s => s.done).length;
-        div.querySelector('.prog-pct').textContent = Math.round(doneNow/total*100) + '%';
-        div.querySelector('.prog-minidots').innerHTML = entry.steps.map((s,j) =>
-          `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done ? stepColor(j,total) : 'var(--border)'};"></span>`
-        ).join('');
-        bar.querySelectorAll('.prog-step').forEach((sd, j) => {
-          const s = entry.steps[j];
-          sd.classList.toggle('done', !!s.done);
-          sd.querySelector('.prog-dot').style.background = s.done ? stepColor(j,total) : '';
-          sd.querySelector('.prog-dot').style.borderColor = s.done ? 'transparent' : '';
+        // update without full re-render
+        const doneNow=activeSteps.filter(s=>s.done).length;
+        const pctNow=total?Math.round(doneNow/total*100):0;
+        div.querySelector('.prog-entry-pct').textContent=pctNow+'%';
+        div.querySelector('.prog-entry-dots').innerHTML=activeSteps.map(s=>`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;background:${s.done?stepColor(s.idx):'var(--border)'};"></span>`).join('');
+        stepsList.querySelectorAll('.prog-step-row').forEach((r,j)=>{
+          const s=activeSteps[j];
+          const lk=j>0&&!activeSteps[j-1].done;
+          r.classList.toggle('done',!!s.done);
+          r.classList.toggle('locked',lk);
+          r.querySelector('.prog-step-dot').style.background=s.done?stepColor(s.idx):'';
+          r.querySelector('.prog-step-dot').style.borderColor=s.done?'transparent':'';
         });
       });
-      bar.appendChild(stepDiv);
+      stepsList.appendChild(row);
     });
 
-    div.querySelector('.prog-trick-rm').addEventListener('click', e => {
+    div.querySelector('.prog-entry-rm').addEventListener('click',e=>{
       e.stopPropagation();
-      progData.splice(ei, 1);
-      saveProg(); renderProg();
+      progData.splice(ei,1);saveProg();
+      renderProgScheme();renderProgList();
     });
 
-    div.querySelector('.prog-add-step').addEventListener('click', () => {
-      const name = prompt('Nombre del escalón:','');
-      if(!name) return;
-      const desc = prompt('Descripción (opcional):','') || '';
-      entry.steps.push({name, desc, done:false});
-      saveProg(); renderProg();
+    div.querySelector('.prog-edit-steps').addEventListener('click',e=>{
+      e.stopPropagation();
+      openStepSelectorForExisting(entry.trickName, ()=>{
+        renderProgList();
+      });
     });
 
     list.appendChild(div);
   });
 }
 
-function openProgPanel(){
-  const btn = document.getElementById('btn-prog');
-  const panel = document.getElementById('panel-prog-float');
-  const rect = btn.getBoundingClientRect();
-  let left = rect.right - 280;
-  if(left < 8) left = 8;
-  panel.style.left = left + 'px';
-  panel.style.top = (rect.bottom + 6) + 'px';
-  panel.style.display = 'flex';
-  progPanelVisible = true;
-  btn.textContent = 'prog ▴';
-}
-function closeProgPanel(){
-  document.getElementById('panel-prog-float').style.display = 'none';
-  progPanelVisible = false;
-  const btn = document.getElementById('btn-prog');
-  if(btn) btn.textContent = 'prog ▾';
+// Prog scheme (left panel - replica of scheme)
+function renderProgScheme(query){
+  const container=document.getElementById('prog-scheme');
+  container.innerHTML='';
+  query=(query||'').toLowerCase().trim();
+
+  DATA.forEach(family=>{
+    const sfs=family.subfamilies.map(sf=>({
+      ...sf,
+      tricks:sf.tricks.filter(t=>!query||t.name.toLowerCase().includes(query))
+    })).filter(sf=>sf.tricks.length);
+    if(!sfs.length)return;
+
+    const inProg=new Set(progData.map(e=>e.trickName));
+    const fdiv=document.createElement('div');fdiv.className='prog-fam';
+    const cnt=sfs.reduce((s,sf)=>s+sf.tricks.length,0);
+    fdiv.innerHTML=`<button class="prog-fam-hdr">
+      <span class="prog-fam-tog">${query?'−':'+'}</span>
+      <span class="prog-fam-name">${family.name}</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted);">${cnt}</span>
+    </button>
+    <div class="prog-fam-body${query?' open':''}">
+      ${sfs.map(sf=>`
+        <div class="prog-sf-name">${sf.name}</div>
+        ${sf.tricks.map(t=>{
+          const added=inProg.has(t.name);
+          return `<div class="prog-trick-row${added?' added':''}" data-name="${t.name}">
+            <span class="prog-trick-chk${added?' sel':''}"></span>
+            <span>${t.name}</span>
+          </div>`;
+        }).join('')}
+      `).join('')}
+    </div>`;
+
+    const fhdr=fdiv.querySelector('.prog-fam-hdr');
+    const fbody=fdiv.querySelector('.prog-fam-body');
+    const ftog=fdiv.querySelector('.prog-fam-tog');
+    fhdr.addEventListener('click',()=>{
+      const open=fbody.classList.toggle('open');
+      ftog.textContent=open?'−':'+';
+    });
+
+    fdiv.querySelectorAll('.prog-trick-row').forEach(row=>{
+      row.addEventListener('click',()=>{
+        const name=row.dataset.name;
+        if(progData.find(e=>e.trickName===name)){
+          // remove
+          progData=progData.filter(e=>e.trickName!==name);
+          saveProg();
+          renderProgScheme(query);
+          renderProgList();
+        } else {
+          // open step selector
+          openStepSelector(name, ()=>{
+            renderProgScheme(query);
+            renderProgList();
+          });
+        }
+      });
+    });
+
+    container.appendChild(fdiv);
+  });
 }
 
-document.getElementById('btn-prog').addEventListener('click', function(e){
-  e.stopPropagation();
-  progPanelVisible ? closeProgPanel() : openProgPanel();
-});
-document.getElementById('prog-close').addEventListener('click', closeProgPanel);
-document.getElementById('prog-clear-all').addEventListener('click', e => {
-  e.stopPropagation();
-  if(!confirm('¿Limpiar toda la progresión?')) return;
-  progData = []; saveProg(); renderProg();
+// search in prog scheme
+document.getElementById('prog-search').addEventListener('input',e=>{
+  renderProgScheme(e.target.value);
 });
 
+// clear all
+document.getElementById('prog-clear-all').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!confirm('¿Limpiar toda la progresión?'))return;
+  progData=[];saveProg();renderProgScheme();renderProgList();
+});
+
+// ── STEP SELECTOR ──
+const GROUP_LABELS = {flat:'Flat / Calle', manual:'Manuales', trans:'Transición'};
+let stepSelCallback = null;
+let stepSelTrick = null;
+let stepSelSelected = new Set();
+
+function openStepSelector(trickName, callback){
+  stepSelTrick = trickName;
+  stepSelCallback = callback;
+  stepSelSelected = new Set();
+  document.getElementById('step-sel-title').textContent = trickName;
+  renderStepSelector();
+  document.getElementById('step-sel-ov').classList.add('open');
+}
+
+function openStepSelectorForExisting(trickName, callback){
+  const entry = progData.find(e=>e.trickName===trickName);
+  stepSelTrick = trickName;
+  stepSelCallback = callback;
+  // pre-select already added steps
+  stepSelSelected = new Set(entry ? entry.steps.map(s=>s.idx) : []);
+  document.getElementById('step-sel-title').textContent = trickName + ' — escalones';
+  renderStepSelector();
+  document.getElementById('step-sel-ov').classList.add('open');
+}
+
+function renderStepSelector(){
+  const body = document.getElementById('step-sel-body');
+  body.innerHTML = '';
+  const groups = ['flat','manual','trans'];
+  groups.forEach(g=>{
+    const steps = PROG_STEPS.map((s,i)=>({...s,i})).filter(s=>s.group===g);
+    const gdiv = document.createElement('div');
+    gdiv.style.cssText = 'margin-bottom:12px;';
+    gdiv.innerHTML = `<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">${GROUP_LABELS[g]}</div>`;
+    steps.forEach(step=>{
+      const row = document.createElement('div');
+      const sel = stepSelSelected.has(step.i);
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:4px 0;cursor:pointer;border-radius:2px;';
+      row.innerHTML = `<span style="width:13px;height:13px;border:1px solid ${sel?'var(--fg)':'#aaa'};border-radius:2px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;background:${sel?'var(--fg)':'none'};">
+        ${sel?`<span style="display:block;width:7px;height:5px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translate(1px,-1px);"></span>`:''}
+      </span>
+      <div>
+        <div style="font-size:12px;font-weight:700;">${step.name}</div>
+        <div style="font-size:10px;color:var(--muted);">${step.desc}</div>
+      </div>`;
+      row.addEventListener('click',()=>{
+        if(stepSelSelected.has(step.i)) stepSelSelected.delete(step.i);
+        else stepSelSelected.add(step.i);
+        renderStepSelector();
+      });
+      gdiv.appendChild(row);
+    });
+    body.appendChild(gdiv);
+  });
+  const count = stepSelSelected.size;
+  document.getElementById('step-sel-count').textContent = count ? `${count} escalones seleccionados` : 'ninguno seleccionado';
+}
+
+document.getElementById('step-sel-all').addEventListener('click',function(){
+  const allSelected = stepSelSelected.size === PROG_STEPS.length;
+  if(allSelected){
+    stepSelSelected.clear();
+    this.textContent = 'seleccionar todo';
+  } else {
+    PROG_STEPS.forEach((_,i) => stepSelSelected.add(i));
+    this.textContent = 'quitar todo';
+  }
+  renderStepSelector();
+});
+
+document.getElementById('step-sel-close').addEventListener('click',()=>{
+  document.getElementById('step-sel-ov').classList.remove('open');
+});
+document.getElementById('step-sel-ov').addEventListener('click',e=>{
+  if(e.target===document.getElementById('step-sel-ov'))
+    document.getElementById('step-sel-ov').classList.remove('open');
+});
+
+document.getElementById('step-sel-confirm').addEventListener('click',()=>{
+  if(!stepSelSelected.size){toast('Selecciona al menos un escalón');return;}
+  const existing = progData.find(e=>e.trickName===stepSelTrick);
+  if(existing){
+    // update steps keeping done state where possible
+    const doneSet = new Set(existing.steps.filter(s=>s.done).map(s=>s.idx));
+    existing.steps = [...stepSelSelected].sort((a,b)=>a-b).map(i=>({idx:i,done:doneSet.has(i)}));
+  } else {
+    progData.push({
+      trickName: stepSelTrick,
+      steps: [...stepSelSelected].sort((a,b)=>a-b).map(i=>({idx:i,done:false}))
+    });
+  }
+  saveProg();
+  document.getElementById('step-sel-ov').classList.remove('open');
+  if(stepSelCallback) stepSelCallback();
+  toast(`${stepSelSelected.size} escalones para "${stepSelTrick}"`);
+});
+
+// Remove old floating panel listeners (btn-prog, prog-close no longer exist)
+// addToProgression no longer needed - kept for backward compat
 function addToProgression(trickName){
-  if(progData.find(e => e.trickName === trickName)){ toast('Ya está en progresión'); return; }
-  progData.push({ trickName, steps: DEFAULT_STEPS.map(s => ({...s, done:false})) });
-  saveProg(); renderProg();
-  // switch to training tab and open panel
-  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelector('.app-tab[data-tab="entrenamiento"]').classList.add('active');
-  document.getElementById('view-entrenamiento').classList.add('active');
-  setTimeout(() => openProgPanel(), 50);
-  toast(`"${trickName}" añadido a progresión`);
+  // switch to progresion tab first
+  document.querySelectorAll('.app-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelector('.app-tab[data-tab="progresion"]').classList.add('active');
+  document.getElementById('view-progresion').classList.add('active');
+  if(progData.find(e=>e.trickName===trickName)){
+    toast('Ya está en progresión');return;
+  }
+  openStepSelector(trickName, ()=>{renderProgScheme();renderProgList();});
 }
 
 // ── INIT ──
 applyTheme(localStorage.getItem(THEME_KEY)==='dark');
-applyFilters();renderRoutineList();renderDetail();renderProg();
+applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
