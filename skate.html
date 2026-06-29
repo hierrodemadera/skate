@@ -390,7 +390,11 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <div class="topbar">
   <div class="topbar-row">
     <h1>SKATE</h1>
-    <button id="theme-toggle" title="Cambiar tema" style="margin-left:auto;background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">☀ día</button>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <button id="btn-export" title="Exportar datos" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">↓ exportar</button>
+    <label id="btn-import-label" title="Importar datos" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">↑ importar<input type="file" id="btn-import" accept=".json" style="display:none;"></label>
+    <button id="theme-toggle" title="Cambiar tema" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">☀ día</button>
+  </div>
   </div>
   <div class="app-tabs">
     <button class="app-tab active" data-tab="esquema">Esquema</button>
@@ -2510,6 +2514,74 @@ document.getElementById('mconfirm').addEventListener('click',()=>{
   document.getElementById('modal-ov').classList.remove('open');
   renderDetail();updateBreakdown();
   if(added)toast(`${added} trucos añadidos`);
+});
+
+// ── EXPORT / IMPORT ──
+function getAllData(){
+  return {
+    version: 1,
+    exportDate: new Date().toISOString(),
+    checks: Object.fromEntries([...checked].map(name => [name, checksTs[name]||''])),
+    routines: routines,
+    progresion: progData,
+  };
+}
+
+function loadAllData(data){
+  if(!data||data.version!==1){toast('Formato no válido');return;}
+  // checks
+  checked = new Set(Object.keys(data.checks||{}));
+  checksTs = data.checks||{};
+  SK.saveChecks(checked);
+  saveChecksTs(checksTs);
+  // routines
+  routines = data.routines||[];
+  SK.saveRoutines(routines);
+  // progresion
+  progData = data.progresion||[];
+  saveProg();
+  // refresh UI
+  document.querySelectorAll('.tchk').forEach(el=>{
+    const name=el.closest('.trick')?.dataset.fullname;
+    if(name) el.classList.toggle('done', checked.has(name));
+  });
+  document.getElementById('conseguidos-count').textContent = checked.size;
+  renderRoutineList();
+  renderDetail();
+  renderProgScheme();
+  renderProgList();
+  toast('Datos importados correctamente');
+}
+
+document.getElementById('btn-export').addEventListener('click',()=>{
+  const data = getAllData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `skate-datos-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Datos exportados');
+});
+
+document.getElementById('btn-import').addEventListener('change', function(){
+  const file = this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(confirm(`¿Importar datos de ${file.name}? Esto reemplazará tus datos actuales.`)){
+        loadAllData(data);
+      }
+    } catch {
+      toast('Error: archivo JSON no válido');
+    }
+    this.value = ''; // reset input
+  };
+  reader.readAsText(file);
 });
 
 // ── THEME ──
