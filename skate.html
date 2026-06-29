@@ -2519,28 +2519,109 @@ document.getElementById('mconfirm').addEventListener('click',()=>{
 // ── EXPORT / IMPORT ──
 function getAllData(){
   return {
-    version: 1,
+    version: 2,
     exportDate: new Date().toISOString(),
+    // ── CHECKS: {nombre: "fecha_iso"} 
     checks: Object.fromEntries([...checked].map(name => [name, checksTs[name]||''])),
-    routines: routines,
-    progresion: progData,
+    // ── ROUTINES: lista completa con todos los campos
+    routines: routines.map(r=>({
+      id: r.id,
+      name: r.name,
+      created: r.created,
+      color: r.color||'',
+      blocks: (r.blocks||[]).map(b=>({
+        id: b.id,
+        name: b.name||'',
+        color: b.color||'',
+        note: b.note||'',
+        tricks: b.tricks||[]
+      })),
+      general: r.general||[]
+    })),
+    // ── PROGRESION: lista de trucos con escalones
+    progresion: progData.map(e=>({
+      trickName: e.trickName,
+      steps: e.steps.map(s=>({
+        idx: s.idx,
+        name: PROG_STEPS[s.idx]?.name||'',
+        done: s.done
+      }))
+    }))
   };
 }
 
 function loadAllData(data){
-  if(!data||data.version!==1){toast('Formato no válido');return;}
-  // checks
-  checked = new Set(Object.keys(data.checks||{}));
-  checksTs = data.checks||{};
+  if(!data||![1,2].includes(data.version)){toast('Formato no válido');return;}
+
+  // ── CHECKS
+  // _deleteChecks: ["nombre"] — borra checks específicos
+  // _replaceChecks: true — reemplaza todos los checks
+  const newChecks = data.checks||{};
+  if(data._replaceChecks){
+    checked = new Set(Object.keys(newChecks));
+    checksTs = {...newChecks};
+  } else {
+    (data._deleteChecks||[]).forEach(name=>{ checked.delete(name); delete checksTs[name]; });
+    Object.entries(newChecks).forEach(([name,date])=>{
+      checked.add(name);
+      checksTs[name] = date||checksTs[name]||new Date().toISOString();
+    });
+  }
   SK.saveChecks(checked);
   saveChecksTs(checksTs);
-  // routines
-  routines = data.routines||[];
+
+  // ── ROUTINES
+  // _deleteRoutines: ["id_o_nombre"] — borra rutinas
+  // _replaceRoutines: true — reemplaza todas las rutinas
+  // routines: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe la añade
+  const deleteRids = new Set(data._deleteRoutines||[]);
+  routines = routines.filter(r=>!deleteRids.has(r.id)&&!deleteRids.has(r.name));
+  if(data._replaceRoutines){
+    routines = data.routines||[];
+  } else {
+    (data.routines||[]).forEach(nr=>{
+      const idx = routines.findIndex(r=>r.id===nr.id||r.name===nr.name);
+      if(idx>-1){
+        // merge field by field — only update fields present in JSON
+        const r = routines[idx];
+        if(nr.name!==undefined) r.name=nr.name;
+        if(nr.color!==undefined) r.color=nr.color;
+        if(nr.blocks!==undefined) r.blocks=nr.blocks;
+        if(nr.general!==undefined) r.general=nr.general;
+      } else {
+        // ensure required fields
+        if(!nr.id) nr.id = Date.now().toString(36)+Math.random().toString(36).slice(2,4);
+        if(!nr.created) nr.created = new Date().toISOString();
+        if(!nr.blocks) nr.blocks = [];
+        if(!nr.general) nr.general = [];
+        routines.unshift(nr);
+      }
+    });
+  }
   SK.saveRoutines(routines);
-  // progresion
-  progData = data.progresion||[];
+
+  // ── PROGRESION
+  // _deleteProgresion: ["trickName"] — borra trucos de progresión
+  // _replaceProgresion: true — reemplaza toda la progresión
+  // progresion: [...] — fusiona por trickName; si existe actualiza escalones
+  const deleteTricks = new Set(data._deleteProgresion||[]);
+  progData = progData.filter(e=>!deleteTricks.has(e.trickName));
+  if(data._replaceProgresion){
+    progData = (data.progresion||[]).map(e=>({
+      trickName:e.trickName,
+      steps:(e.steps||[]).map(s=>({idx:s.idx,done:!!s.done}))
+    }));
+  } else {
+    (data.progresion||[]).forEach(np=>{
+      const idx = progData.findIndex(e=>e.trickName===np.trickName);
+      const steps = (np.steps||[]).map(s=>({idx:s.idx,done:!!s.done}));
+      if(idx>-1) progData[idx].steps=steps;
+      else progData.push({trickName:np.trickName,steps});
+    });
+  }
   saveProg();
-  // refresh UI
+
+  // ── REFRESH UI
   document.querySelectorAll('.tchk').forEach(el=>{
     const name=el.closest('.trick')?.dataset.fullname;
     if(name) el.classList.toggle('done', checked.has(name));
@@ -2550,7 +2631,7 @@ function loadAllData(data){
   renderDetail();
   renderProgScheme();
   renderProgList();
-  toast('Datos importados correctamente');
+  toast('✓ datos importados');
 }
 
 document.getElementById('btn-export').addEventListener('click',()=>{
@@ -2573,7 +2654,7 @@ document.getElementById('btn-import').addEventListener('change', function(){
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if(confirm(`¿Importar datos de ${file.name}? Esto reemplazará tus datos actuales.`)){
+      if(confirm(`¿Importar ${file.name}? Los datos nuevos se fusionarán con los existentes.`)){
         loadAllData(data);
       }
     } catch {
