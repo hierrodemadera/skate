@@ -249,6 +249,8 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .btrm:hover{color:#b00;}
 .blk-add{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;
   text-transform:uppercase;color:var(--blk-fg,var(--muted));cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;opacity:0.7;}
+.blk-add-est{background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--blk-fg,var(--muted));cursor:pointer;padding:5px 0;display:block;width:100%;text-align:left;opacity:0.7;}
 .blk-add:hover{color:var(--fg);}
 .add-blk-btn{background:none;border:1px dashed var(--border);font-family:inherit;font-size:10px;
   letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;
@@ -376,6 +378,46 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .prog-step-desc{font-size:10px;color:var(--muted);margin-top:1px;}
 .prog-empty{padding:20px 14px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
 
+/* ESTIRAMIENTOS */
+#view-estiramientos{flex-direction:row;gap:10px;}
+.est-window{background:var(--win);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:3px;display:flex;flex-direction:column;overflow:hidden;}
+.est-section{border-bottom:1px solid var(--border);}
+.est-section-hdr{display:flex;align-items:baseline;gap:8px;padding:10px 12px;cursor:pointer;
+  background:none;border:none;width:100%;text-align:left;font-family:inherit;user-select:none;}
+.est-section-hdr:hover .est-section-name{opacity:0.6;}
+.est-tog{font-size:10px;color:var(--muted);width:10px;flex-shrink:0;}
+.est-section-name{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);}
+.est-section-desc{font-size:11px;color:var(--muted);margin-left:4px;}
+.est-section-body{display:none;padding-bottom:12px;}
+.est-section-body.open{display:block;}
+.est-group{margin-bottom:10px;}
+.est-group-name{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--c-subfamily);padding:5px 12px 3px 22px;}
+.est-group-spec{font-size:10px;color:var(--muted);padding:0 12px 4px 22px;font-style:italic;}
+.est-items{padding-left:22px;}
+.est-item{display:flex;align-items:flex-start;gap:6px;padding:3px 8px 3px 0;
+  border-radius:2px;transition:background 0.1s;cursor:pointer;}
+.est-item:hover{background:var(--hover);}
+.est-chk{width:11px;height:11px;flex-shrink:0;border:1px solid #aaa;border-radius:1px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:2px;}
+.est-chk.done{border-color:var(--fg);}
+.est-chk.done::after{content:'';display:block;width:6px;height:4px;
+  border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
+  transform:rotate(-45deg) translate(1px,-1px);}
+.est-item-name{font-size:12px;flex:1;}
+.est-item.hidden{display:none;}
+
+/* sidebar panels */
+.est-sidebar{width:240px;flex-shrink:0;}
+.est-collapse-hdr{padding:8px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;
+  background:none;border:none;width:100%;text-align:left;font-family:inherit;}
+.est-collapse-hdr:hover .est-collapse-name{opacity:0.6;}
+.est-collapse-name{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);flex:1;}
+.est-collapse-body{display:none;padding:8px 12px;}
+.est-collapse-body.open{display:block;}
+.est-sidebar-item{font-size:12px;padding:3px 0;color:var(--muted);}
+
 /* TOAST */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(8px);
   background:var(--fg);color:var(--bg);font-size:11px;letter-spacing:0.08em;
@@ -400,6 +442,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     <button class="app-tab active" data-tab="esquema">Esquema</button>
     <button class="app-tab" data-tab="entrenamiento">Entrenamiento</button>
     <button class="app-tab" data-tab="progresion">Progresión</button>
+    <button class="app-tab" data-tab="estiramientos">Estiramientos</button>
   </div>
 </div>
 
@@ -424,8 +467,12 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
-  <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;">
-    <div class="win-tb">Rutinas <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button></div>
+  <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;transition:width 0.2s;">
+    <div class="win-tb">
+      <button id="btn-toggle-routines" style="background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);cursor:pointer;padding:0;line-height:1;margin-right:4px;" title="Colapsar panel">‹</button>
+      <span id="routines-title">Rutinas</span>
+      <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
+    </div>
     <button class="rnew" id="btn-new">+ nueva rutina</button>
     <div class="rlist" id="rlist"></div>
   </div>
@@ -437,6 +484,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
         <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
         <span class="dmeta" id="dmeta"></span>
         <div class="dactions">
+          <button class="bsm" id="btn-print">↓ txt</button>
           <button class="bsm danger" id="btn-del">borrar</button>
         </div>
       </div>
@@ -471,6 +519,42 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     </div>
     <div style="overflow-y:auto;flex:1;" id="prog-list">
       <div class="prog-empty" id="prog-empty">← selecciona trucos del panel izquierdo</div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTIRAMIENTOS VIEW -->
+<div class="view" id="view-estiramientos">
+  <!-- MAIN SCHEME -->
+  <div class="est-window" style="flex:1;min-width:0;">
+    <div class="win-tb">
+      <span>Estiramientos</span>
+      <input type="search" id="est-search" placeholder="buscar..." autocomplete="off" spellcheck="false"
+        style="margin-left:auto;background:none;border:none;border-bottom:1px solid var(--border);font-family:inherit;font-size:11px;padding:2px 0;color:var(--fg);outline:none;width:160px;">
+      <button id="est-collapse-all" style="margin-left:8px;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;">[ cerrar todo ]</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;" id="est-main"></div>
+  </div>
+  <!-- SIDEBAR -->
+  <div class="est-window est-sidebar">
+    <div class="win-tb">Personal</div>
+    <div style="overflow-y:auto;flex:1;">
+      <!-- MIS EJERCICIOS -->
+      <div style="border-bottom:1px solid var(--border);">
+        <button class="est-collapse-hdr" id="mis-ej-toggle">
+          <span class="est-collapse-name">Mis ejercicios</span>
+          <span style="font-size:10px;color:var(--muted);">▾</span>
+        </button>
+        <div class="est-collapse-body" id="mis-ej-body"></div>
+      </div>
+      <!-- FUERZA -->
+      <div>
+        <button class="est-collapse-hdr" id="fuerza-toggle">
+          <span class="est-collapse-name">Fuerza específica</span>
+          <span style="font-size:10px;color:var(--muted);">▾</span>
+        </button>
+        <div class="est-collapse-body" id="fuerza-body"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2351,6 +2435,7 @@ function renderBlocks(r){
           <button class="btrm" data-i="${i}">×</button>
         </div>`).join('')}
       <button class="blk-add">+ añadir trucos</button>
+      <button class="blk-add-est">+ añadir estiramiento</button>
     </div>
     <button class="blk-note-toggle">
       <span class="note-dot${hasNote?' has-note':''}"></span>
@@ -2393,7 +2478,8 @@ function renderBlocks(r){
         navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
       });
     });
-    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(activeRid,block.id));
+    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(activeRid,block.id,'skate'));
+    bdiv.querySelector('.blk-add-est').addEventListener('click',()=>openModal(activeRid,block.id,'est'));
 
     // note toggle
     const noteToggle=bdiv.querySelector('.blk-note-toggle');
@@ -2438,11 +2524,14 @@ function updateBreakdown(){
 // ─────────────────────────────
 // ── MODAL ──
 // ─────────────────────────────
-function openModal(rid,bid){
+let modalMode='skate'; // 'skate' or 'est'
+function openModal(rid,bid,mode){
   modalTarget={rid,bid};modalSel.clear();
+  modalMode=mode||'skate';
   const r=routines.find(x=>x.id===rid);
   const b=bid?r?.blocks.find(b=>b.id===bid):null;
-  document.getElementById('mtitle').textContent=bid?`Añadir trucos › ${b?.name||'bloque'}`:'Añadir trucos › general';
+  const modeLabel=modalMode==='est'?'estiramiento':'truco';
+  document.getElementById('mtitle').textContent=bid?`Añadir ${modeLabel} › ${b?.name||'bloque'}`:`Añadir ${modeLabel} › general`;
   document.getElementById('msearch').value='';
   renderModal('');
   document.getElementById('modal-ov').classList.add('open');
@@ -2454,6 +2543,40 @@ function renderModal(q){
   const b=modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null;
   const inTarget=new Set(b?b.tricks:(r?.general||[]));
   const body=document.getElementById('mbody');body.innerHTML='';
+
+  // EST MODE
+  if(modalMode==='est'){
+    ESTIRAMIENTOS_HIJOS.forEach(section=>{
+      const groups=section.grupos.map(g=>({...g,items:g.items.filter(item=>!q||item.toLowerCase().includes(q))})).filter(g=>g.items.length);
+      if(!groups.length)return;
+      const fdiv=document.createElement('div');fdiv.className='mfam';
+      const cnt=groups.reduce((s,g)=>s+g.items.length,0);
+      fdiv.innerHTML=`<button class="mfhdr"><span class="mftog">${q?'−':'+'}</span><span class="mfname">${section.nombre}</span><span class="mfcnt">${cnt}</span></button>
+        <div class="mfbody${q?' open':''}">
+          ${groups.map(g=>`<div class="msfname">${g.nombre}${g.spec?` <span style="font-weight:400;text-transform:none;letter-spacing:0;">(${g.spec})</span>`:''}</div>
+            ${g.items.map(item=>{
+              const al=inTarget.has(item),sel=modalSel.has(item);
+              return `<div class="mtrick${al?' already':''}" data-name="${item.replace(/"/g,'&quot;')}">
+                <span class="mchk${sel?' sel':''}"></span><span>${item}</span>
+                ${al?'<span style="font-size:10px;color:var(--muted);margin-left:auto">✓</span>':''}
+              </div>`;
+            }).join('')}`).join('')}
+        </div>`;
+      const mfh=fdiv.querySelector('.mfhdr'),mfb=fdiv.querySelector('.mfbody'),mft=fdiv.querySelector('.mftog');
+      mfh.addEventListener('click',()=>{const o=mfb.classList.toggle('open');mft.textContent=o?'−':'+';});
+      fdiv.querySelectorAll('.mtrick:not(.already)').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const name=el.dataset.name;
+          modalSel.has(name)?modalSel.delete(name):modalSel.add(name);
+          el.querySelector('.mchk').classList.toggle('sel',modalSel.has(name));
+          document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
+        });
+      });
+      body.appendChild(fdiv);
+    });
+    return;
+  }
+
   DATA.forEach(family=>{
     const sfs=family.subfamilies.map(sf=>({...sf,tricks:sf.tricks.filter(t=>!q||t.name.toLowerCase().includes(q))})).filter(sf=>sf.tricks.length);
     if(!sfs.length)return;
@@ -2663,6 +2786,583 @@ document.getElementById('btn-import').addEventListener('change', function(){
     this.value = ''; // reset input
   };
   reader.readAsText(file);
+});
+
+// ── PRINT / EXPORT TXT ──
+document.getElementById('btn-print').addEventListener('click',()=>{
+  const r = routines.find(x=>x.id===activeRid);
+  if(!r) return;
+
+  let txt = '';
+  txt += `RUTINA: ${r.name||'Sin nombre'}\n`;
+  txt += `Creada: ${fmtDate(r.created)}\n`;
+  txt += '\n';
+
+  // general tricks
+  if((r.general||[]).length){
+    txt += `── General ──\n`;
+    r.general.forEach(t=>{ txt += `- ${t}\n`; });
+    txt += '\n';
+  }
+
+  // blocks
+  (r.blocks||[]).forEach(block=>{
+    txt += `── ${block.name||'Bloque'} ──\n`;
+    (block.tricks||[]).forEach(t=>{ txt += `- ${t}\n`; });
+    if(block.note&&block.note.trim()){
+      txt += `\nNota: ${block.note.trim()}\n`;
+    }
+    txt += '\n';
+  });
+
+  // download
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(r.name||'rutina').replace(/[^a-z0-9]/gi,'_')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Descargado como .txt');
+});
+
+// ── ROUTINES PANEL COLLAPSE ──
+let routinesPanelOpen = true;
+document.getElementById('btn-toggle-routines').addEventListener('click', function(){
+  routinesPanelOpen = !routinesPanelOpen;
+  const panel = document.getElementById('panel-routines');
+  const title = document.getElementById('routines-title');
+  const sortBtn = document.getElementById('fdd-sort-btn');
+  const newBtn = document.getElementById('btn-new');
+  const rlist = document.getElementById('rlist');
+  if(routinesPanelOpen){
+    panel.style.width = '230px';
+    this.textContent = '‹';
+    this.title = 'Colapsar panel';
+    title.style.display = '';
+    sortBtn.style.display = '';
+    newBtn.style.display = '';
+    rlist.style.display = '';
+  } else {
+    panel.style.width = '32px';
+    this.textContent = '›';
+    this.title = 'Expandir panel';
+    title.style.display = 'none';
+    sortBtn.style.display = 'none';
+    newBtn.style.display = 'none';
+    rlist.style.display = 'none';
+  }
+});
+
+// ── ESTIRAMIENTOS DATA ──
+const ESTIRAMIENTOS_HIJOS = [
+  {
+    id:'est-1', nombre:'1 · Estático pasivo',
+    desc:'Posición mantenida en rango final. Para ganar elasticidad: mínimo 60-120 s. Deformación viscoelástica + adaptación estructural del tejido conectivo.',
+    grupos:[
+      {id:'e1-flex', nombre:'Flexores de cadera', spec:'iliopsoas, recto femoral, TFL', items:[
+        'Couch stretch (pie en pared, máxima extensión de cadera)',
+        'Thomas stretch colgante (decúbito supino, pierna en caída pasiva libre)',
+        'Kneeling hip flexor profundo (pelvis en retroversión, inclinación atrás)',
+        'Split frontal progresivo (carga en flexor cadera posterior)',
+        'Prone hip flexor release (boca abajo, cadera presionada al suelo)',
+      ]},
+      {id:'e1-ext', nombre:'Extensores de cadera', spec:'glúteo máximo, isquiotibiales, adductor magnus post.', items:[
+        'Sleeping pigeon (paloma reclinada, carga máxima sobre cadera)',
+        'Double pigeon (Agnistambhasana, apilamiento de tibias)',
+        'Supine hamstring con cuerda (pierna recta, carga progresiva en rango final)',
+        'Standing hamstring sobre superficie elevada (carga corporal completa)',
+        'Pigeon pose pasivo profundo (cadera anterior pegada al suelo)',
+      ]},
+      {id:'e1-abd', nombre:'Abductores de cadera', spec:'glúteo medio, glúteo mínimo, TFL', items:[
+        'Figure-4 supino con carga (pies en pared, presión sobre tibia)',
+        'Seated cross-leg forward fold (Ardha Padmasana inclinado)',
+        'Cross-body glute stretch profundo (rodilla al hombro opuesto con presión)',
+      ]},
+      {id:'e1-add', nombre:'Aductores de cadera', spec:'adductor magnus/longus/brevis, gracilis, pectineus', items:[
+        'Middle split progresivo en suelo (con elevaciones bajo pies)',
+        'Wall split (piernas en V contra pared, gravedad pasiva)',
+        'Frog stretch profundo (rana, rodillas y tobillos a 90°, cadera al suelo)',
+        'Pancake stretch (inclinación frontal en apertura sentado, carga progresiva)',
+        'Lateral lunge hold profundo (cadera por debajo de rodilla)',
+        'Straddle compressions pasivas (peso sobre tronco en apertura)',
+      ]},
+      {id:'e1-rext', nombre:'Rotadores externos de cadera', spec:'piriforme, obturator int./ext., gemelos sup./inf., cuadrado femoral', items:[
+        'Sleeping pigeon con inclinación lateral (carga directa sobre piriforme)',
+        '90/90 hip stretch pasivo en rango final',
+        'Seated figure-4 con carga sobre tobillo',
+        'Squat profundo con rotación externa máxima',
+      ]},
+      {id:'e1-rint', nombre:'Rotadores internos de cadera', spec:'glúteo medio ant., glúteo mínimo ant., TFL', items:[
+        'Internal rotation stretch supino con carga (rodilla caída pasiva al suelo)',
+        'Prone internal rotation hold (boca abajo, rodilla doblada, caída pasiva)',
+        'W-sit progresivo (rotación interna bilateral)',
+        'Side-lying internal rotation pasiva con peso en tobillo',
+      ]},
+      {id:'e1-quad', nombre:'Cuádriceps / recto femoral', spec:'recto femoral, vasto medial/lateral/intermedio', items:[
+        'Couch stretch avanzado (pie en pared, cadera completamente extendida)',
+        'Hero pose (Virasana) con carga progresiva hacia Supta Virasana',
+        'Prone quad stretch con cuerda (tracción talón a glúteo)',
+        'Kneeling quad stretch con retroversión pélvica activa',
+      ]},
+      {id:'e1-glob', nombre:'Cadera global / movilidad multidireccional', spec:'', items:[
+        'Hip 90/90 bilateral en suelo (rango global interno y externo)',
+        'Deep squat hold con carga (goblet squat isométrico profundo)',
+        'Mariposa profunda con inclinación frontal y carga en espalda',
+        'Malasana con talones en suelo (squat asiático profundo)',
+      ]},
+      {id:'e1-post', nombre:'Cadena posterior', spec:'isquiotibiales, gastrocnemio-sóleo, fascia toracolumbar', items:[
+        'Jefferson curl (flexión espinal segmentaria con carga, cadena posterior completa)',
+        'Pancake forward fold (inclinación frontal en apertura, carga progresiva)',
+        'Standing hamstring con apoyo elevado y carga corporal',
+        'Soleus stretch profundo (rodilla flexionada, talón en suelo, carga)',
+      ]},
+    ]
+  },
+  {
+    id:'est-2', nombre:'2 · PNF — Facilitación neuromuscular propioceptiva',
+    desc:'El método más eficaz para ganar ROM estructural. Contracción isométrica submáxima 6-8 s + relajación inmediata y descenso más profundo. Técnicas: CR, HR, CRAC. Mínimo 3 ciclos.',
+    grupos:[
+      {id:'e2-flex', nombre:'Flexores de cadera', spec:'iliopsoas, recto femoral, TFL', items:[
+        'PNF couch stretch (CR: empujar pie contra pared, relajar y profundizar)',
+        'PNF hip flexor lunge profundo (CR: empujar rodilla hacia atrás, soltar y descender)',
+        'PNF Thomas position (HR: contracción isométrica + caída pasiva más profunda)',
+        'PNF split frontal (CR: intentar cerrar piernas, relajar y descender)',
+      ]},
+      {id:'e2-ext', nombre:'Extensores de cadera', spec:'glúteo máximo, isquiotibiales', items:[
+        'PNF hamstring supino con cuerda (HR: empujar contra cuerda 8 s, soltar y elevar más)',
+        'PNF sleeping pigeon (CR: empujar cadera hacia arriba, relajar y hundir más)',
+        'PNF double pigeon (CR: empujar rodilla superior hacia arriba, soltar y ceder)',
+        'PNF pancake (HR: intentar levantar piernas del suelo, soltar y caer más)',
+      ]},
+      {id:'e2-abd', nombre:'Abductores de cadera', spec:'glúteo medio, glúteo mínimo', items:[
+        'PNF figure-4 supino (CR: empujar tobillo contra muslo, soltar y presionar rodilla)',
+        'PNF sleeping pigeon lateral (CR: empujar cadera hacia arriba, relajar y ceder)',
+      ]},
+      {id:'e2-add', nombre:'Aductores de cadera', spec:'adductor magnus/longus/brevis, gracilis, pectineus', items:[
+        'PNF middle split (CR: intentar cerrar piernas contra suelo, soltar y descender)',
+        'PNF frog stretch (CR: intentar juntar rodillas, soltar y profundizar)',
+        'PNF wall split (CR: intentar cerrar piernas contra pared, relajar y dejar caer)',
+        'PNF pancake (HR: intentar levantar tronco, soltar y caer hacia piernas)',
+        'PNF lateral lunge (CRAC: contracción + descenso activo asistido)',
+      ]},
+      {id:'e2-rext', nombre:'Rotadores externos de cadera', spec:'piriforme, obturator int./ext., gemelos', items:[
+        'PNF sleeping pigeon (CR: empujar cadera hacia arriba, relajar y hundir)',
+        'PNF 90/90 rotadores externos (HR: empujar pie hacia suelo, soltar y ceder)',
+      ]},
+      {id:'e2-rint', nombre:'Rotadores internos de cadera', spec:'glúteo medio ant., TFL', items:[
+        'PNF rotación interna supina (CR: empujar rodilla hacia fuera, soltar y ceder al suelo)',
+        'PNF prone internal rotation (HR: contracción contra suelo, soltar y profundizar)',
+      ]},
+      {id:'e2-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:[
+        'PNF couch stretch (CR: empujar pie contra pared, relajar y profundizar cadera)',
+        'PNF Virasana (HR: contracción cuádriceps contra suelo, soltar y descender)',
+      ]},
+      {id:'e2-post', nombre:'Cadena posterior', spec:'isquiotibiales, gastrocnemio-sóleo', items:[
+        'PNF pancake (HR: intentar levantar piernas, soltar y caer hacia adelante)',
+        'PNF Jefferson curl (CR: contracción espinal, soltar y descender más con carga)',
+        'PNF gastrocnemio pared (CR: empujar talón, relajar y descender talón más)',
+        'PNF hamstring supino con cuerda en rango final',
+      ]},
+    ]
+  },
+  {
+    id:'est-3', nombre:'3 · Dinámico activo',
+    desc:'Movimiento controlado en rango FINAL, no de calentamiento. Activa la fuerza en el nuevo rango ganado. Complementa el trabajo estático para consolidar la adaptación.',
+    grupos:[
+      {id:'e3-flex', nombre:'Flexores de cadera', spec:'', items:[
+        'Slow front kick alto (rango máximo, completamente controlado)',
+        'Hip flexor CARs (círculo articular completo, lento)',
+        'Active lunge reach profundo (descenso máximo y retorno activo)',
+      ]},
+      {id:'e3-ext', nombre:'Extensores de cadera', spec:'', items:[
+        'Active pigeon transitions (pasar de pigeon a upright y volver lento)',
+        'Active hamstring sweep (pierna recta, arco máximo controlado)',
+        'Hip hinge en rango final profundo',
+      ]},
+      {id:'e3-abd', nombre:'Abductores de cadera', spec:'', items:[
+        'Slow side kick alto (rango máximo lateral, controlado)',
+        'Side-lying abductor active hold en tope de rango',
+        'Standing hip abduction en rango final lento',
+      ]},
+      {id:'e3-add', nombre:'Aductores de cadera', spec:'', items:[
+        'Active frog compressions (descender activamente en rana y subir)',
+        'Active pancake reach (inclinación activa en apertura a cada lado)',
+        'Lateral lunge activo con pausa en fondo de rango',
+      ]},
+      {id:'e3-rext', nombre:'Rotadores externos de cadera', spec:'', items:[
+        'Active 90/90 transitions (cambiar rotación externa-interna lento)',
+        'Active pigeon hip circles (círculos desde posición paloma)',
+        'Standing hip external rotation CARs',
+      ]},
+      {id:'e3-rint', nombre:'Rotadores internos de cadera', spec:'', items:[
+        'Active internal rotation floor sweep (arco interno controlado tumbado)',
+        'Active windshield wipers lentos en rango máximo interno',
+        'Standing internal rotation pendulum lento',
+      ]},
+      {id:'e3-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:[
+        'Active couch stretch transitions (ir y volver de posición profunda)',
+        'Active Virasana transitions (descender y subir de hero pose)',
+      ]},
+      {id:'e3-post', nombre:'Cadena posterior', spec:'', items:[
+        'Active Jefferson curl (descenso segmentario lento con control)',
+        'Active pancake walk (caminar con manos en apertura sentado)',
+        'Active hamstring sweep amplio (arco completo pierna recta)',
+      ]},
+    ]
+  },
+  {
+    id:'est-4', nombre:'4 · Balístico',
+    desc:'Impulso en rango final para estimular adaptación refleja. Usar DESPUÉS de trabajo estático-pasivo, en rango caliente y ganado. Técnica avanzada, no de calentamiento.',
+    grupos:[
+      {id:'e4-flex', nombre:'Flexores de cadera', spec:'', items:[
+        'Front kick ballistic alto (impulso máximo, pierna recta)',
+        'Ballistic lunge pulse en rango profundo',
+      ]},
+      {id:'e4-ext', nombre:'Extensores de cadera', spec:'', items:[
+        'Ballistic back kick alto (impulso máximo posterior)',
+        'Ballistic sleeping pigeon bounce (rebote en posición paloma profunda)',
+      ]},
+      {id:'e4-abd', nombre:'Abductores de cadera', spec:'', items:[
+        'Side kick ballistic alto (impulso lateral, pierna recta)',
+        'Ballistic lateral swing en rango máximo alcanzado',
+      ]},
+      {id:'e4-add', nombre:'Aductores de cadera', spec:'', items:[
+        'Split pulses en rango final (rebotes en posición de split)',
+        'Ballistic frog compressions (impulso hacia el suelo en rana)',
+        'Ballistic pancake compressions (rebote en inclinación de apertura)',
+      ]},
+      {id:'e4-rext', nombre:'Rotadores externos de cadera', spec:'', items:[
+        'Ballistic external rotation hip swing en rango máximo',
+        'Ballistic pigeon pulse profundo',
+      ]},
+      {id:'e4-rint', nombre:'Rotadores internos de cadera', spec:'', items:[
+        'Ballistic windshield wipers internos (impulso al rango interno)',
+        'Ballistic internal rotation floor drop',
+      ]},
+      {id:'e4-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:[
+        'Ballistic couch stretch pulse (rebote en posición couch profunda)',
+        'Ballistic prone heel-to-glute (impulso talón a glúteo)',
+      ]},
+      {id:'e4-post', nombre:'Cadena posterior', spec:'', items:[
+        'Ballistic pancake compressions (rebote en rango de apertura)',
+        'Ballistic hamstring pulse supino con cuerda en rango final',
+      ]},
+    ]
+  },
+  {
+    id:'est-5', nombre:'5 · AIS — Active Isolated Stretching',
+    desc:'Contracción del antagonista para elongar el agonista por inhibición recíproca. 2 s por repetición, 8-12 rep. Consolida ROM ganado con trabajo pasivo y lo hace funcional.',
+    grupos:[
+      {id:'e5-flex', nombre:'Flexores de cadera', spec:'', items:[
+        'AIS hip flexor supino (contracción glúteo + extensión activa de cadera)',
+        'AIS psoas en split frontal (contracción isquio + descenso activo)',
+        'AIS couch stretch activo (contracción glúteo contra pared)',
+      ]},
+      {id:'e5-ext', nombre:'Extensores de cadera', spec:'', items:[
+        'AIS hamstring supino con cuerda (elevación activa asistida en rango final)',
+        'AIS pigeon activo (descenso activo con contracción flexor contralateral)',
+        'AIS hamstring sentado (inclinación activa hacia pierna)',
+      ]},
+      {id:'e5-abd', nombre:'Abductores de cadera', spec:'', items:[
+        'AIS glúteo medio supino (contracción aductor + cruce activo de pierna)',
+        'AIS figure-4 activo (contracción aductor + presión rodilla activa)',
+      ]},
+      {id:'e5-add', nombre:'Aductores de cadera', spec:'', items:[
+        'AIS aductor side-lying con cuerda (abducción activa asistida)',
+        'AIS frog activo (contracción abductor + descenso activo)',
+        'AIS split lateral activo (contracción abductor + apertura activa)',
+      ]},
+      {id:'e5-rext', nombre:'Rotadores externos de cadera', spec:'', items:[
+        'AIS piriforme activo (contracción rotadores internos + cruce activo)',
+        'AIS 90/90 rotadores externos activo',
+      ]},
+      {id:'e5-rint', nombre:'Rotadores internos de cadera', spec:'', items:[
+        'AIS rotadores internos supino (contracción rotadores externos + caída activa)',
+        'AIS prone internal rotation activo',
+      ]},
+      {id:'e5-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:[
+        'AIS quad supino con cuerda (flexión activa de rodilla asistida)',
+        'AIS couch stretch activo (contracción isquios + extensión cadera)',
+      ]},
+      {id:'e5-post', nombre:'Cadena posterior', spec:'', items:[
+        'AIS hamstring con cuerda en rango final',
+        'AIS pancake activo (inclinación activa progresiva en apertura)',
+        'AIS Jefferson curl activo (descenso segmentario, contracción espinal)',
+      ]},
+    ]
+  },
+  {
+    id:'est-6', nombre:'6 · Liberación miofascial — SMR',
+    desc:'Presión sostenida sobre tejido miofascial para reducir restricciones que limitan el ROM. Usar ANTES del trabajo de estiramiento para maximizar la ganancia. 60-120 s en puntos de tensión.',
+    grupos:[
+      {id:'e6-flex', nombre:'Flexores de cadera', spec:'iliopsoas, recto femoral, TFL', items:[
+        'Lacrosse ball psoas profundo (prono, zona inguinal, presión con respiración)',
+        'Foam roller recto femoral (prono, con rotación interna para vasto lateral)',
+        'Foam roller TFL (lateral anterior, posición inclinada)',
+        'Lacrosse ball cadera anterior (punto de inserción iliopsoas)',
+      ]},
+      {id:'e6-ext', nombre:'Extensores de cadera', spec:'glúteo máximo, isquiotibiales', items:[
+        'Lacrosse ball glúteo mayor (sentado, pierna cruzada, localización precisa)',
+        'Foam roller isquiotibiales con variación de rotación',
+        'Lacrosse ball inserción proximal isquiotibiales (zona isquiática)',
+        'Foam roller glúteo profundo (posición de paloma sobre roller)',
+      ]},
+      {id:'e6-abd', nombre:'Abductores de cadera', spec:'banda iliotibial, glúteo medio', items:[
+        'Foam roller IT band completo (punto más restrictivo, presión sostenida)',
+        'Lacrosse ball glúteo medio (zona posterior lateral)',
+        'Foam roller cadera lateral (glúteo menor y medio)',
+      ]},
+      {id:'e6-add', nombre:'Aductores de cadera', spec:'adductores mediales', items:[
+        'Foam roller aductores mediales (cara interna muslo, prono con pierna abierta)',
+        'Lacrosse ball aductor magnus (zona distal interna, profunda)',
+        'Foam roller gracilis (cara medial, punto distal)',
+      ]},
+      {id:'e6-rext', nombre:'Rotadores externos de cadera', spec:'piriforme, rotadores profundos', items:[
+        'Lacrosse ball piriforme (sentado, pierna cruzada, rotación interna para abrir)',
+        'Lacrosse ball rotadores profundos zona isquiática',
+        'Foam roller rotadores externos en posición 90/90',
+      ]},
+      {id:'e6-rint', nombre:'Rotadores internos de cadera', spec:'glúteo medio ant., TFL', items:[
+        'Foam roller TFL anterior profundo (diagonal, con presión y rotación)',
+        'Lacrosse ball glúteo menor (zona lateral profunda)',
+      ]},
+      {id:'e6-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:[
+        'Foam roller cuádriceps completo (con variación interna-externa)',
+        'Lacrosse ball recto femoral punto central (prono, pierna doblada)',
+        'Foam roller vasto lateral (posición rotación interna)',
+      ]},
+      {id:'e6-post', nombre:'Cadena posterior', spec:'isquiotibiales, gastrocnemio, fascia plantar', items:[
+        'Foam roller isquiotibiales bilateral con variación de rotación',
+        'Foam roller gastrocnemio sostenido (punto más tenso, flexión-extensión tobillo)',
+        'Lacrosse ball fascia plantar (de pie, presión con descarga progresiva)',
+        'Foam roller zona lumbar y erector spinae (movimiento segmentario)',
+      ]},
+    ]
+  },
+  {
+    id:'est-7', nombre:'7 · Neurodynamic stretching — Movilización neural',
+    desc:'Restaura la mecánica de deslizamiento del nervio en su lecho. Las restricciones neurales limitan el ROM aunque el músculo esté suelto. Importante en trabajo de elasticidad avanzado.',
+    grupos:[
+      {id:'e7-ciat', nombre:'Nervio ciático', spec:'L4-S3 · isquiotibiales, cadena posterior', items:[
+        'SLR slider (flexión cadera + extensión rodilla alternante con dorsiflexión)',
+        'SLR tensioner (tensión simultánea: cadera flexionada + rodilla extendida + dorsiflexión)',
+        'Slump slider sentado (flexión cervical + extensión rodilla alternante)',
+        'Slump tensioner sentado (posición slump completa mantenida)',
+      ]},
+      {id:'e7-fem', nombre:'Nervio femoral', spec:'L2-L4 · cuádriceps, psoas, recto femoral', items:[
+        'Femoral slider prono (flexión rodilla + extensión cadera alternante)',
+        'Femoral tensioner prono (tensión simultánea: rodilla flexionada + cadera extendida)',
+        'Standing femoral slider (de pie, flexión rodilla + extensión cadera con inclinación contralateral)',
+      ]},
+      {id:'e7-obt', nombre:'Nervio obturador', spec:'L2-L4 · aductores mediales', items:[
+        'Obturador slider (abducción + rotación externa + dorsiflexión alternante)',
+        'Obturador tensioner (posición de abducción máxima sostenida)',
+      ]},
+      {id:'e7-fcut', nombre:'Nervio femorocutáneo lateral', spec:'L2-L3 · cara lateral del muslo', items:[
+        'LFCN slider (extensión cadera + aducción + flexión lateral tronco alternante)',
+        'LFCN tensioner (posición de tensión máxima sostenida)',
+      ]},
+    ]
+  },
+];
+
+const FUERZA = {
+  id:'fuerza', nombre:'Fuerza específica',
+  desc:'Fuerza activa en rango para el side kick a 180°',
+  grupos:[
+    {id:'f-core', nombre:'Troncales', spec:'', items:[
+      'Elevaciones laterales lentas','Hold lateral','Chamber holds','Side pulses activos (rango alto)'
+    ]}
+  ]
+};
+
+const MIS_EJERCICIOS = [
+  {
+    id:'est-1', nombre:'1 · Estático pasivo',
+    grupos:[
+      {id:'m-e1-flex', nombre:'Flexores de cadera', spec:'', items:['Dragon','Lizard pose','Lunge stretch']},
+      {id:'m-e1-ext', nombre:'Extensores de cadera', spec:'', items:['Oruga','Plow']},
+      {id:'m-e1-add', nombre:'Aductores de cadera', spec:'', items:[
+        'Middle split','Side split asistido','Mariposa','Rana','Cossack hold',
+        'Pancake stretch','Middle split inclinación lateral','Half split','Prasarita Padottanasana'
+      ]},
+      {id:'m-e1-rext', nombre:'Rotadores externos de cadera', spec:'', items:['Cordones']},
+      {id:'m-e1-quad', nombre:'Cuádriceps / recto femoral', spec:'', items:['Héroe reclinado']},
+      {id:'m-e1-glob', nombre:'Cadera global', spec:'', items:['Malasana','Bebé feliz']},
+    ]
+  },
+  {
+    id:'est-2', nombre:'2 · PNF',
+    grupos:[
+      {id:'m-e2-add', nombre:'Aductores de cadera', spec:'', items:['PNF en split (contract-relax)','Pulsos en split']},
+    ]
+  },
+];
+
+// ══════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════
+
+// ── ESTIRAMIENTOS CHECKS ──
+const EST_CHECKS_KEY = 'sk_est_checks';
+function loadEstChecks(){try{return new Set(JSON.parse(localStorage.getItem(EST_CHECKS_KEY)||'[]'));}catch{return new Set();}}
+function saveEstChecks(){localStorage.setItem(EST_CHECKS_KEY,JSON.stringify([...estChecked]));}
+let estChecked = loadEstChecks();
+
+// ── ESTIRAMIENTOS RENDER ──
+function renderEstMain(query){
+  const container = document.getElementById('est-main');
+  container.innerHTML = '';
+  query = (query||'').toLowerCase().trim();
+
+  ESTIRAMIENTOS_HIJOS.forEach(section=>{
+    const matchingGroups = section.grupos.map(g=>{
+      const items = g.items.filter(item=>!query||item.toLowerCase().includes(query));
+      return {...g, items};
+    }).filter(g=>g.items.length);
+
+    if(query && !matchingGroups.length) return;
+
+    const sdiv = document.createElement('div');
+    sdiv.className = 'est-section';
+
+    const totalItems = (query?matchingGroups:section.grupos).reduce((s,g)=>s+g.items.length,0);
+
+    sdiv.innerHTML = `<button class="est-section-hdr">
+      <span class="est-tog">${query?'−':'+'}</span>
+      <span class="est-section-name">${section.nombre}</span>
+      <span class="est-section-desc">${section.desc?'— '+section.desc.slice(0,60)+'...':''}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--muted);">${totalItems}</span>
+    </button>
+    <div class="est-section-body${query?' open':''}"></div>`;
+
+    const hdr = sdiv.querySelector('.est-section-hdr');
+    const body = sdiv.querySelector('.est-section-body');
+    const tog = sdiv.querySelector('.est-tog');
+    hdr.addEventListener('click',()=>{
+      const open=body.classList.toggle('open');
+      tog.textContent=open?'−':'+';
+    });
+
+    const groups = query ? matchingGroups : section.grupos;
+    groups.forEach(group=>{
+      const gdiv = document.createElement('div');
+      gdiv.className = 'est-group';
+      gdiv.innerHTML = `<div class="est-group-name">${group.nombre}</div>
+        ${group.spec?`<div class="est-group-spec">${group.spec}</div>`:''}
+        <div class="est-items"></div>`;
+
+      const itemsEl = gdiv.querySelector('.est-items');
+      group.items.forEach(item=>{
+        const key = section.id+':'+group.id+':'+item;
+        const done = estChecked.has(key);
+        const idiv = document.createElement('div');
+        idiv.className = 'est-item';
+        idiv.innerHTML = `<span class="est-chk${done?' done':''}"></span><span class="est-item-name">${item}</span>`;
+        idiv.querySelector('.est-chk').addEventListener('click',e=>{
+          e.stopPropagation();
+          estChecked.has(key)?estChecked.delete(key):estChecked.add(key);
+          idiv.querySelector('.est-chk').classList.toggle('done',estChecked.has(key));
+          saveEstChecks();
+        });
+        const estParenIdx=item.indexOf('(');
+        const estCleanName=estParenIdx>-1?item.slice(0,estParenIdx).trim():item;
+        const estAnnotation=estParenIdx>-1?' '+item.slice(estParenIdx):'';
+        idiv.querySelector('.est-item-name').innerHTML=`${estCleanName}<span style="color:var(--muted);font-size:11px;">${estAnnotation}</span>`;
+        idiv.querySelector('.est-item-name').addEventListener('click',()=>{
+          navigator.clipboard.writeText(estCleanName).then(()=>toast(estCleanName));
+        });
+        itemsEl.appendChild(idiv);
+      });
+
+      body.appendChild(gdiv);
+    });
+
+    container.appendChild(sdiv);
+  });
+}
+
+function renderMisEjercicios(){
+  const body = document.getElementById('mis-ej-body');
+  body.innerHTML = '';
+  MIS_EJERCICIOS.forEach(section=>{
+    const sdiv = document.createElement('div');
+    sdiv.style.cssText = 'margin-bottom:8px;';
+    sdiv.innerHTML = `<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--c-family);padding:4px 0 2px;">${section.nombre}</div>`;
+    section.grupos.forEach(g=>{
+      const gdiv = document.createElement('div');
+      gdiv.innerHTML = `<div style="font-size:10px;color:var(--c-subfamily);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-top:4px;">${g.nombre}</div>`;
+      g.items.forEach(item=>{
+        const key = 'mis:'+section.id+':'+g.id+':'+item;
+        const done = estChecked.has(key);
+        const idiv = document.createElement('div');
+        idiv.className = 'est-item';
+        idiv.innerHTML = `<span class="est-chk${done?' done':''}"></span><span class="est-item-name" style="font-size:11px;">${item}</span>`;
+        idiv.querySelector('.est-chk').addEventListener('click',e=>{
+          e.stopPropagation();
+          estChecked.has(key)?estChecked.delete(key):estChecked.add(key);
+          idiv.querySelector('.est-chk').classList.toggle('done',estChecked.has(key));
+          saveEstChecks();
+        });
+        gdiv.appendChild(idiv);
+      });
+      sdiv.appendChild(gdiv);
+    });
+    body.appendChild(sdiv);
+  });
+}
+
+function renderFuerza(){
+  const body = document.getElementById('fuerza-body');
+  body.innerHTML = '';
+  const fdiv = document.createElement('div');
+  fdiv.innerHTML = `<div style="font-size:10px;color:var(--muted);font-style:italic;margin-bottom:6px;">${FUERZA.desc}</div>`;
+  FUERZA.grupos.forEach(g=>{
+    const gdiv = document.createElement('div');
+    gdiv.innerHTML = `<div style="font-size:10px;color:var(--c-subfamily);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin:4px 0 2px;">${g.nombre}</div>`;
+    g.items.forEach(item=>{
+      const key = 'fuerza:'+g.id+':'+item;
+      const done = estChecked.has(key);
+      const idiv = document.createElement('div');
+      idiv.className = 'est-item';
+      idiv.innerHTML = `<span class="est-chk${done?' done':''}"></span><span class="est-item-name" style="font-size:11px;">${item}</span>`;
+      idiv.querySelector('.est-chk').addEventListener('click',e=>{
+        e.stopPropagation();
+        estChecked.has(key)?estChecked.delete(key):estChecked.add(key);
+        idiv.querySelector('.est-chk').classList.toggle('done',estChecked.has(key));
+        saveEstChecks();
+      });
+      gdiv.appendChild(idiv);
+    });
+    fdiv.appendChild(gdiv);
+  });
+  body.appendChild(fdiv);
+}
+
+// sidebar toggles
+document.getElementById('mis-ej-toggle').addEventListener('click',function(){
+  const body=document.getElementById('mis-ej-body');
+  const open=body.classList.toggle('open');
+  this.querySelector('span:last-child').textContent=open?'▴':'▾';
+});
+document.getElementById('fuerza-toggle').addEventListener('click',function(){
+  const body=document.getElementById('fuerza-body');
+  const open=body.classList.toggle('open');
+  this.querySelector('span:last-child').textContent=open?'▴':'▾';
+});
+
+// search
+document.getElementById('est-search').addEventListener('input',e=>{
+  renderEstMain(e.target.value);
+});
+
+// collapse all
+document.getElementById('est-collapse-all').addEventListener('click',()=>{
+  document.querySelectorAll('.est-section-body.open').forEach(b=>{
+    b.classList.remove('open');
+    b.closest('.est-section').querySelector('.est-tog').textContent='+';
+  });
 });
 
 // ── THEME ──
@@ -3002,7 +3702,7 @@ function addToProgression(trickName){
 
 // ── INIT ──
 applyTheme(localStorage.getItem(THEME_KEY)==='dark');
-applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();
+applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderEstMain();renderMisEjercicios();renderFuerza();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
