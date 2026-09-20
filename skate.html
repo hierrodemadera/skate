@@ -39,7 +39,8 @@ body{font-family:'Courier New',Courier,monospace;background:var(--bg);color:var(
 .view{display:none;flex:1;overflow:hidden;padding:10px;gap:10px;}
 .view.active{display:flex;}
 #view-esquema{flex-direction:column;}
-#view-entrenamiento{flex-direction:row;}
+#view-entrenamiento{flex-direction:column;}
+#entreno-row{display:flex;flex:1;gap:10px;overflow:hidden;min-height:0;}
 
 /* WINDOW */
 .window{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:0 3px 3px 3px;
@@ -158,6 +159,53 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 /* TRAINING */
 #panel-routines{width:230px;flex-shrink:0;}
 #panel-detail{flex:1;min-width:0;}
+
+/* BASE PANEL */
+#panel-base{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
+.fold-toggle{background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);
+  cursor:pointer;padding:0;line-height:1;margin-right:4px;}
+.base-info-btn{background:none;border:1px solid var(--border);font-family:inherit;font-size:10px;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:2px 9px;
+  border-radius:2px;margin-left:auto;}
+.base-info-btn:hover{border-color:var(--fg);color:var(--fg);}
+.base-info-text{display:none;white-space:pre-wrap;font-size:11px;line-height:1.7;color:var(--muted);
+  padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.02);}
+.base-info-text.open{display:block;}
+.fold-body{display:block;}
+.fold-body.collapsed{display:none;}
+#base-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
+
+/* CALENDARIO */
+#panel-calendar{flex-shrink:0;border-radius:3px;margin-bottom:10px;}
+#cal-days{display:flex;overflow-x:auto;}
+.cal-day{flex:1 1 0;min-width:120px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;
+  border-right:1px solid var(--border);}
+.cal-day:last-child{border-right:none;}
+.cal-day-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-family);}
+.cal-pills{display:flex;flex-direction:column;gap:4px;min-height:2px;}
+.cal-pill{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 6px;border-radius:2px;
+  background:rgba(0,0,0,0.05);position:relative;}
+.cal-pill.base{border:1px dashed var(--muted);background:none;font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;font-size:10px;color:var(--muted);}
+.cal-pill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--muted);}
+.cal-pill-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
+.cal-pill-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;padding:0;
+  opacity:0;transition:opacity 0.1s;flex-shrink:0;}
+.cal-pill:hover .cal-pill-rm{opacity:1;}
+.cal-pill-rm:hover{color:#b00;}
+.cal-add{background:none;border:1px dashed var(--border);font-family:inherit;font-size:10px;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 0;
+  border-radius:2px;}
+.cal-add:hover{border-color:var(--fg);color:var(--fg);}
+.cal-note-toggle{background:none;border:none;font-family:inherit;font-size:9px;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;padding:1px 0;text-align:left;opacity:0.75;}
+.cal-note-toggle:hover{color:var(--fg);}
+.cal-note-area{display:none;}
+.cal-note-area.open{display:block;}
+.cal-note-input{width:100%;background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:2px;
+  font-family:inherit;font-size:10px;color:var(--fg);padding:4px 6px;resize:vertical;min-height:34px;
+  outline:none;line-height:1.4;}
+.cal-note-input::placeholder{color:var(--muted);}
 
 
 
@@ -467,35 +515,64 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
-  <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;transition:width 0.2s;">
+  <!-- BASE -->
+  <div class="window" id="panel-base">
     <div class="win-tb">
-      <button id="btn-toggle-routines" style="background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);cursor:pointer;padding:0;line-height:1;margin-right:4px;" title="Colapsar panel">‹</button>
-      <span id="routines-title">Rutinas</span>
-      <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
+      <button class="fold-toggle" id="btn-toggle-base" title="Colapsar panel">−</button>
+      <span>Base</span>
+      <button class="base-info-btn" id="base-info-toggle">¿qué es esto?</button>
     </div>
-    <button class="rnew" id="btn-new">+ nueva rutina</button>
-    <div class="rlist" id="rlist"></div>
+    <div class="base-info-text" id="base-info-text"></div>
+    <div class="fold-body" id="fold-body">
+      <div class="blocks-area" id="base-blocks-area"></div>
+      <div style="padding:0 14px 10px;flex-shrink:0;">
+        <button class="add-blk-btn" id="btn-add-base-blk">+ añadir bloque</button>
+      </div>
+    </div>
   </div>
-  <div class="window" id="panel-detail" style="flex:1;min-width:0;border-radius:3px;">
-    <div class="detail-empty" id="detail-empty">← selecciona una rutina o crea una nueva</div>
-    <div id="detail-content" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-      <div class="dhdr" id="detail-header-bar">
-        <div class="color-btn" id="routine-color-btn" title="Color de rutina"></div>
-        <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
-        <span class="dmeta" id="dmeta"></span>
-        <div class="dactions">
-          <button class="bsm" id="btn-print">↓ txt</button>
-          <button class="bsm danger" id="btn-del">borrar</button>
+
+  <div id="entreno-row">
+    <div class="window" id="panel-routines" style="width:230px;flex-shrink:0;border-radius:3px;transition:width 0.2s;">
+      <div class="win-tb">
+        <button id="btn-toggle-routines" style="background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);cursor:pointer;padding:0;line-height:1;margin-right:4px;" title="Colapsar panel">‹</button>
+        <span id="routines-title">Técnica</span>
+        <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
+      </div>
+      <button class="rnew" id="btn-new">+ nueva rutina</button>
+      <div class="rlist" id="rlist"></div>
+    </div>
+    <div class="window" id="panel-detail" style="flex:1;min-width:0;border-radius:3px;">
+      <div class="detail-empty" id="detail-empty">← selecciona una rutina o crea una nueva</div>
+      <div id="detail-content" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+        <div class="dhdr" id="detail-header-bar">
+          <div class="color-btn" id="routine-color-btn" title="Color de rutina"></div>
+          <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
+          <span class="dmeta" id="dmeta"></span>
+          <div class="dactions">
+            <button class="bsm" id="btn-print">↓ txt</button>
+            <button class="bsm danger" id="btn-del">borrar</button>
+          </div>
+        </div>
+        <div class="blocks-area" id="blocks-area"></div>
+        <div style="padding:0 14px 10px;flex-shrink:0;">
+          <button class="add-blk-btn" id="btn-add-blk">+ añadir bloque</button>
+        </div>
+        <div class="breakdown" id="breakdown">
+          <span class="bdlbl">cobertura</span>
+          <span id="bdtags">—</span>
         </div>
       </div>
-      <div class="blocks-area" id="blocks-area"></div>
-      <div style="padding:0 14px 10px;flex-shrink:0;">
-        <button class="add-blk-btn" id="btn-add-blk">+ añadir bloque</button>
-      </div>
-      <div class="breakdown" id="breakdown">
-        <span class="bdlbl">cobertura</span>
-        <span id="bdtags">—</span>
-      </div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="window" id="panel-calendar">
+    <div class="win-tb">
+      <button class="fold-toggle" id="btn-toggle-cal" title="Colapsar panel">−</button>
+      <span>Calendario</span>
+    </div>
+    <div class="fold-body" id="cal-body">
+      <div id="cal-days"></div>
     </div>
   </div>
 </div>
@@ -627,6 +704,13 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 <div class="ddmenu" id="ddmenu">
   <div class="ddhdr">Añadir a rutina</div>
   <div class="ddscroll" id="ddscroll"></div>
+</div>
+
+<!-- CALENDAR ADD MENU -->
+<div class="fdd-menu" id="cal-add-menu" style="min-width:190px;max-height:300px;overflow-y:auto;">
+  <div class="fdd-section">Añadir al día</div>
+  <div class="fdd-sep"></div>
+  <div id="cal-add-list"></div>
 </div>
 
 <!-- CONTEXT MENU -->
@@ -1607,6 +1691,92 @@ const DATA = [
 ];
 
 
+// ── FUNDAMENTOS BASE ──
+// Los ejes mecánicos fundamentales, en parejas simétricas cuando el eje
+// tiene un espejo natural (stance opuesto o lado opuesto). Cada entrada
+// mapea a un truco real del catálogo (DATA) para heredar gratis el
+// sistema de progresión existente — salvo custom:true, que son entradas
+// sin nombre formal en el catálogo (no enganchan con Progresión/Esquema).
+const BASE_AXES = [
+  {
+    id:'flat', label:'Flat puro',
+    axes:[
+      {id:'ollie', name:'Ollie', desc:'pop puro, sin rotación', trickName:'Ollie'},
+      {id:'nollie', name:'Nollie', desc:'espejo del ollie — pop desde el nose', trickName:'Nollie'},
+      {id:'manual', name:'Manual', desc:'equilibrio en dos ruedas traseras', trickName:'Manual'},
+      {id:'nosemanual', name:'Nose Manual', desc:'espejo del manual — equilibrio sobre ruedas delanteras', trickName:'Nose Manual'},
+      {id:'ollie180', name:'Ollie 180 (FS)', desc:'pop + rotación corporal acoplada, frontside', trickName:'Frontside 180'},
+      {id:'ollie180bs', name:'Ollie 180 (BS)', desc:'espejo del anterior, backside', trickName:'Backside 180'},
+      {id:'shovebs', name:'Pop Shove-it (BS)', desc:'pop + rotación de tabla desacoplada, backside', trickName:'Backside Pop Shove-it'},
+      {id:'shovefs', name:'Pop Shove-it (FS)', desc:'espejo del anterior, frontside', trickName:'Frontside Pop Shove-it'},
+      {id:'kickflip', name:'Kickflip', desc:'pop + rotación longitudinal', trickName:'Kickflip'},
+      {id:'heelflip', name:'Heelflip', desc:'espejo del kickflip, dirección contraria', trickName:'Heelflip'},
+      {id:'hardflip', name:'Hardflip', desc:'síntesis: ollie 180 + kickflip', trickName:'Hardflip'},
+      {id:'inwardheel', name:'Inward Heelflip', desc:'espejo del hardflip: ollie 180 + heelflip', trickName:'Inward Heelflip'},
+      {id:'bodyvarial', name:'Body Varial', desc:'el cuerpo gira 180°, la tabla queda recta y en el suelo — eje propio, de la persona y no de la tabla', trickName:'Body Varial (cuerpo 180°, tabla estática)'},
+      {id:'bvollie', name:'Ollie + Body Varial', desc:'la misma rotación de cuerpo, añadiendo pop de tail. Sin nombre formal en el catálogo.', trickName:'Ollie + Body Varial', custom:true},
+      {id:'bvnollie', name:'Nollie + Body Varial', desc:'la misma rotación de cuerpo, añadiendo pop de nose. Sin nombre formal en el catálogo.', trickName:'Nollie + Body Varial', custom:true},
+      {id:'bvrevert', name:'Body Varial + Revert', desc:'la rotación de cuerpo, saliendo con un revert. Sin nombre formal en el catálogo.', trickName:'Body Varial + Revert', custom:true},
+      {id:'m80', name:'M-80', desc:'kickflip + body varial (rotación inversa)', trickName:'M-80 (kickflip + body varial inverso, 180 al revés)'},
+      {id:'bigspin', name:'Bigspin', desc:'pop shove-it + body varial, combinados', trickName:'Backside Bigspin'},
+      {id:'bigspinfakie', name:'Fakie Bigspin', desc:'el mismo bigspin, rodando hacia atrás en vez de hacia adelante', trickName:'Fakie Backside Bigspin'},
+      {id:'nocomply', name:'No Comply', desc:'el pie delantero se separa y planta', trickName:'No Comply'},
+      {id:'boneless', name:'Boneless', desc:'espejo del no comply, con mano en el suelo', trickName:'Boneless'},
+    ]
+  },
+  {
+    id:'obst', label:'Con obstáculo',
+    axes:[
+      {id:'5050', name:'50-50', desc:'contacto de ambos trucks', trickName:'50-50'},
+      {id:'5050sw', name:'Switch 50-50', desc:'espejo del anterior, en stance switch', trickName:'Switch 50-50'},
+      {id:'boardslidebs', name:'Boardslide (BS)', desc:'contacto de la tabla, backside', trickName:'Backside Boardslide'},
+      {id:'boardslidefs', name:'Boardslide (FS)', desc:'espejo del anterior, frontside', trickName:'Frontside Boardslide'},
+      {id:'axlestallfs', name:'Axle Stall (FS)', desc:'pausa estática sobre el borde, frontside', trickName:'Frontside Axle Stall'},
+      {id:'axlestallbs', name:'Axle Stall (BS)', desc:'espejo del anterior, backside', trickName:'Backside Axle Stall'},
+      {id:'rocktofakie', name:'Rock to Fakie', desc:'pausa estática sin lado, entrada y salida en fakie', trickName:'Rock to Fakie'},
+      {id:'grab', name:'Indy Grab', desc:'mano sobre la tabla en el aire', trickName:'Indy (BS air, back hand toeside entre los pies)'},
+    ]
+  }
+];
+
+const BASE_INFO_TEXT = `SISTEMA DE ENTRENAMIENTO — ESQUEMA GENERAL
+
+Por qué existe: en vez de perseguir trucos sueltos, el objetivo es que el cuerpo internalice los ejes mecánicos fundamentales del skate. Los trucos "normales" emergen solos una vez esos ejes están integrados.
+
+DOS MODOS DE PRÁCTICA
+Cualquier truco pasa por uno de estos dos modos:
+
+· BASE (mantenimiento) — trucos ya integrados. Se practican para no perderlos, no para mejorar. Se miden en repeticiones o en tiempo. Se reparten como se pueda entre sesiones, sin necesidad de tocarlos todos cada día. Este modo no termina nunca — da igual el nivel alcanzado, los fundamentos se siguen sosteniendo.
+
+· TÉCNICA (aprendizaje) — trucos que aún no se dominan, con foco puesto en conseguirlos. Cuando un truco de aquí es uno de los fundamentales, al conseguirse gradúa a Base para mantenimiento perpetuo. Si no es un fundamental, al conseguirse simplemente pasa al repertorio general, sin exigir mantenimiento sistemático.
+
+LOS FUNDAMENTALES, EN PAREJAS SIMÉTRICAS
+Cada eje tiene su espejo natural — stance opuesto o lado opuesto — salvo los que quedan sueltos por no tenerlo.
+
+Flat puro (no dependen de mobiliario):
+1. Ollie ↔ Nollie — pop puro, con y sin nose.
+2. Manual ↔ Nose Manual — equilibrio en ruedas traseras y delanteras.
+3. Ollie 180 FS ↔ BS — rotación corporal acoplada a la tabla, un lado y el otro.
+4. Pop Shove-it BS ↔ FS — rotación de tabla desacoplada del cuerpo.
+5. Kickflip ↔ Heelflip — rotación longitudinal, direcciones opuestas.
+6. Hardflip ↔ Inward Heelflip — kickflip/heelflip + ollie 180, combinados.
+7. Body Varial — el cuerpo gira 180°, la tabla queda recta y en el suelo. Es el tercer eje de rotación (tabla+cuerpo=Ollie 180, tabla sola=Pop Shove-it, cuerpo solo=esto) y el único que pertenece a la persona, no a la tabla — hermano del Manual en ese sentido.
+   · Ollie + Body Varial, Nollie + Body Varial y Body Varial + Revert — variaciones directas de pop y salida. Sin nombre formal en el catálogo.
+   · M-80 — kickflip + body varial (rotación inversa).
+   · Bigspin — pop shove-it + body varial, combinados.
+   · Fakie Bigspin — el mismo bigspin, rodando hacia atrás en vez de hacia adelante.
+8. No Comply ↔ Boneless — el pie se separa de la tabla, con y sin mano en el suelo.
+
+Con obstáculo (dependen de bordillo/ledge/rail/rampa):
+9. 50-50 ↔ Switch 50-50 — contacto de los trucks, stance regular y switch.
+10. Boardslide BS ↔ FS — contacto de la tabla, un lado y el otro.
+11. Axle Stall FS ↔ BS — pausa estática sobre el borde, un lado y el otro.
+12. Rock to Fakie — pausa estática sin lado, queda suelto.
+13. Indy Grab — mano sobre la tabla en el aire, queda suelto (sin espejo limpio en el catálogo).
+
+FUERA DEL NÚCLEO, POR DISEÑO
+Freestyle avanzado (casper, primo, railstands...), old school específico, y el resto de combinaciones de flip/shove/body varial (Varial Kickflip, Varial Heelflip...) — esas viven en Técnica cuando llegue el momento.`;
+
 // ── STORAGE ──
 const SK={
   checks:()=>{try{return new Set(JSON.parse(localStorage.getItem('sk_checks')||'[]'));}catch{return new Set();}},
@@ -1615,6 +1785,22 @@ const SK={
   saveRoutines:r=>localStorage.setItem('sk_routines',JSON.stringify(r)),
 };
 let checked=SK.checks(),routines=SK.routines();
+
+// ── BASE DATA ──
+const BASE_KEY='sk_base';
+function defaultBase(){return {blocks:[
+  {id:uid(),name:'Flat',color:'',note:'',tricks:[]},
+  {id:uid(),name:'Con obstáculo',color:'',note:'',tricks:[]}
+]};}
+function loadBase(){
+  try{
+    const d=JSON.parse(localStorage.getItem(BASE_KEY));
+    if(d&&Array.isArray(d.blocks))return d;
+    return defaultBase();
+  }catch{return defaultBase();}
+}
+function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));}
+let baseData=loadBase();
 let activeRid=null,modalTarget=null,modalSel=new Set(),currentSort='fecha-desc';
 let ddTrick=null,ddOpen=false,ctxTrick=null,cpTarget=null,cpCallback=null;
 
@@ -2321,6 +2507,7 @@ document.getElementById('rctx-delete').addEventListener('click',()=>{
   toDelete.forEach(id=>selectedRids.delete(id));
   if(toDelete.includes(activeRid)){activeRid=null;renderDetail();}
   SK.saveRoutines(routines);renderRoutineList();closeRctx();
+  renderCalendar();
 });
 function closeRctx(){document.getElementById('rctx-menu').classList.remove('open');rctxTargetRid=null;}
 document.addEventListener('click',e=>{if(!document.getElementById('rctx-menu').contains(e.target))closeRctx();});
@@ -2341,6 +2528,7 @@ document.getElementById('btn-del').addEventListener('click',()=>{
   if(!confirm('¿Borrar esta rutina?'))return;
   routines=routines.filter(x=>x.id!==activeRid);activeRid=null;
   SK.saveRoutines(routines);renderRoutineList();renderDetail();
+  renderCalendar();
 });
 
 document.getElementById('btn-add-blk').addEventListener('click',()=>{
@@ -2504,6 +2692,285 @@ function renderBlocks(r){
   });
 }
 
+// ── BASE BLOCKS (panel fijo de los 12 fundamentales) ──
+function renderBaseBlocks(){
+  const area=document.getElementById('base-blocks-area');area.innerHTML='';
+
+  baseData.blocks.forEach(block=>{
+    const bdiv=document.createElement('div');bdiv.className='block';
+    if(block.color){
+      bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
+      bdiv.style.setProperty('--blk-fg','#111');
+    }
+    const hasNote=!!(block.note&&block.note.trim());
+    bdiv.innerHTML=`<div class="blk-hdr">
+      <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
+      <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
+      <button class="blk-rm">×</button>
+    </div>
+    <div class="blk-tricks">
+      ${block.tricks.map((name,i)=>`
+        <div class="btrick">
+          <span class="bchk"></span>
+          <span class="btrick-name">${name}</span>
+          <button class="btrm" data-i="${i}">×</button>
+        </div>`).join('')}
+      <button class="blk-add">+ añadir truco base</button>
+    </div>
+    <button class="blk-note-toggle">
+      <span class="note-dot${hasNote?' has-note':''}"></span>
+      ${hasNote?'nota ▾':'+ nota'}
+    </button>
+    <div class="blk-note-area${hasNote?' open':''}">
+      <textarea class="blk-note-input" placeholder="anotaciones, objetivos, referencias...">${block.note||''}</textarea>
+    </div>`;
+
+    bdiv.querySelector('.blk-color').addEventListener('click',function(e){
+      e.stopPropagation();
+      openColorPicker(this,block.color||'#ffffff',color=>{
+        block.color=color;saveBase();
+        bdiv.querySelector('.blk-color').style.background=color||'transparent';
+        if(color){
+          bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
+          bdiv.style.setProperty('--blk-fg','#111');
+        } else {
+          bdiv.style.removeProperty('--blk-c-bg');
+          bdiv.style.removeProperty('--blk-fg');
+        }
+      });
+    });
+    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;saveBase();});
+    bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
+      if(!confirm('¿Borrar este bloque de Base?'))return;
+      baseData.blocks=baseData.blocks.filter(b=>b.id!==block.id);saveBase();renderBaseBlocks();
+      renderCalendar();
+    });
+    bdiv.querySelectorAll('.bchk').forEach(chk=>{
+      chk.addEventListener('click',()=>chk.classList.toggle('done'));
+    });
+    bdiv.querySelectorAll('.btrm').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
+        saveBase();renderBaseBlocks();
+      });
+    });
+    bdiv.querySelectorAll('.btrick-name').forEach(el=>{
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>{
+        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
+      });
+    });
+    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal('BASE',block.id,'base'));
+
+    // note toggle
+    const noteToggle=bdiv.querySelector('.blk-note-toggle');
+    const noteArea=bdiv.querySelector('.blk-note-area');
+    const noteDot=bdiv.querySelector('.note-dot');
+    noteToggle.addEventListener('click',()=>{
+      const open=noteArea.classList.toggle('open');
+      const hasN=!!(block.note&&block.note.trim());
+      noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?'nota ▾':(hasN?'nota ▸':'+ nota')}`;
+      if(open)noteArea.querySelector('.blk-note-input').focus();
+    });
+
+    // note save
+    bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
+      block.note=e.target.value;
+      saveBase();
+      const hasN=!!(block.note&&block.note.trim());
+      noteDot.classList.toggle('has-note',hasN);
+    });
+
+    area.appendChild(bdiv);
+  });
+}
+
+document.getElementById('btn-add-base-blk').addEventListener('click',()=>{
+  baseData.blocks.push({id:uid(),name:'',color:'',note:'',tricks:[]});
+  saveBase();renderBaseBlocks();
+});
+
+// panel collapse (cuerpo entero, plegado por defecto tras la primera vez que se cierra)
+const BASE_COLLAPSED_KEY='sk_base_collapsed';
+let baseCollapsed=localStorage.getItem(BASE_COLLAPSED_KEY)==='1';
+function applyBaseCollapsed(){
+  document.getElementById('fold-body').classList.toggle('collapsed',baseCollapsed);
+  document.getElementById('btn-toggle-base').textContent=baseCollapsed?'+':'−';
+}
+document.getElementById('btn-toggle-base').addEventListener('click',()=>{
+  baseCollapsed=!baseCollapsed;
+  localStorage.setItem(BASE_COLLAPSED_KEY,baseCollapsed?'1':'0');
+  applyBaseCollapsed();
+});
+applyBaseCollapsed();
+
+// info toggle (texto explicativo copiable)
+document.getElementById('base-info-text').textContent=BASE_INFO_TEXT;
+document.getElementById('base-info-toggle').addEventListener('click',function(){
+  const open=document.getElementById('base-info-text').classList.toggle('open');
+  this.textContent=open?'ocultar':'¿qué es esto?';
+});
+
+// ─────────────────────────────
+// ── CALENDARIO ──
+// ─────────────────────────────
+// Plantilla semanal esquemática: 7 columnas fijas, sin fechas.
+// Cada día guarda referencias {type:'base'} o {type:'routine',id} — nunca copia
+// contenido, solo apunta a Base o a una rutina de Técnica ya existente.
+const CAL_KEY='sk_calendar';
+function defaultCalendar(){
+  return {days:[
+    {key:'lun',label:'Lun',items:[],note:''},
+    {key:'mar',label:'Mar',items:[],note:''},
+    {key:'mie',label:'Mié',items:[],note:''},
+    {key:'jue',label:'Jue',items:[],note:''},
+    {key:'vie',label:'Vie',items:[],note:''},
+    {key:'sab',label:'Sáb',items:[],note:''},
+    {key:'dom',label:'Dom',items:[],note:''},
+  ]};
+}
+function loadCalendar(){
+  try{
+    const d=JSON.parse(localStorage.getItem(CAL_KEY));
+    if(d&&Array.isArray(d.days)&&d.days.length===7)return d;
+    return defaultCalendar();
+  }catch{return defaultCalendar();}
+}
+function saveCalendar(){localStorage.setItem(CAL_KEY,JSON.stringify(calendarData));}
+let calendarData=loadCalendar();
+
+let calAddOpen=false,calAddDayIdx=null;
+
+function openCalAdd(dayIdx,anchor){
+  calAddDayIdx=dayIdx;
+  const list=document.getElementById('cal-add-list');
+  list.innerHTML='';
+
+  if(baseData.blocks.length){
+    const secB=document.createElement('div');secB.className='fdd-section';secB.textContent='Base';
+    list.appendChild(secB);
+    baseData.blocks.forEach(b=>{
+      const it=document.createElement('div');it.className='fdd-item';
+      it.innerHTML=`<span style="width:12px;height:12px;border-radius:2px;flex-shrink:0;border:1px dashed ${b.color?'transparent':'var(--muted)'};background:${b.color||'none'};"></span>${b.name||'Bloque sin nombre'}`;
+      it.addEventListener('click',e=>{e.stopPropagation();addCalItem(dayIdx,{type:'base',id:b.id});closeCalAdd();});
+      list.appendChild(it);
+    });
+  }
+
+  const rs=sortedR();
+  const secT=document.createElement('div');secT.className='fdd-section';secT.textContent='Técnica';
+  if(baseData.blocks.length){const sep=document.createElement('div');sep.className='fdd-sep';list.appendChild(sep);}
+  list.appendChild(secT);
+  if(rs.length){
+    rs.forEach(r=>{
+      const it=document.createElement('div');it.className='fdd-item';
+      it.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;flex-shrink:0;background:${r.color||'transparent'};border:1px solid ${r.color?'transparent':'#aaa'};"></span>${r.name||'Sin nombre'}`;
+      it.addEventListener('click',e=>{e.stopPropagation();addCalItem(dayIdx,{type:'routine',id:r.id});closeCalAdd();});
+      list.appendChild(it);
+    });
+  } else {
+    const empty=document.createElement('div');
+    empty.style.cssText='padding:6px 14px 10px;font-size:11px;color:var(--muted);';
+    empty.textContent='ninguna rutina todavía';
+    list.appendChild(empty);
+  }
+
+  const menu=document.getElementById('cal-add-menu');
+  const rect=anchor.getBoundingClientRect();
+  let left=rect.left,top=rect.bottom+3;
+  if(left+195>window.innerWidth)left=window.innerWidth-200;
+  if(top+320>window.innerHeight)top=rect.top-320;
+  menu.style.left=left+'px';menu.style.top=top+'px';
+  menu.classList.add('open');calAddOpen=true;
+}
+function closeCalAdd(){document.getElementById('cal-add-menu').classList.remove('open');calAddOpen=false;calAddDayIdx=null;}
+document.addEventListener('click',e=>{if(calAddOpen&&!document.getElementById('cal-add-menu').contains(e.target))closeCalAdd();});
+
+function addCalItem(dayIdx,item){
+  const day=calendarData.days[dayIdx];
+  const exists=day.items.some(it=>it.type===item.type&&it.id===item.id);
+  if(exists){toast('Ya está ese día');return;}
+  day.items.push(item);
+  saveCalendar();renderCalendar();
+}
+
+function renderCalendar(){
+  const wrap=document.getElementById('cal-days');wrap.innerHTML='';
+  calendarData.days.forEach((day,di)=>{
+    // limpieza de referencias a bloques base o rutinas ya borrados
+    const before=day.items.length;
+    day.items=day.items.filter(it=>
+      it.type==='base' ? baseData.blocks.some(b=>b.id===it.id) : routines.some(r=>r.id===it.id)
+    );
+    if(day.items.length!==before)saveCalendar();
+
+    const hasNote=!!(day.note&&day.note.trim());
+    const col=document.createElement('div');col.className='cal-day';
+    col.innerHTML=`
+      <div class="cal-day-label">${day.label}</div>
+      <div class="cal-pills"></div>
+      <button class="cal-add">+ añadir</button>
+      <button class="cal-note-toggle">${hasNote?'nota ▾':'+ nota'}</button>
+      <div class="cal-note-area${hasNote?' open':''}"><textarea class="cal-note-input" placeholder="nota...">${day.note||''}</textarea></div>`;
+
+    const pillsEl=col.querySelector('.cal-pills');
+    day.items.forEach((item,ii)=>{
+      const pill=document.createElement('div');
+      if(item.type==='base'){
+        const b=baseData.blocks.find(x=>x.id===item.id);
+        if(!b)return;
+        pill.className='cal-pill base';
+        pill.innerHTML=`<span class="cal-pill-dot" style="background:${b.color||'none'};border:1px dashed ${b.color?'transparent':'var(--muted)'};"></span><span class="cal-pill-name">${b.name||'Bloque sin nombre'}</span><button class="cal-pill-rm">×</button>`;
+        pill.querySelector('.cal-pill-name').addEventListener('click',()=>{
+          baseCollapsed=false;localStorage.setItem(BASE_COLLAPSED_KEY,'0');applyBaseCollapsed();
+          document.getElementById('panel-base').scrollIntoView({behavior:'smooth',block:'start'});
+        });
+      } else {
+        const r=routines.find(x=>x.id===item.id);
+        if(!r)return;
+        pill.className='cal-pill';
+        pill.innerHTML=`<span class="cal-pill-dot" style="background:${r.color||'var(--muted)'}"></span><span class="cal-pill-name">${r.name||'Sin nombre'}</span><button class="cal-pill-rm">×</button>`;
+        pill.querySelector('.cal-pill-name').addEventListener('click',()=>{
+          activeRid=r.id;renderRoutineList();renderDetail();
+          document.getElementById('panel-detail').scrollIntoView({behavior:'smooth',block:'start'});
+        });
+      }
+      pill.querySelector('.cal-pill-rm').addEventListener('click',e=>{
+        e.stopPropagation();
+        day.items.splice(ii,1);saveCalendar();renderCalendar();
+      });
+      pillsEl.appendChild(pill);
+    });
+
+    col.querySelector('.cal-add').addEventListener('click',function(e){e.stopPropagation();openCalAdd(di,this);});
+
+    const noteToggle=col.querySelector('.cal-note-toggle');
+    const noteArea=col.querySelector('.cal-note-area');
+    noteToggle.addEventListener('click',()=>{
+      const open=noteArea.classList.toggle('open');
+      const hasN=!!(day.note&&day.note.trim());
+      noteToggle.textContent=open?'nota ▾':(hasN?'nota ▸':'+ nota');
+      if(open)noteArea.querySelector('.cal-note-input').focus();
+    });
+    col.querySelector('.cal-note-input').addEventListener('input',e=>{day.note=e.target.value;saveCalendar();});
+
+    wrap.appendChild(col);
+  });
+}
+
+const CAL_COLLAPSED_KEY='sk_cal_collapsed';
+let calCollapsed=localStorage.getItem(CAL_COLLAPSED_KEY)==='1';
+function applyCalCollapsed(){
+  document.getElementById('cal-body').classList.toggle('collapsed',calCollapsed);
+  document.getElementById('btn-toggle-cal').textContent=calCollapsed?'+':'−';
+}
+document.getElementById('btn-toggle-cal').addEventListener('click',()=>{
+  calCollapsed=!calCollapsed;
+  localStorage.setItem(CAL_COLLAPSED_KEY,calCollapsed?'1':'0');
+  applyCalCollapsed();
+});
+applyCalCollapsed();
+
 function updateBreakdown(){
   const r=routines.find(x=>x.id===activeRid);
   const el=document.getElementById('bdtags');
@@ -2524,14 +2991,20 @@ function updateBreakdown(){
 // ─────────────────────────────
 // ── MODAL ──
 // ─────────────────────────────
-let modalMode='skate'; // 'skate' or 'est'
+let modalMode='skate'; // 'skate', 'est' or 'base'
 function openModal(rid,bid,mode){
-  modalTarget={rid,bid};modalSel.clear();
+  modalTarget={rid,bid,isBase:rid==='BASE'};modalSel.clear();
   modalMode=mode||'skate';
-  const r=routines.find(x=>x.id===rid);
-  const b=bid?r?.blocks.find(b=>b.id===bid):null;
-  const modeLabel=modalMode==='est'?'estiramiento':'truco';
-  document.getElementById('mtitle').textContent=bid?`Añadir ${modeLabel} › ${b?.name||'bloque'}`:`Añadir ${modeLabel} › general`;
+  const modeLabel=modalMode==='est'?'estiramiento':(modalMode==='base'?'truco base':'truco');
+  let bname='bloque';
+  if(modalTarget.isBase){
+    bname=baseData.blocks.find(b=>b.id===bid)?.name||'bloque';
+  } else {
+    const r=routines.find(x=>x.id===rid);
+    const b=bid?r?.blocks.find(b=>b.id===bid):null;
+    bname=b?.name||'bloque';
+  }
+  document.getElementById('mtitle').textContent=bid?`Añadir ${modeLabel} › ${bname}`:`Añadir ${modeLabel} › general`;
   document.getElementById('msearch').value='';
   renderModal('');
   document.getElementById('modal-ov').classList.add('open');
@@ -2539,10 +3012,43 @@ function openModal(rid,bid,mode){
 }
 
 function renderModal(q){
-  const r=routines.find(x=>x.id===modalTarget?.rid);
-  const b=modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null;
+  const isBase=modalTarget?.isBase;
+  const r=isBase?null:routines.find(x=>x.id===modalTarget?.rid);
+  const b=isBase?baseData.blocks.find(b=>b.id===modalTarget.bid):(modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null);
   const inTarget=new Set(b?b.tricks:(r?.general||[]));
   const body=document.getElementById('mbody');body.innerHTML='';
+
+  // BASE MODE — solo los 12 fundamentales
+  if(modalMode==='base'){
+    BASE_AXES.forEach(section=>{
+      const axes=section.axes.filter(a=>!q||a.name.toLowerCase().includes(q));
+      if(!axes.length)return;
+      const fdiv=document.createElement('div');fdiv.className='mfam';
+      fdiv.innerHTML=`<button class="mfhdr"><span class="mftog">${q?'−':'+'}</span><span class="mfname">${section.label}</span><span class="mfcnt">${axes.length}</span></button>
+        <div class="mfbody${q?' open':''}">
+          ${axes.map(a=>{
+            const al=inTarget.has(a.trickName),sel=modalSel.has(a.trickName);
+            return `<div class="mtrick${al?' already':''}" data-name="${a.trickName.replace(/"/g,'&quot;')}">
+              <span class="mchk${sel?' sel':''}"></span><span>${a.name}<span style="color:var(--muted);font-size:10px;"> — ${a.desc}</span></span>
+              ${al?'<span style="font-size:10px;color:var(--muted);margin-left:auto">✓</span>':''}
+            </div>`;
+          }).join('')}
+        </div>`;
+      const mfh=fdiv.querySelector('.mfhdr'),mfb=fdiv.querySelector('.mfbody'),mft=fdiv.querySelector('.mftog');
+      mfh.addEventListener('click',()=>{const o=mfb.classList.toggle('open');mft.textContent=o?'−':'+';});
+      fdiv.querySelectorAll('.mtrick:not(.already)').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const name=el.dataset.name;
+          modalSel.has(name)?modalSel.delete(name):modalSel.add(name);
+          el.querySelector('.mchk').classList.toggle('sel',modalSel.has(name));
+          document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
+        });
+      });
+      body.appendChild(fdiv);
+    });
+    document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
+    return;
+  }
 
   // EST MODE
   if(modalMode==='est'){
@@ -2623,9 +3129,19 @@ document.getElementById('mcollapseall').addEventListener('click',()=>{
 });
 document.getElementById('modal-ov').addEventListener('click',e=>{if(e.target===document.getElementById('modal-ov'))document.getElementById('modal-ov').classList.remove('open');});
 document.getElementById('mconfirm').addEventListener('click',()=>{
+  let added=0;
+  if(modalTarget?.isBase){
+    const b=baseData.blocks.find(b=>b.id===modalTarget.bid);
+    if(!b)return;
+    modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
+    saveBase();
+    document.getElementById('modal-ov').classList.remove('open');
+    renderBaseBlocks();
+    if(added)toast(`${added} fundamentos añadidos`);
+    return;
+  }
   const r=routines.find(x=>x.id===modalTarget?.rid);
   if(!r)return;
-  let added=0;
   if(modalTarget.bid){
     const b=r.blocks.find(b=>b.id===modalTarget.bid);
     if(b)modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
@@ -2669,6 +3185,22 @@ function getAllData(){
         name: PROG_STEPS[s.idx]?.name||'',
         done: s.done
       }))
+    })),
+    // ── BASE: bloques fijos de los 12 fundamentales
+    base: {
+      blocks: (baseData.blocks||[]).map(b=>({
+        id: b.id,
+        name: b.name||'',
+        color: b.color||'',
+        note: b.note||'',
+        tricks: b.tricks||[]
+      }))
+    },
+    // ── CALENDARIO: plantilla semanal, referencias por id a rutinas + Base
+    calendario: calendarData.days.map(d=>({
+      key: d.key,
+      items: d.items,
+      note: d.note||''
     }))
   };
 }
@@ -2744,6 +3276,50 @@ function loadAllData(data){
   }
   saveProg();
 
+  // ── BASE
+  // _replaceBase: true — reemplaza todos los bloques de Base
+  // base.blocks: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe se añade
+  if(data.base){
+    if(data._replaceBase){
+      baseData = {blocks: data.base.blocks||[]};
+    } else {
+      (data.base.blocks||[]).forEach(nb=>{
+        const idx = baseData.blocks.findIndex(b=>b.id===nb.id||b.name===nb.name);
+        if(idx>-1){
+          const b = baseData.blocks[idx];
+          if(nb.name!==undefined) b.name=nb.name;
+          if(nb.color!==undefined) b.color=nb.color;
+          if(nb.note!==undefined) b.note=nb.note;
+          if(nb.tricks!==undefined) b.tricks=nb.tricks;
+        } else {
+          if(!nb.id) nb.id = uid();
+          if(!nb.tricks) nb.tricks = [];
+          baseData.blocks.push(nb);
+        }
+      });
+    }
+    saveBase();
+  }
+
+  // ── CALENDARIO
+  // _replaceCalendar: true — sustituye la plantilla semanal entera
+  // calendario: [...] — fusiona por key de día: los items nuevos se añaden sin duplicar, la nota sustituye si viene
+  if(data.calendario){
+    if(data._replaceCalendar){
+      calendarData = {days: data.calendario.map(d=>({key:d.key,label:defaultCalendar().days.find(x=>x.key===d.key)?.label||d.key,items:d.items||[],note:d.note||''}))};
+    } else {
+      data.calendario.forEach(nd=>{
+        const day = calendarData.days.find(d=>d.key===nd.key);
+        if(!day)return;
+        (nd.items||[]).forEach(it=>{
+          if(!day.items.some(ex=>ex.type===it.type&&ex.id===it.id)) day.items.push(it);
+        });
+        if(nd.note!==undefined && nd.note!=='') day.note=nd.note;
+      });
+    }
+    saveCalendar();
+  }
+
   // ── REFRESH UI
   document.querySelectorAll('.tchk').forEach(el=>{
     const name=el.closest('.trick')?.dataset.fullname;
@@ -2754,6 +3330,8 @@ function loadAllData(data){
   renderDetail();
   renderProgScheme();
   renderProgList();
+  renderBaseBlocks();
+  renderCalendar();
   toast('✓ datos importados');
 }
 
@@ -3702,7 +4280,25 @@ function addToProgression(trickName){
 
 // ── INIT ──
 applyTheme(localStorage.getItem(THEME_KEY)==='dark');
-applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderEstMain();renderMisEjercicios();renderFuerza();
+
+// seed único (primera vez en este navegador): los 3 días acordados, como bloques de Base
+// v2: fuerza el cambio aunque v1 ya hubiera corrido antes, y limpia las rutinas de Técnica
+// que se sembraron por error en el intento anterior.
+const SEED_DIAS_KEY='sk_seeded_dias_v2';
+if(!localStorage.getItem(SEED_DIAS_KEY)){
+  localStorage.setItem(SEED_DIAS_KEY,'1');
+  const before=routines.length;
+  routines=routines.filter(r=>!['Día 1','Día 2','Día 3'].includes(r.name));
+  if(routines.length!==before)SK.saveRoutines(routines);
+  baseData.blocks=[
+    {id:uid(),name:'Día 1',color:'',note:'',tricks:['Ollie','Manual','Nollie','Backside Pop Shove-it']},
+    {id:uid(),name:'Día 2',color:'',note:'',tricks:['Ollie','Manual','Nose Manual','Kickflip']},
+    {id:uid(),name:'Día 3',color:'',note:'',tricks:['Ollie','Manual','Body Varial + Revert','Boneless']},
+  ];
+  saveBase();
+}
+
+applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderEstMain();renderMisEjercicios();renderFuerza();renderBaseBlocks();renderCalendar();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
