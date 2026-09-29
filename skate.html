@@ -161,6 +161,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 #panel-detail{flex:1;min-width:0;}
 
 /* BASE PANEL */
+#panel-warmup{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 #panel-base{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 .fold-toggle{background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);
   cursor:pointer;padding:0;line-height:1;margin-right:4px;}
@@ -176,7 +177,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 #base-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
 
 /* CALENDARIO */
-#panel-calendar{flex-shrink:0;border-radius:3px;margin-bottom:10px;}
+#panel-calendar{flex-shrink:0;border-radius:3px;margin-bottom:10px;display:none;} /* oculto por ahora, a petición de Jorge — quitar esta línea para recuperarlo */
 #cal-days{display:flex;overflow-x:auto;}
 .cal-day{flex:1 1 0;min-width:120px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;
   border-right:1px solid var(--border);}
@@ -515,6 +516,22 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 <!-- ENTRENAMIENTO -->
 <div class="view" id="view-entrenamiento">
+  <!-- CALENTAMIENTO -->
+  <div class="window" id="panel-warmup">
+    <div class="win-tb">
+      <button class="fold-toggle" id="btn-toggle-warmup" title="Colapsar panel">−</button>
+      <span>Calentamiento</span>
+      <button class="base-info-btn" id="warmup-info-toggle">¿qué es esto?</button>
+    </div>
+    <div class="base-info-text" id="warmup-info-text"></div>
+    <div class="fold-body" id="warmup-body">
+      <div class="blocks-area" id="warmup-blocks-area"></div>
+      <div style="padding:0 14px 10px;flex-shrink:0;">
+        <button class="add-blk-btn" id="btn-add-warmup-blk">+ añadir bloque</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BASE -->
   <div class="window" id="panel-base">
     <div class="win-tb">
@@ -1707,16 +1724,13 @@ const BASE_AXES = [
       {id:'nosemanual', name:'Nose Manual', desc:'espejo del manual — equilibrio sobre ruedas delanteras', trickName:'Nose Manual'},
       {id:'ollie180', name:'Ollie 180 (FS)', desc:'pop + rotación corporal acoplada, frontside', trickName:'Frontside 180'},
       {id:'ollie180bs', name:'Ollie 180 (BS)', desc:'espejo del anterior, backside', trickName:'Backside 180'},
-      {id:'shovebs', name:'Pop Shove-it (BS)', desc:'pop + rotación de tabla desacoplada, backside', trickName:'Backside Pop Shove-it'},
-      {id:'shovefs', name:'Pop Shove-it (FS)', desc:'espejo del anterior, frontside', trickName:'Frontside Pop Shove-it'},
       {id:'kickflip', name:'Kickflip', desc:'pop + rotación longitudinal', trickName:'Kickflip'},
       {id:'heelflip', name:'Heelflip', desc:'espejo del kickflip, dirección contraria', trickName:'Heelflip'},
       {id:'hardflip', name:'Hardflip', desc:'síntesis: ollie 180 + kickflip', trickName:'Hardflip'},
       {id:'inwardheel', name:'Inward Heelflip', desc:'espejo del hardflip: ollie 180 + heelflip', trickName:'Inward Heelflip'},
-      {id:'bodyvarial', name:'Body Varial', desc:'el cuerpo gira 180°, la tabla queda recta y en el suelo — eje propio, de la persona y no de la tabla', trickName:'Body Varial (cuerpo 180°, tabla estática)'},
-      {id:'bvollie', name:'Ollie + Body Varial', desc:'la misma rotación de cuerpo, añadiendo pop de tail. Sin nombre formal en el catálogo.', trickName:'Ollie + Body Varial', custom:true},
-      {id:'bvnollie', name:'Nollie + Body Varial', desc:'la misma rotación de cuerpo, añadiendo pop de nose. Sin nombre formal en el catálogo.', trickName:'Nollie + Body Varial', custom:true},
-      {id:'bvrevert', name:'Body Varial + Revert', desc:'la rotación de cuerpo, saliendo con un revert. Sin nombre formal en el catálogo.', trickName:'Body Varial + Revert', custom:true},
+      {id:'bvollie', name:'Ollie + Body Varial', desc:'la misma rotación de cuerpo (ver Calentamiento), añadiendo pop de tail. Sin nombre formal en el catálogo.', trickName:'Ollie + Body Varial', custom:true},
+      {id:'bvnollie', name:'Nollie + Body Varial', desc:'la misma rotación de cuerpo (ver Calentamiento), añadiendo pop de nose. Sin nombre formal en el catálogo.', trickName:'Nollie + Body Varial', custom:true},
+      {id:'bvrevert', name:'Body Varial + Revert', desc:'la rotación de cuerpo (ver Calentamiento), saliendo con un revert. Sin nombre formal en el catálogo.', trickName:'Body Varial + Revert', custom:true},
       {id:'m80', name:'M-80', desc:'kickflip + body varial (rotación inversa)', trickName:'M-80 (kickflip + body varial inverso, 180 al revés)'},
       {id:'bigspin', name:'Bigspin', desc:'pop shove-it + body varial, combinados', trickName:'Backside Bigspin'},
       {id:'bigspinfakie', name:'Fakie Bigspin', desc:'el mismo bigspin, rodando hacia atrás en vez de hacia adelante', trickName:'Fakie Backside Bigspin'},
@@ -1757,25 +1771,58 @@ Flat puro (no dependen de mobiliario):
 1. Ollie ↔ Nollie — pop puro, con y sin nose.
 2. Manual ↔ Nose Manual — equilibrio en ruedas traseras y delanteras.
 3. Ollie 180 FS ↔ BS — rotación corporal acoplada a la tabla, un lado y el otro.
-4. Pop Shove-it BS ↔ FS — rotación de tabla desacoplada del cuerpo.
-5. Kickflip ↔ Heelflip — rotación longitudinal, direcciones opuestas.
-6. Hardflip ↔ Inward Heelflip — kickflip/heelflip + ollie 180, combinados.
-7. Body Varial — el cuerpo gira 180°, la tabla queda recta y en el suelo. Es el tercer eje de rotación (tabla+cuerpo=Ollie 180, tabla sola=Pop Shove-it, cuerpo solo=esto) y el único que pertenece a la persona, no a la tabla — hermano del Manual en ese sentido.
+4. Kickflip ↔ Heelflip — rotación longitudinal, direcciones opuestas.
+5. Hardflip ↔ Inward Heelflip — kickflip/heelflip + ollie 180, combinados.
+6. Combinaciones de Body Varial (el eje en sí vive en Calentamiento, por ser sencillo de ejecutar):
    · Ollie + Body Varial, Nollie + Body Varial y Body Varial + Revert — variaciones directas de pop y salida. Sin nombre formal en el catálogo.
    · M-80 — kickflip + body varial (rotación inversa).
    · Bigspin — pop shove-it + body varial, combinados.
    · Fakie Bigspin — el mismo bigspin, rodando hacia atrás en vez de hacia adelante.
-8. No Comply ↔ Boneless — el pie se separa de la tabla, con y sin mano en el suelo.
+7. No Comply ↔ Boneless — el pie se separa de la tabla, con y sin mano en el suelo.
 
 Con obstáculo (dependen de bordillo/ledge/rail/rampa):
-9. 50-50 ↔ Switch 50-50 — contacto de los trucks, stance regular y switch.
-10. Boardslide BS ↔ FS — contacto de la tabla, un lado y el otro.
-11. Axle Stall FS ↔ BS — pausa estática sobre el borde, un lado y el otro.
-12. Rock to Fakie — pausa estática sin lado, queda suelto.
-13. Indy Grab — mano sobre la tabla en el aire, queda suelto (sin espejo limpio en el catálogo).
+8. 50-50 ↔ Switch 50-50 — contacto de los trucks, stance regular y switch.
+9. Boardslide BS ↔ FS — contacto de la tabla, un lado y el otro.
+10. Axle Stall FS ↔ BS — pausa estática sobre el borde, un lado y el otro.
+11. Rock to Fakie — pausa estática sin lado, queda suelto.
+12. Indy Grab — mano sobre la tabla en el aire, queda suelto (sin espejo limpio en el catálogo).
 
 FUERA DEL NÚCLEO, POR DISEÑO
 Freestyle avanzado (casper, primo, railstands...), old school específico, y el resto de combinaciones de flip/shove/body varial (Varial Kickflip, Varial Heelflip...) — esas viven en Técnica cuando llegue el momento.`;
+
+// ── CALENTAMIENTO ──
+// Ejercicios y trucos de soltura/contacto con la tabla, previos a Base y Técnica.
+// Misma arquitectura que BASE_AXES: cada entrada mapea a un truco real del
+// catálogo cuando existe (heredando Progresión/Esquema); custom:true cuando
+// es un gesto sin nombre formal en los 438 trucos.
+const WARMUP_AXES = [
+  {
+    id:'calentamiento', label:'Calentamiento',
+    axes:[
+      {id:'wregular', name:'Regular, slide, goofy', desc:'rodar en cada postura, soltura inicial', trickName:'Regular, slide, goofy', custom:true},
+      {id:'wtictac', name:'Tic-Tac (Regular y Goofy)', desc:'kickturns alternados FS/BS para ganar impulso', trickName:'Tic-Tac (kickturns alternados FS/BS para ganar impulso)'},
+      {id:'wcambiopie', name:'Cambio de pie rodando (Regular y Goofy)', desc:'el pie que patea sube a la tabla, el que estaba delante baja al suelo, sin saltar', trickName:'Cambio de pie rodando', custom:true},
+      {id:'whippie', name:'Hippie Jump', desc:'saltar sobre la tabla mientras rueda sola, caer de nuevo encima', trickName:'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)'},
+      {id:'wfrozono', name:'Frozono', desc:'ejercicio propio de Jorge', trickName:'Frozono', custom:true},
+      {id:'wbodyvarial', name:'Body Varial', desc:'el cuerpo gira 180°, la tabla queda recta y en el suelo — sencillo de ejecutar, por eso vive aquí y no en Base', trickName:'Body Varial (cuerpo 180°, tabla estática)'},
+      {id:'wendover', name:'End-Over', desc:'serie de pivots de 180° alternados sobre el nose', trickName:'End-Over (serie de pivots 180 alternados sobre el nose)'},
+      {id:'wmonsterwalk', name:'Monster Walk', desc:'pivots consecutivos del mismo lado, FS+FS o BS+BS', trickName:'Monster Walk (pivots FS+FS o BS+BS consecutivos)'},
+      {id:'wwalkthedog', name:'Walk the Dog', desc:'vaivén de End-Over con movimiento', trickName:'Walk The Dog (vaivén de End-Over con movimiento)'},
+      {id:'whangten', name:'Hang Ten Manual', desc:'ambos pies en el nose durante el manual', trickName:'Hang Ten Manual (ambos pies en nose)'},
+      {id:'wrevert', name:'Revert', desc:'giro con la tabla, como un power slide pero completando el cambio de dirección', trickName:'Revert (180° pivot con momentum tras aterrizar, sin pop)'},
+      {id:'wshoveit', name:'Pop Shove-it', desc:'pop + rotación de tabla desacoplada del cuerpo', trickName:'Backside Pop Shove-it'},
+      {id:'wfakieshoveit', name:'Fakie Pop Shove-it', desc:'el mismo shove-it, rodando hacia atrás', trickName:'Fakie Backside Pop Shove-it'},
+    ]
+  }
+];
+
+const WARMUP_INFO_TEXT = `CALENTAMIENTO
+
+Por qué existe: antes de tocar Base o Técnica, este bloque es contacto y soltura con la tabla — entrar en calor de verdad, no repetición de fundamentos ni aprendizaje de trucos nuevos. Va primero en el orden de la sesión: Calentamiento → Base → Técnica.
+
+No se trackea con Progresión de la misma forma exigente que Base — es una lista para repasar, no algo que se mide truco a truco. Los ítems que sí tienen nombre real en el catálogo (Tic-Tac, Hippie Jump, Body Varial, End-Over, Monster Walk, Walk the Dog, Hang Ten Manual, Revert, Pop Shove-it) heredan igualmente el sistema de Progresión y el Esquema, por si algún día quieres afinar alguno. Los que no tienen nombre formal (Regular/slide/goofy, Cambio de pie rodando, Frozono) quedan como entradas sueltas.
+
+Body Varial y Pop Shove-it vivieron antes en Base como fundamentales — se movieron aquí porque, en la práctica, resultan sencillos de ejecutar y encajan mejor como calentamiento. Sus combinaciones (M-80, Bigspin, Ollie/Nollie/Revert + Body Varial) se quedan en Base tal cual.`;
 
 // ── STORAGE ──
 const SK={
@@ -1801,6 +1848,22 @@ function loadBase(){
 }
 function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));}
 let baseData=loadBase();
+
+// ── WARMUP DATA ──
+const WARMUP_KEY='sk_warmup';
+function defaultWarmup(){return {blocks:[
+  {id:uid(),name:'Calentamiento',color:'',note:'',tricks:[]},
+]};}
+function loadWarmup(){
+  try{
+    const d=JSON.parse(localStorage.getItem(WARMUP_KEY));
+    if(d&&Array.isArray(d.blocks))return d;
+    return defaultWarmup();
+  }catch{return defaultWarmup();}
+}
+function saveWarmup(){localStorage.setItem(WARMUP_KEY,JSON.stringify(warmupData));}
+let warmupData=loadWarmup();
+
 let activeRid=null,modalTarget=null,modalSel=new Set(),currentSort='fecha-desc';
 let ddTrick=null,ddOpen=false,ctxTrick=null,cpTarget=null,cpCallback=null;
 
@@ -2790,6 +2853,124 @@ document.getElementById('btn-add-base-blk').addEventListener('click',()=>{
   saveBase();renderBaseBlocks();
 });
 
+// ── WARMUP BLOCKS (panel fijo de calentamiento) ──
+function renderWarmupBlocks(){
+  const area=document.getElementById('warmup-blocks-area');area.innerHTML='';
+
+  warmupData.blocks.forEach(block=>{
+    const bdiv=document.createElement('div');bdiv.className='block';
+    if(block.color){
+      bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
+      bdiv.style.setProperty('--blk-fg','#111');
+    }
+    const hasNote=!!(block.note&&block.note.trim());
+    bdiv.innerHTML=`<div class="blk-hdr">
+      <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
+      <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
+      <button class="blk-rm">×</button>
+    </div>
+    <div class="blk-tricks">
+      ${block.tricks.map((name,i)=>`
+        <div class="btrick">
+          <span class="bchk"></span>
+          <span class="btrick-name">${name}</span>
+          <button class="btrm" data-i="${i}">×</button>
+        </div>`).join('')}
+      <button class="blk-add">+ añadir ejercicio</button>
+    </div>
+    <button class="blk-note-toggle">
+      <span class="note-dot${hasNote?' has-note':''}"></span>
+      ${hasNote?'nota ▾':'+ nota'}
+    </button>
+    <div class="blk-note-area${hasNote?' open':''}">
+      <textarea class="blk-note-input" placeholder="anotaciones, objetivos, referencias...">${block.note||''}</textarea>
+    </div>`;
+
+    bdiv.querySelector('.blk-color').addEventListener('click',function(e){
+      e.stopPropagation();
+      openColorPicker(this,block.color||'#ffffff',color=>{
+        block.color=color;saveWarmup();
+        bdiv.querySelector('.blk-color').style.background=color||'transparent';
+        if(color){
+          bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
+          bdiv.style.setProperty('--blk-fg','#111');
+        } else {
+          bdiv.style.removeProperty('--blk-c-bg');
+          bdiv.style.removeProperty('--blk-fg');
+        }
+      });
+    });
+    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;saveWarmup();});
+    bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
+      if(!confirm('¿Borrar este bloque de Calentamiento?'))return;
+      warmupData.blocks=warmupData.blocks.filter(b=>b.id!==block.id);saveWarmup();renderWarmupBlocks();
+    });
+    bdiv.querySelectorAll('.bchk').forEach(chk=>{
+      chk.addEventListener('click',()=>chk.classList.toggle('done'));
+    });
+    bdiv.querySelectorAll('.btrm').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
+        saveWarmup();renderWarmupBlocks();
+      });
+    });
+    bdiv.querySelectorAll('.btrick-name').forEach(el=>{
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>{
+        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
+      });
+    });
+    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal('WARMUP',block.id,'warmup'));
+
+    // note toggle
+    const noteToggle=bdiv.querySelector('.blk-note-toggle');
+    const noteArea=bdiv.querySelector('.blk-note-area');
+    const noteDot=bdiv.querySelector('.note-dot');
+    noteToggle.addEventListener('click',()=>{
+      const open=noteArea.classList.toggle('open');
+      const hasN=!!(block.note&&block.note.trim());
+      noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?'nota ▾':(hasN?'nota ▸':'+ nota')}`;
+      if(open)noteArea.querySelector('.blk-note-input').focus();
+    });
+
+    // note save
+    bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
+      block.note=e.target.value;
+      saveWarmup();
+      const hasN=!!(block.note&&block.note.trim());
+      noteDot.classList.toggle('has-note',hasN);
+    });
+
+    area.appendChild(bdiv);
+  });
+}
+
+document.getElementById('btn-add-warmup-blk').addEventListener('click',()=>{
+  warmupData.blocks.push({id:uid(),name:'',color:'',note:'',tricks:[]});
+  saveWarmup();renderWarmupBlocks();
+});
+
+// panel collapse — calentamiento
+const WARMUP_COLLAPSED_KEY='sk_warmup_collapsed';
+let warmupCollapsed=localStorage.getItem(WARMUP_COLLAPSED_KEY)==='1';
+function applyWarmupCollapsed(){
+  document.getElementById('warmup-body').classList.toggle('collapsed',warmupCollapsed);
+  document.getElementById('btn-toggle-warmup').textContent=warmupCollapsed?'+':'−';
+}
+document.getElementById('btn-toggle-warmup').addEventListener('click',()=>{
+  warmupCollapsed=!warmupCollapsed;
+  localStorage.setItem(WARMUP_COLLAPSED_KEY,warmupCollapsed?'1':'0');
+  applyWarmupCollapsed();
+});
+applyWarmupCollapsed();
+
+// info toggle calentamiento
+document.getElementById('warmup-info-text').textContent=WARMUP_INFO_TEXT;
+document.getElementById('warmup-info-toggle').addEventListener('click',function(){
+  const open=document.getElementById('warmup-info-text').classList.toggle('open');
+  this.textContent=open?'ocultar':'¿qué es esto?';
+});
+
 // panel collapse (cuerpo entero, plegado por defecto tras la primera vez que se cierra)
 const BASE_COLLAPSED_KEY='sk_base_collapsed';
 let baseCollapsed=localStorage.getItem(BASE_COLLAPSED_KEY)==='1';
@@ -2991,14 +3172,16 @@ function updateBreakdown(){
 // ─────────────────────────────
 // ── MODAL ──
 // ─────────────────────────────
-let modalMode='skate'; // 'skate', 'est' or 'base'
+let modalMode='skate'; // 'skate', 'est', 'base' or 'warmup'
 function openModal(rid,bid,mode){
-  modalTarget={rid,bid,isBase:rid==='BASE'};modalSel.clear();
+  modalTarget={rid,bid,isBase:rid==='BASE',isWarmup:rid==='WARMUP'};modalSel.clear();
   modalMode=mode||'skate';
-  const modeLabel=modalMode==='est'?'estiramiento':(modalMode==='base'?'truco base':'truco');
+  const modeLabel=modalMode==='est'?'estiramiento':(modalMode==='base'?'truco base':(modalMode==='warmup'?'ejercicio de calentamiento':'truco'));
   let bname='bloque';
   if(modalTarget.isBase){
     bname=baseData.blocks.find(b=>b.id===bid)?.name||'bloque';
+  } else if(modalTarget.isWarmup){
+    bname=warmupData.blocks.find(b=>b.id===bid)?.name||'bloque';
   } else {
     const r=routines.find(x=>x.id===rid);
     const b=bid?r?.blocks.find(b=>b.id===bid):null;
@@ -3013,14 +3196,18 @@ function openModal(rid,bid,mode){
 
 function renderModal(q){
   const isBase=modalTarget?.isBase;
-  const r=isBase?null:routines.find(x=>x.id===modalTarget?.rid);
-  const b=isBase?baseData.blocks.find(b=>b.id===modalTarget.bid):(modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null);
+  const isWarmup=modalTarget?.isWarmup;
+  const r=(isBase||isWarmup)?null:routines.find(x=>x.id===modalTarget?.rid);
+  const b=isBase?baseData.blocks.find(b=>b.id===modalTarget.bid):
+    (isWarmup?warmupData.blocks.find(b=>b.id===modalTarget.bid):
+    (modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null));
   const inTarget=new Set(b?b.tricks:(r?.general||[]));
   const body=document.getElementById('mbody');body.innerHTML='';
 
-  // BASE MODE — solo los 12 fundamentales
-  if(modalMode==='base'){
-    BASE_AXES.forEach(section=>{
+  // BASE MODE / WARMUP MODE — solo el esquema reducido correspondiente
+  if(modalMode==='base'||modalMode==='warmup'){
+    const AXES=modalMode==='base'?BASE_AXES:WARMUP_AXES;
+    AXES.forEach(section=>{
       const axes=section.axes.filter(a=>!q||a.name.toLowerCase().includes(q));
       if(!axes.length)return;
       const fdiv=document.createElement('div');fdiv.className='mfam';
@@ -3140,6 +3327,16 @@ document.getElementById('mconfirm').addEventListener('click',()=>{
     if(added)toast(`${added} fundamentos añadidos`);
     return;
   }
+  if(modalTarget?.isWarmup){
+    const b=warmupData.blocks.find(b=>b.id===modalTarget.bid);
+    if(!b)return;
+    modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
+    saveWarmup();
+    document.getElementById('modal-ov').classList.remove('open');
+    renderWarmupBlocks();
+    if(added)toast(`${added} ejercicios añadidos`);
+    return;
+  }
   const r=routines.find(x=>x.id===modalTarget?.rid);
   if(!r)return;
   if(modalTarget.bid){
@@ -3186,9 +3383,19 @@ function getAllData(){
         done: s.done
       }))
     })),
-    // ── BASE: bloques fijos de los 12 fundamentales
+    // ── BASE: bloques fijos de los fundamentales
     base: {
       blocks: (baseData.blocks||[]).map(b=>({
+        id: b.id,
+        name: b.name||'',
+        color: b.color||'',
+        note: b.note||'',
+        tricks: b.tricks||[]
+      }))
+    },
+    // ── CALENTAMIENTO: bloques fijos de ejercicios de calentamiento
+    calentamiento: {
+      blocks: (warmupData.blocks||[]).map(b=>({
         id: b.id,
         name: b.name||'',
         color: b.color||'',
@@ -3301,6 +3508,31 @@ function loadAllData(data){
     saveBase();
   }
 
+  // ── CALENTAMIENTO
+  // _replaceCalentamiento: true — reemplaza todos los bloques de Calentamiento
+  // calentamiento.blocks: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe se añade
+  if(data.calentamiento){
+    if(data._replaceCalentamiento){
+      warmupData = {blocks: data.calentamiento.blocks||[]};
+    } else {
+      (data.calentamiento.blocks||[]).forEach(nb=>{
+        const idx = warmupData.blocks.findIndex(b=>b.id===nb.id||b.name===nb.name);
+        if(idx>-1){
+          const b = warmupData.blocks[idx];
+          if(nb.name!==undefined) b.name=nb.name;
+          if(nb.color!==undefined) b.color=nb.color;
+          if(nb.note!==undefined) b.note=nb.note;
+          if(nb.tricks!==undefined) b.tricks=nb.tricks;
+        } else {
+          if(!nb.id) nb.id = uid();
+          if(!nb.tricks) nb.tricks = [];
+          warmupData.blocks.push(nb);
+        }
+      });
+    }
+    saveWarmup();
+  }
+
   // ── CALENDARIO
   // _replaceCalendar: true — sustituye la plantilla semanal entera
   // calendario: [...] — fusiona por key de día: los items nuevos se añaden sin duplicar, la nota sustituye si viene
@@ -3331,6 +3563,7 @@ function loadAllData(data){
   renderProgScheme();
   renderProgList();
   renderBaseBlocks();
+  renderWarmupBlocks();
   renderCalendar();
   toast('✓ datos importados');
 }
@@ -4298,7 +4531,7 @@ if(!localStorage.getItem(SEED_DIAS_KEY)){
   saveBase();
 }
 
-applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderEstMain();renderMisEjercicios();renderFuerza();renderBaseBlocks();renderCalendar();
+applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderEstMain();renderMisEjercicios();renderFuerza();renderBaseBlocks();renderWarmupBlocks();renderCalendar();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
