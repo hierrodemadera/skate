@@ -40,7 +40,8 @@ body{font-family:'Courier New',Courier,monospace;background:var(--bg);color:var(
 .view.active{display:flex;}
 #view-esquema{flex-direction:column;}
 #view-entrenamiento{flex-direction:column;}
-#entreno-row{display:flex;flex-direction:row;flex:1;overflow:hidden;min-height:0;}
+#entreno-row{flex:1;border-radius:3px;overflow:hidden;min-height:0;}
+#tecnica-body{display:flex;flex-direction:row;flex:1;overflow:hidden;min-height:0;}
 
 /* WINDOW */
 .window{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:0 3px 3px 3px;
@@ -156,13 +157,10 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .dd-newblock:hover{color:var(--fg);}
 .dd-empty{padding:12px;font-size:11px;color:var(--muted);text-align:center;}
 
-/* TRAINING */
-#panel-routines{width:230px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);}
-#panel-detail{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
-
 /* BASE PANEL */
 #panel-warmup{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 #panel-base{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
+#panel-tecnica{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 .fold-toggle{background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);
   cursor:pointer;padding:0;line-height:1;margin-right:4px;}
 .base-info-btn{background:none;border:1px solid var(--border);font-family:inherit;font-size:10px;
@@ -174,7 +172,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .base-info-text.open{display:block;}
 .fold-body{display:block;}
 .fold-body.collapsed{display:none;}
-#base-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
+#warmup-blocks-area,#base-blocks-area,#tecnica-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
 
 /* CALENDARIO */
 #panel-calendar{flex-shrink:0;border-radius:3px;margin-bottom:10px;display:none;} /* oculto por ahora, a petición de Jorge — quitar esta línea para recuperarlo */
@@ -210,36 +208,6 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 
 
-.rlist{overflow-y:auto;flex:1;padding:6px;}
-.ritem{padding:7px 8px;border:1px solid transparent;border-radius:2px;cursor:pointer;margin-bottom:3px;
-  display:flex;align-items:center;gap:8px;user-select:none;}
-.ritem:hover{background:var(--hover);}
-.ritem.active{border-color:var(--border);background:rgba(0,0,0,0.04);}
-.ritem.selected{background:rgba(0,0,0,0.08);border-color:var(--border);}
-.ritem.dragging{opacity:0.4;}
-.ritem.drag-over{border-top:2px solid var(--fg);}
-.drag-handle{color:var(--muted);font-size:11px;cursor:grab;flex-shrink:0;opacity:0;transition:opacity 0.1s;line-height:1;}
-.ritem:hover .drag-handle{opacity:1;}
-.ritem-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid var(--border);}
-.ritem-info{flex:1;min-width:0;}
-.ritem-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ritem-meta{font-size:10px;color:var(--muted);}
-.rnew{display:block;width:calc(100% - 12px);margin:4px 6px;padding:6px 0;
-  background:none;border:1px dashed var(--border);font-family:inherit;font-size:11px;
-  letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;}
-.rnew:hover{border-color:var(--fg);color:var(--fg);}
-.detail-empty{display:flex;align-items:center;justify-content:center;
-  height:100%;font-size:11px;color:var(--muted);text-align:center;padding:24px;}
-.dhdr{padding:8px 14px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.color-btn{width:16px;height:16px;border-radius:50%;border:1px solid var(--border);
-  cursor:pointer;flex-shrink:0;background:#fff;}
-.color-btn:hover{border-color:var(--fg);}
-.dtitle{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;
-  letter-spacing:0.08em;text-transform:uppercase;color:var(--fg);outline:none;flex:1;}
-.dtitle::placeholder{color:var(--muted);font-weight:400;text-transform:none;}
-.dmeta{font-size:10px;color:var(--muted);flex-shrink:0;}
-.dactions{display:flex;gap:6px;margin-left:auto;}
 .bsm{background:none;border:1px solid var(--border);font-family:inherit;
   font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 9px;}
 .bsm:hover{border-color:var(--fg);color:var(--fg);}
@@ -262,14 +230,6 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 
 /* BLOCKS AREA */
 .blocks-area{padding:10px 14px;overflow-y:auto;flex:1;}
-
-/* general tricks zone */
-.general-zone{margin-bottom:12px;border:1px solid var(--border);border-radius:2px;
-  background:rgba(255,255,255,0.15);}
-.gz-hdr{padding:5px 10px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;}
-.gz-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);flex:1;}
-.gz-tricks{padding:4px 10px;min-height:24px;}
 
 /* block */
 .block{margin-bottom:10px;border:1px solid var(--border);border-radius:2px;background:var(--blk-c-bg,rgba(255,255,255,0.2));transition:background 0.15s;}
@@ -303,10 +263,6 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;
   padding:6px 10px;width:100%;text-align:left;border-radius:2px;margin-top:2px;}
 .add-blk-btn:hover{border-color:var(--fg);color:var(--fg);}
-.breakdown{padding:7px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);
-  flex-shrink:0;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
-.bdlbl{letter-spacing:0.06em;text-transform:uppercase;margin-right:2px;}
-.bdtag{padding:1px 6px;border:1px solid var(--border);border-radius:2px;font-size:10px;}
 
 /* COLOR PICKER POPUP */
 .cpopup{position:fixed;z-index:950;background:var(--win);border:1px solid var(--border);
@@ -431,7 +387,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   padding:6px 16px;opacity:0;transition:all 0.18s;pointer-events:none;font-family:inherit;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-@media(max-width:680px){.tricks-grid{grid-template-columns:1fr;}.fdesc{display:none;}#panel-routines{width:160px;}}
+@media(max-width:680px){.tricks-grid{grid-template-columns:1fr;}.fdesc{display:none;}.rp-list{width:160px;}}
 </style>
 </head>
 <body>
@@ -497,7 +453,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
       <button class="base-info-btn" id="base-info-toggle">¿qué es esto?</button>
     </div>
     <div class="base-info-text" id="base-info-text"></div>
-    <div class="fold-body" id="fold-body">
+    <div class="fold-body" id="base-body">
       <div class="blocks-area" id="base-blocks-area"></div>
       <div style="padding:0 14px 10px;flex-shrink:0;">
         <button class="add-blk-btn" id="btn-add-base-blk">+ añadir bloque</button>
@@ -505,36 +461,18 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     </div>
   </div>
 
-  <div class="window" id="entreno-row" style="border-radius:3px;">
-    <div id="panel-routines" style="transition:width 0.2s;">
-      <div class="win-tb">
-        <button id="btn-toggle-routines" style="background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);cursor:pointer;padding:0;line-height:1;margin-right:4px;" title="Colapsar panel">‹</button>
-        <span id="routines-title">Técnica</span>
-        <button class="fdd-btn" id="fdd-sort-btn" style="margin-left:auto;">reciente <span class="fdd-arrow">▾</span></button>
-      </div>
-      <button class="rnew" id="btn-new">+ nueva rutina</button>
-      <div class="rlist" id="rlist"></div>
+  <!-- TÉCNICA -->
+  <div class="window" id="panel-tecnica">
+    <div class="win-tb">
+      <button class="fold-toggle" id="btn-toggle-tecnica" title="Colapsar panel">−</button>
+      <span>Técnica</span>
+      <button class="base-info-btn" id="tecnica-info-toggle">¿qué es esto?</button>
     </div>
-    <div id="panel-detail">
-      <div class="detail-empty" id="detail-empty">← selecciona una rutina o crea una nueva</div>
-      <div id="detail-content" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-        <div class="dhdr" id="detail-header-bar">
-          <div class="color-btn" id="routine-color-btn" title="Color de rutina"></div>
-          <input class="dtitle" id="dtitle" placeholder="nombre de la rutina..." spellcheck="false">
-          <span class="dmeta" id="dmeta"></span>
-          <div class="dactions">
-            <button class="bsm" id="btn-print">↓ txt</button>
-            <button class="bsm danger" id="btn-del">borrar</button>
-          </div>
-        </div>
-        <div class="blocks-area" id="blocks-area"></div>
-        <div style="padding:0 14px 10px;flex-shrink:0;">
-          <button class="add-blk-btn" id="btn-add-blk">+ añadir bloque</button>
-        </div>
-        <div class="breakdown" id="breakdown">
-          <span class="bdlbl">cobertura</span>
-          <span id="bdtags">—</span>
-        </div>
+    <div class="base-info-text" id="tecnica-info-text"></div>
+    <div class="fold-body" id="tecnica-body">
+      <div class="blocks-area" id="tecnica-blocks-area"></div>
+      <div style="padding:0 14px 10px;flex-shrink:0;">
+        <button class="add-blk-btn" id="btn-add-tecnica-blk">+ añadir bloque</button>
       </div>
     </div>
   </div>
@@ -601,14 +539,6 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div id="conseguidos-list" style="overflow-y:auto;max-height:320px;padding:4px 0;"></div>
 </div>
 
-<!-- ROUTINE CONTEXT MENU -->
-<div class="ctx-menu" id="rctx-menu">
-  <div class="ctx-item" id="rctx-duplicate">duplicar</div>
-  <div class="ctx-item" id="rctx-color">cambiar color</div>
-  <div class="ctx-sep"></div>
-  <div class="ctx-item danger" id="rctx-delete">borrar</div>
-</div>
-
 <!-- FILTER DROPDOWN MENUS -->
 <div class="fdd-menu" id="fdd-terreno-menu">
   <div class="fdd-section">Terreno</div>
@@ -629,18 +559,9 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div class="fdd-item" data-filter="nivel" data-value="avanzado"><span class="fdd-radio"></span>avanzado</div>
   <div class="fdd-item" data-filter="nivel" data-value="pro"><span class="fdd-radio"></span>pro</div>
 </div>
-<div class="fdd-menu" id="fdd-sort-menu">
-  <div class="fdd-section">Ordenar rutinas</div>
-  <div class="fdd-sep"></div>
-  <div class="fdd-item" data-sort="fecha-desc"><span class="fdd-radio checked"></span>más reciente</div>
-  <div class="fdd-item" data-sort="fecha-asc"><span class="fdd-radio"></span>más antigua</div>
-  <div class="fdd-item" data-sort="nombre"><span class="fdd-radio"></span>nombre A-Z</div>
-  <div class="fdd-item" data-sort="trucos"><span class="fdd-radio"></span>más trucos</div>
-</div>
-
 <!-- DROPDOWN (scheme + button) -->
 <div class="ddmenu" id="ddmenu">
-  <div class="ddhdr">Añadir a rutina</div>
+  <div class="ddhdr">Añadir a bloque</div>
   <div class="ddscroll" id="ddscroll"></div>
 </div>
 
@@ -656,7 +577,7 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
   <div class="ctx-item" id="ctx-copy">copiar nombre</div>
   <div class="ctx-item" id="ctx-check">marcar conseguido</div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" id="ctx-add">añadir a rutina →</div>
+  <div class="ctx-item" id="ctx-add">añadir a bloque →</div>
 </div>
 
 <!-- COLOR PICKER POPUP -->
@@ -1749,43 +1670,81 @@ Body Varial y Pop Shove-it vivieron antes en Base como fundamentales — se movi
 const SK={
   checks:()=>{try{return new Set(JSON.parse(localStorage.getItem('sk_checks')||'[]'));}catch{return new Set();}},
   saveChecks:s=>localStorage.setItem('sk_checks',JSON.stringify([...s])),
-  routines:()=>{try{return JSON.parse(localStorage.getItem('sk_routines')||'[]');}catch{return[];}},
-  saveRoutines:r=>localStorage.setItem('sk_routines',JSON.stringify(r)),
 };
-let checked=SK.checks(),routines=SK.routines();
+let checked=SK.checks();
 
-// ── BASE DATA ──
+// ── Calentamiento / Base / Técnica ──
+// Los tres comparten exactamente el mismo modelo: una única lista de bloques,
+// sin capa de "rutinas". Solo cambia de dónde sacan los trucos al añadir
+// (esquema reducido para Base/Calentamiento, esquema completo para Técnica).
+//
+// Migración: versiones anteriores guardaban esto como un array de "rutinas"
+// (cada una con blocks[] y general[]). Aquí se fusionan todas en una sola
+// lista de bloques, y los trucos sueltos de "general" pasan a un bloque
+// "General" para no perder datos.
+function mergeRoutinesIntoBlocks(list){
+  const blocks=[];
+  (list||[]).forEach(r=>{
+    if((r.general||[]).length) blocks.push({id:uid(),name:'General',color:'',note:'',tricks:[...r.general]});
+    (r.blocks||[]).forEach(b=>blocks.push(b));
+  });
+  return blocks;
+}
+
+const TECNICA_KEY='sk_routines';
+function defaultTecnicaData(){return {blocks:[{id:uid(),name:'',color:'',note:'',tricks:[]}]};}
+function loadTecnicaData(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(TECNICA_KEY));
+    if(raw&&Array.isArray(raw.blocks))return raw;
+    if(Array.isArray(raw)){
+      const blocks=mergeRoutinesIntoBlocks(raw);
+      return {blocks:blocks.length?blocks:defaultTecnicaData().blocks};
+    }
+    return defaultTecnicaData();
+  }catch{return defaultTecnicaData();}
+}
+function saveTecnica(){localStorage.setItem(TECNICA_KEY,JSON.stringify(tecnicaData));}
+let tecnicaData=loadTecnicaData();
+
 const BASE_KEY='sk_base';
-function defaultBase(){return {blocks:[
+function defaultBaseData(){return {blocks:[
   {id:uid(),name:'Flat',color:'',note:'',tricks:[]},
   {id:uid(),name:'Con obstáculo',color:'',note:'',tricks:[]}
 ]};}
-function loadBase(){
+function loadBaseData(){
   try{
     const d=JSON.parse(localStorage.getItem(BASE_KEY));
     if(d&&Array.isArray(d.blocks))return d;
-    return defaultBase();
-  }catch{return defaultBase();}
+    if(d&&Array.isArray(d.routines)){
+      const blocks=mergeRoutinesIntoBlocks(d.routines);
+      return {blocks:blocks.length?blocks:defaultBaseData().blocks};
+    }
+    return defaultBaseData();
+  }catch{return defaultBaseData();}
 }
 function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));}
-let baseData=loadBase();
+let baseData=loadBaseData();
 
-// ── WARMUP DATA ──
 const WARMUP_KEY='sk_warmup';
-function defaultWarmup(){return {blocks:[
+function defaultWarmupData(){return {blocks:[
   {id:uid(),name:'Calentamiento',color:'',note:'',tricks:[]},
 ]};}
-function loadWarmup(){
+function loadWarmupData(){
   try{
     const d=JSON.parse(localStorage.getItem(WARMUP_KEY));
     if(d&&Array.isArray(d.blocks))return d;
-    return defaultWarmup();
-  }catch{return defaultWarmup();}
+    if(d&&Array.isArray(d.routines)){
+      const blocks=mergeRoutinesIntoBlocks(d.routines);
+      return {blocks:blocks.length?blocks:defaultWarmupData().blocks};
+    }
+    return defaultWarmupData();
+  }catch{return defaultWarmupData();}
 }
 function saveWarmup(){localStorage.setItem(WARMUP_KEY,JSON.stringify(warmupData));}
-let warmupData=loadWarmup();
+let warmupData=loadWarmupData();
 
-let activeRid=null,modalTarget=null,modalSel=new Set(),currentSort='fecha-desc';
+let modalTarget=null,modalSel=new Set();
 let ddTrick=null,ddOpen=false,ctxTrick=null,cpTarget=null,cpCallback=null;
 
 // ── TOAST ──
@@ -1812,7 +1771,6 @@ function hexToMixedWhite(hex,a){
   return `rgb(${mr},${mg},${mb})`;
 }
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});}
-function tcount(r){let n=(r.general||[]).length;r.blocks.forEach(b=>n+=b.tricks.length);return n;}
 
 // ─────────────────────────────
 // ── COLOR PICKER ──
@@ -2057,10 +2015,7 @@ document.getElementById('fdd-terreno-btn').addEventListener('click',function(e){
 document.getElementById('fdd-nivel-btn').addEventListener('click',function(e){
   e.stopPropagation(); openFddMenu('fdd-nivel-menu',this);
 });
-// sort dropdown
-document.getElementById('fdd-sort-btn').addEventListener('click',function(e){
-  e.stopPropagation(); openFddMenu('fdd-sort-menu',this);
-});
+// (el dropdown de "ordenar rutinas" lo abre cada panel — ver motor de rutinas más abajo)
 
 // filter items
 document.querySelectorAll('.fdd-item[data-filter]').forEach(item=>{
@@ -2081,22 +2036,7 @@ document.querySelectorAll('.fdd-item[data-filter]').forEach(item=>{
   });
 });
 
-// sort items
-const sortLabels={'fecha-desc':'reciente','fecha-asc':'antigua','nombre':'nombre A-Z','trucos':'más trucos'};
-document.querySelectorAll('.fdd-item[data-sort]').forEach(item=>{
-  item.addEventListener('click',e=>{
-    e.stopPropagation();
-    const sort=item.dataset.sort;
-    currentSort=sort;
-    manualOrder=null; // reset manual order when choosing a sort
-    document.querySelectorAll('.fdd-item[data-sort] .fdd-radio').forEach(r=>r.classList.remove('checked'));
-    item.querySelector('.fdd-radio').classList.add('checked');
-    const btn=document.getElementById('fdd-sort-btn');
-    btn.innerHTML=`${sortLabels[sort]} <span class="fdd-arrow">▾</span>`;
-    renderRoutineList();
-    closeFdd();
-  });
-});
+// (el manejo de "ordenar rutinas" se define más abajo, compartido por los tres paneles)
 
 document.addEventListener('click',()=>closeFdd());
 
@@ -2243,9 +2183,7 @@ function closeDD(){ddEl.classList.remove('open');ddOpen=false;ddTrick=null;
 
 function renderDD(){
   ddScroll.innerHTML='';
-  if(!routines.length){
-    ddScroll.innerHTML='<div class="dd-empty">ninguna rutina todavía<br><span style="font-size:10px">ve a Entrenamiento</span></div>';return;
-  }
+
   // seguir progresión option
   const progBtn = document.createElement('div');
   progBtn.style.cssText = 'padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--border);';
@@ -2259,35 +2197,46 @@ function renderDD(){
   });
   ddScroll.appendChild(progBtn);
 
-  // nueva rutina desde dropdown
-  const newRutBtn=document.createElement('div');
-  newRutBtn.style.cssText='padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--border);';
-  newRutBtn.textContent='+ nueva rutina';
-  newRutBtn.addEventListener('mouseenter',()=>newRutBtn.style.color='var(--fg)');
-  newRutBtn.addEventListener('mouseleave',()=>newRutBtn.style.color='var(--muted)');
-  newRutBtn.addEventListener('click',e=>{
+  tecnicaData.blocks.forEach(b=>{
+    const div=document.createElement('div');div.className='ddroutine';
+    div.innerHTML=`<div class="ddr-name">${b.name||'(bloque sin nombre)'}</div>
+      <div class="ddr-meta">${b.tricks.length} trucos</div>`;
+    div.addEventListener('click',()=>{
+      if(!b.tricks.includes(ddTrick)){b.tricks.push(ddTrick);saveTecnica();toast(`Añadido a ${b.name||'bloque'}`);}
+      else toast('Ya está en ese bloque');
+      renderCat('skate');
+      closeDD();
+    });
+    ddScroll.appendChild(div);
+  });
+
+  // nuevo bloque desde dropdown
+  const newBlkBtn=document.createElement('div');
+  newBlkBtn.style.cssText='padding:6px 10px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-top:1px solid var(--border);';
+  newBlkBtn.textContent='+ nuevo bloque';
+  newBlkBtn.addEventListener('mouseenter',()=>newBlkBtn.style.color='var(--fg)');
+  newBlkBtn.addEventListener('mouseleave',()=>newBlkBtn.style.color='var(--muted)');
+  newBlkBtn.addEventListener('click',e=>{
     e.stopPropagation();
-    // replace button with inline input for routine name
     const wrap=document.createElement('div');
-    wrap.style.cssText='display:flex;align-items:center;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);';
+    wrap.style.cssText='display:flex;align-items:center;gap:4px;padding:6px 10px;border-top:1px solid var(--border);';
     const inp=document.createElement('input');
-    inp.type='text';inp.placeholder='nombre de la rutina...';
+    inp.type='text';inp.placeholder='nombre del bloque...';
     inp.style.cssText='flex:1;font-family:inherit;font-size:11px;background:none;border:none;border-bottom:1px solid var(--border);outline:none;color:var(--fg);padding:2px 0;min-width:0;';
     const okBtn=document.createElement('button');
     okBtn.textContent='crear';
     okBtn.style.cssText='background:var(--fg);color:var(--bg);border:none;font-family:inherit;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;cursor:pointer;flex-shrink:0;';
     wrap.appendChild(inp);wrap.appendChild(okBtn);
-    newRutBtn.replaceWith(wrap);
+    newBlkBtn.replaceWith(wrap);
     inp.focus();
     let confirmed=false;
     const confirm=(name)=>{
       if(confirmed)return;confirmed=true;
-      const r={id:uid(),name:name.trim()||'Nueva rutina',created:new Date().toISOString(),color:'',general:[],blocks:[{id:uid(),name:'',tricks:[ddTrick]}]};
-      routines.unshift(r);SK.saveRoutines(routines);
-      activeRid=r.id;
-      renderRoutineList();renderDetail();
-      toast(`Rutina "${r.name}" creada`);
-      renderDD();
+      const b={id:uid(),name:name.trim(),color:'',note:'',tricks:[ddTrick]};
+      tecnicaData.blocks.push(b);saveTecnica();
+      renderCat('skate');
+      toast(`Bloque "${b.name||'nuevo'}" creado`);
+      closeDD();
     };
     okBtn.addEventListener('click',e2=>{e2.stopPropagation();confirm(inp.value);});
     inp.addEventListener('keydown',e2=>{
@@ -2295,299 +2244,32 @@ function renderDD(){
       if(e2.key==='Escape'){closeDD();}
     });
   });
-  ddScroll.appendChild(newRutBtn);
-
-  routines.forEach(r=>{
-    const div=document.createElement('div');div.className='ddroutine';
-    div.innerHTML=`<div class="ddr-name">${r.name||'Sin nombre'}</div>
-      <div class="ddr-meta">${tcount(r)} trucos</div>
-      <div class="ddblocks" id="ddb-${r.id}">
-        ${r.blocks.map(b=>`<div class="ddblock" data-rid="${r.id}" data-bid="${b.id}">${b.name||'(bloque sin nombre)'} <span style="font-size:10px;color:var(--muted)">${b.tricks.length}</span></div>`).join('')}
-        <div class="dd-newblock" data-rid="${r.id}">+ nuevo bloque</div>
-      </div>`;
-
-    div.querySelector('.ddr-name').addEventListener('click',()=>document.getElementById('ddb-'+r.id).classList.toggle('open'));
-    div.querySelector('.ddr-meta').addEventListener('click',()=>document.getElementById('ddb-'+r.id).classList.toggle('open'));
-
-    // add to block
-    div.querySelectorAll('.ddblock').forEach(bEl=>{
-      bEl.addEventListener('click',e=>{
-        e.stopPropagation();
-        const rt=routines.find(x=>x.id===bEl.dataset.rid);
-        const blk=rt?.blocks.find(b=>b.id===bEl.dataset.bid);
-        if(!blk)return;
-        if(!blk.tricks.includes(ddTrick)){blk.tricks.push(ddTrick);SK.saveRoutines(routines);toast(`Añadido a ${rt.name} › ${blk.name||'bloque'}`);}
-        else toast('Ya está en ese bloque');
-        if(activeRid===r.id){renderDetail();updateBreakdown();}
-        closeDD();
-      });
-    });
-
-    // new block - ask for name inline
-    div.querySelector('.dd-newblock').addEventListener('click',e=>{
-      e.stopPropagation();
-      const rt=routines.find(x=>x.id===r.id);
-      // replace the dd-newblock with an inline input
-      const nb=div.querySelector('.dd-newblock');
-      const inp=document.createElement('input');
-      inp.type='text';inp.placeholder='nombre del bloque...';
-      inp.style.cssText='width:calc(100% - 20px);margin:4px 10px;padding:3px 4px;font-family:inherit;font-size:11px;background:none;border:none;border-bottom:1px solid var(--border);outline:none;color:var(--fg);display:block;';
-      nb.replaceWith(inp);
-      inp.focus();
-      const confirm=(name)=>{
-        const blk={id:uid(),name:name.trim(),tricks:[ddTrick]};
-        rt.blocks.push(blk);SK.saveRoutines(routines);
-        toast(`Bloque "${blk.name||'nuevo'}" añadido a ${rt.name||'rutina'}`);
-        if(activeRid===r.id){renderDetail();updateBreakdown();}
-        closeDD();
-      };
-      inp.addEventListener('keydown',e2=>{
-        if(e2.key==='Enter'){e2.preventDefault();confirm(inp.value);}
-        if(e2.key==='Escape'){closeDD();}
-      });
-      inp.addEventListener('blur',()=>{if(inp.value.trim())confirm(inp.value);else closeDD();});
-    });
-
-    ddScroll.appendChild(div);
-  });
+  ddScroll.appendChild(newBlkBtn);
 }
 
 document.addEventListener('click',e=>{if(ddOpen&&!ddEl.contains(e.target))closeDD();});
 
 // ─────────────────────────────
-// ── TRAINING ──
+// ── ENTRENAMIENTO ──
 // ─────────────────────────────
+// Calentamiento, Base y Técnica comparten exactamente el mismo concepto y
+// mecánica: una única lista de bloques por categoría, con el mismo
+// fold-toggle, el mismo título y la misma disposición para añadir/quitar
+// bloques. Solo cambia de dónde sacan los trucos al añadir (esquema
+// reducido para Base/Calentamiento, esquema completo para Técnica).
 
+const CATS={
+  skate:{areaId:'tecnica-blocks-area', addBtnId:'btn-add-tecnica-blk', get:()=>tecnicaData, save:saveTecnica},
+  base:{areaId:'base-blocks-area', addBtnId:'btn-add-base-blk', get:()=>baseData, save:saveBase},
+  warmup:{areaId:'warmup-blocks-area', addBtnId:'btn-add-warmup-blk', get:()=>warmupData, save:saveWarmup},
+};
 
-function sortedR(){
-  const a=[...routines];
-  if(currentSort==='fecha-desc')return a.sort((x,y)=>new Date(y.created)-new Date(x.created));
-  if(currentSort==='fecha-asc')return a.sort((x,y)=>new Date(x.created)-new Date(y.created));
-  if(currentSort==='nombre')return a.sort((x,y)=>(x.name||'').localeCompare(y.name||''));
-  if(currentSort==='trucos')return a.sort((x,y)=>tcount(y)-tcount(x));
-  return a;
-}
+function renderCat(mode){
+  const cfg=CATS[mode];
+  const data=cfg.get();
+  const area=document.getElementById(cfg.areaId);area.innerHTML='';
 
-let selectedRids=new Set();
-let lastClickedRid=null;
-let rctxTargetRid=null;
-let manualOrder=null; // null = use sort, array of ids = manual order
-
-function getOrderedRoutines(){
-  if(manualOrder){
-    const map=Object.fromEntries(routines.map(r=>[r.id,r]));
-    return manualOrder.map(id=>map[id]).filter(Boolean);
-  }
-  return sortedR();
-}
-
-function renderRoutineList(){
-  const el=document.getElementById('rlist');el.innerHTML='';
-  const list=getOrderedRoutines();
-  if(!list.length){el.innerHTML='<div style="padding:12px 6px;font-size:11px;color:var(--muted);text-align:center;">ninguna todavía</div>';return;}
-  let dragSrcId=null;
-
-  list.forEach((r,idx)=>{
-    const d=document.createElement('div');
-    d.className='ritem'+(r.id===activeRid?' active':'')+(selectedRids.has(r.id)?' selected':'');
-    d.dataset.rid=r.id;
-    d.draggable=true;
-    d.innerHTML=`<span class="drag-handle" title="Arrastrar">⠿</span>
-      <div class="ritem-dot" style="background:${r.color||'transparent'}"></div>
-      <div class="ritem-info">
-        <div class="ritem-name">${r.name||'Sin nombre'}</div>
-        <div class="ritem-meta">${tcount(r)} trucos · ${fmtDate(r.created)}</div>
-      </div>`;
-
-    // click: select active + ctrl/shift selection
-    d.addEventListener('click',e=>{
-      if(e.ctrlKey||e.metaKey){
-        // toggle selection
-        if(selectedRids.has(r.id))selectedRids.delete(r.id);
-        else selectedRids.add(r.id);
-        lastClickedRid=r.id;
-        renderRoutineList();return;
-      }
-      if(e.shiftKey&&lastClickedRid){
-        // range select
-        const ids=list.map(x=>x.id);
-        const a=ids.indexOf(lastClickedRid),b=ids.indexOf(r.id);
-        const [from,to]=[Math.min(a,b),Math.max(a,b)];
-        ids.slice(from,to+1).forEach(id=>selectedRids.add(id));
-        renderRoutineList();return;
-      }
-      selectedRids.clear();
-      activeRid=r.id;lastClickedRid=r.id;
-      renderRoutineList();renderDetail();
-    });
-
-    // right-click
-    d.addEventListener('contextmenu',e=>{
-      e.preventDefault();e.stopPropagation();
-      rctxTargetRid=r.id;
-      const menu=document.getElementById('rctx-menu');
-      let x=e.clientX,y=e.clientY;
-      if(x+180>window.innerWidth)x=window.innerWidth-185;
-      if(y+120>window.innerHeight)y=window.innerHeight-125;
-      menu.style.left=x+'px';menu.style.top=y+'px';
-      menu.classList.add('open');
-    });
-
-    // drag
-    d.addEventListener('dragstart',e=>{
-      dragSrcId=r.id;
-      d.classList.add('dragging');
-      e.dataTransfer.effectAllowed='move';
-      // init manual order if not set
-      if(!manualOrder)manualOrder=list.map(x=>x.id);
-    });
-    d.addEventListener('dragend',()=>{d.classList.remove('dragging');document.querySelectorAll('.ritem').forEach(x=>x.classList.remove('drag-over'));});
-    d.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';d.classList.add('drag-over');});
-    d.addEventListener('dragleave',()=>d.classList.remove('drag-over'));
-    d.addEventListener('drop',e=>{
-      e.preventDefault();d.classList.remove('drag-over');
-      if(!dragSrcId||dragSrcId===r.id)return;
-      if(!manualOrder)manualOrder=list.map(x=>x.id);
-      const from=manualOrder.indexOf(dragSrcId);
-      const to=manualOrder.indexOf(r.id);
-      if(from===-1||to===-1)return;
-      manualOrder.splice(from,1);manualOrder.splice(to,0,dragSrcId);
-      // update sort btn to show "libre"
-      document.getElementById('fdd-sort-btn').innerHTML='libre <span class="fdd-arrow">▾</span>';
-      renderRoutineList();
-    });
-
-    el.appendChild(d);
-  });
-}
-
-// routine context menu actions
-document.getElementById('rctx-duplicate').addEventListener('click',()=>{
-  const r=routines.find(x=>x.id===rctxTargetRid);if(!r)return;
-  const copy=JSON.parse(JSON.stringify(r));
-  copy.id=uid();copy.name=(r.name||'Sin nombre')+' (copia)';copy.created=new Date().toISOString();
-  routines.unshift(copy);SK.saveRoutines(routines);
-  if(manualOrder)manualOrder.unshift(copy.id);
-  renderRoutineList();closeRctx();
-});
-document.getElementById('rctx-color').addEventListener('click',()=>{
-  const r=routines.find(x=>x.id===rctxTargetRid);if(!r)return;
-  const dot=document.querySelector(`.ritem[data-rid="${rctxTargetRid}"] .ritem-dot`);
-  closeRctx();
-  if(dot){
-    openColorPicker(dot,r.color||'#ffffff',color=>{
-      r.color=color;SK.saveRoutines(routines);
-      if(activeRid===r.id)document.getElementById('routine-color-btn').style.background=color||'transparent';
-      renderRoutineList();
-    });
-  }
-});
-document.getElementById('rctx-delete').addEventListener('click',()=>{
-  const toDelete=selectedRids.size>1?[...selectedRids]:[rctxTargetRid];
-  const names=toDelete.map(id=>routines.find(r=>r.id===id)?.name||'Sin nombre');
-  if(!confirm(`¿Borrar ${toDelete.length>1?toDelete.length+' rutinas':'"'+names[0]+'"'}?`))return;
-  routines=routines.filter(r=>!toDelete.includes(r.id));
-  if(manualOrder)manualOrder=manualOrder.filter(id=>!toDelete.includes(id));
-  toDelete.forEach(id=>selectedRids.delete(id));
-  if(toDelete.includes(activeRid)){activeRid=null;renderDetail();}
-  SK.saveRoutines(routines);renderRoutineList();closeRctx();
-  renderCalendar();
-});
-function closeRctx(){document.getElementById('rctx-menu').classList.remove('open');rctxTargetRid=null;}
-document.addEventListener('click',e=>{if(!document.getElementById('rctx-menu').contains(e.target))closeRctx();});
-
-document.getElementById('btn-new').addEventListener('click',()=>{
-  const r={id:uid(),name:'',created:new Date().toISOString(),color:'',general:[],blocks:[{id:uid(),name:'',tricks:[]}]};
-  routines.unshift(r);SK.saveRoutines(routines);activeRid=r.id;
-  renderRoutineList();renderDetail();
-  setTimeout(()=>document.getElementById('dtitle').focus(),50);
-});
-
-document.getElementById('dtitle').addEventListener('input',e=>{
-  const r=routines.find(x=>x.id===activeRid);
-  if(r){r.name=e.target.value;SK.saveRoutines(routines);renderRoutineList();}
-});
-
-document.getElementById('btn-del').addEventListener('click',()=>{
-  if(!confirm('¿Borrar esta rutina?'))return;
-  routines=routines.filter(x=>x.id!==activeRid);activeRid=null;
-  SK.saveRoutines(routines);renderRoutineList();renderDetail();
-  renderCalendar();
-});
-
-document.getElementById('btn-add-blk').addEventListener('click',()=>{
-  const r=routines.find(x=>x.id===activeRid);if(!r)return;
-  r.blocks.push({id:uid(),name:'',tricks:[]});SK.saveRoutines(routines);renderDetail();
-});
-
-// routine color picker
-document.getElementById('routine-color-btn').addEventListener('click',function(e){
-  e.stopPropagation();
-  const r=routines.find(x=>x.id===activeRid);if(!r)return;
-  cpTarget=this;
-  openColorPicker(this,r.color||'#ffffff',color=>{
-    r.color=color;SK.saveRoutines(routines);
-    document.getElementById('routine-color-btn').style.background=color||'transparent';
-    // tint the detail header bar
-    const dhdr=document.getElementById('detail-header-bar');
-    if(dhdr){dhdr.style.background=color?hexToMixedWhite(color,0.25):'';}
-    renderRoutineList();
-  });
-});
-
-function renderDetail(){
-  const empty=document.getElementById('detail-empty');
-  const content=document.getElementById('detail-content');
-  const r=routines.find(x=>x.id===activeRid);
-  if(!r){empty.style.display='flex';content.style.display='none';return;}
-  empty.style.display='none';content.style.display='flex';
-  document.getElementById('dtitle').value=r.name||'';
-  document.getElementById('dmeta').textContent=fmtDate(r.created);
-  document.getElementById('routine-color-btn').style.background=r.color||'transparent';
-  const dhdr=document.getElementById('detail-header-bar');
-  if(dhdr){dhdr.style.background=r.color?hexToMixedWhite(r.color,0.25):'';}
-  renderBlocks(r);updateBreakdown();
-}
-
-function renderBlocks(r){
-  const area=document.getElementById('blocks-area');area.innerHTML='';
-
-  // general zone
-  if((r.general||[]).length>0||(r.blocks.length===0)){
-    const gz=document.createElement('div');gz.className='general-zone';
-    gz.innerHTML=`<div class="gz-hdr">
-      <span class="gz-label">general</span>
-      <button class="bsm" id="gz-add" style="padding:2px 7px;font-size:10px;">+ añadir trucos</button>
-    </div>
-    <div class="blk-tricks gz-tricks">
-      ${(r.general||[]).map((name,i)=>`
-        <div class="btrick">
-          <span class="bchk"></span>
-          <span class="btrick-name">${name}</span>
-          <button class="btrm" data-gi="${i}">×</button>
-        </div>`).join('')}
-    </div>`;
-    gz.querySelector('#gz-add').addEventListener('click',()=>openModal(activeRid,null));
-    gz.querySelectorAll('.btrick-name').forEach(el=>{
-      el.style.cursor='pointer';
-      el.addEventListener('click',()=>{
-        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
-      });
-    });
-    gz.querySelectorAll('.bchk').forEach(chk=>{
-      chk.addEventListener('click',()=>chk.classList.toggle('done'));
-    });
-    gz.querySelectorAll('.btrm').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const i=parseInt(btn.dataset.gi);
-        r.general.splice(i,1);SK.saveRoutines(routines);renderDetail();updateBreakdown();
-      });
-    });
-    area.appendChild(gz);
-  }
-
-  // blocks
-  r.blocks.forEach(block=>{
+  data.blocks.forEach(block=>{
     const bdiv=document.createElement('div');bdiv.className='block';
     if(block.color){
       bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
@@ -2619,7 +2301,7 @@ function renderBlocks(r){
     bdiv.querySelector('.blk-color').addEventListener('click',function(e){
       e.stopPropagation();
       openColorPicker(this,block.color||'#ffffff',color=>{
-        block.color=color;SK.saveRoutines(routines);
+        block.color=color;cfg.save();
         bdiv.querySelector('.blk-color').style.background=color||'transparent';
         if(color){
           bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
@@ -2630,9 +2312,10 @@ function renderBlocks(r){
         }
       });
     });
-    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;SK.saveRoutines(routines);});
+    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;cfg.save();});
     bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
-      r.blocks=r.blocks.filter(b=>b.id!==block.id);SK.saveRoutines(routines);renderDetail();
+      if(!confirm('¿Borrar este bloque?'))return;
+      data.blocks=data.blocks.filter(b=>b.id!==block.id);cfg.save();renderCat(mode);
     });
     bdiv.querySelectorAll('.bchk').forEach(chk=>{
       chk.addEventListener('click',()=>chk.classList.toggle('done'));
@@ -2640,7 +2323,7 @@ function renderBlocks(r){
     bdiv.querySelectorAll('.btrm').forEach(btn=>{
       btn.addEventListener('click',()=>{
         const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
-        SK.saveRoutines(routines);renderDetail();updateBreakdown();
+        cfg.save();renderCat(mode);
       });
     });
     bdiv.querySelectorAll('.btrick-name').forEach(el=>{
@@ -2649,102 +2332,8 @@ function renderBlocks(r){
         navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
       });
     });
-    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(activeRid,block.id,'skate'));
+    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal(mode,block.id));
 
-    // note toggle
-    const noteToggle=bdiv.querySelector('.blk-note-toggle');
-    const noteArea=bdiv.querySelector('.blk-note-area');
-    const noteDot=bdiv.querySelector('.note-dot');
-    noteToggle.addEventListener('click',()=>{
-      const open=noteArea.classList.toggle('open');
-      const hasN=!!(block.note&&block.note.trim());
-      noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?(hasN?'nota ▾':'nota ▾'):(hasN?'nota ▸':'+ nota')}`;
-      if(open)noteArea.querySelector('.blk-note-input').focus();
-    });
-
-    // note save
-    bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
-      block.note=e.target.value;
-      SK.saveRoutines(routines);
-      const hasN=!!(block.note&&block.note.trim());
-      noteDot.classList.toggle('has-note',hasN);
-    });
-
-    area.appendChild(bdiv);
-  });
-}
-
-// ── BASE BLOCKS (panel fijo de los 12 fundamentales) ──
-function renderBaseBlocks(){
-  const area=document.getElementById('base-blocks-area');area.innerHTML='';
-
-  baseData.blocks.forEach(block=>{
-    const bdiv=document.createElement('div');bdiv.className='block';
-    if(block.color){
-      bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
-      bdiv.style.setProperty('--blk-fg','#111');
-    }
-    const hasNote=!!(block.note&&block.note.trim());
-    bdiv.innerHTML=`<div class="blk-hdr">
-      <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
-      <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
-      <button class="blk-rm">×</button>
-    </div>
-    <div class="blk-tricks">
-      ${block.tricks.map((name,i)=>`
-        <div class="btrick">
-          <span class="bchk"></span>
-          <span class="btrick-name">${name}</span>
-          <button class="btrm" data-i="${i}">×</button>
-        </div>`).join('')}
-      <button class="blk-add">+ añadir truco base</button>
-    </div>
-    <button class="blk-note-toggle">
-      <span class="note-dot${hasNote?' has-note':''}"></span>
-      ${hasNote?'nota ▾':'+ nota'}
-    </button>
-    <div class="blk-note-area${hasNote?' open':''}">
-      <textarea class="blk-note-input" placeholder="anotaciones, objetivos, referencias...">${block.note||''}</textarea>
-    </div>`;
-
-    bdiv.querySelector('.blk-color').addEventListener('click',function(e){
-      e.stopPropagation();
-      openColorPicker(this,block.color||'#ffffff',color=>{
-        block.color=color;saveBase();
-        bdiv.querySelector('.blk-color').style.background=color||'transparent';
-        if(color){
-          bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
-          bdiv.style.setProperty('--blk-fg','#111');
-        } else {
-          bdiv.style.removeProperty('--blk-c-bg');
-          bdiv.style.removeProperty('--blk-fg');
-        }
-      });
-    });
-    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;saveBase();});
-    bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
-      if(!confirm('¿Borrar este bloque de Base?'))return;
-      baseData.blocks=baseData.blocks.filter(b=>b.id!==block.id);saveBase();renderBaseBlocks();
-      renderCalendar();
-    });
-    bdiv.querySelectorAll('.bchk').forEach(chk=>{
-      chk.addEventListener('click',()=>chk.classList.toggle('done'));
-    });
-    bdiv.querySelectorAll('.btrm').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
-        saveBase();renderBaseBlocks();
-      });
-    });
-    bdiv.querySelectorAll('.btrick-name').forEach(el=>{
-      el.style.cursor='pointer';
-      el.addEventListener('click',()=>{
-        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
-      });
-    });
-    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal('BASE',block.id,'base'));
-
-    // note toggle
     const noteToggle=bdiv.querySelector('.blk-note-toggle');
     const noteArea=bdiv.querySelector('.blk-note-area');
     const noteDot=bdiv.querySelector('.note-dot');
@@ -2754,11 +2343,9 @@ function renderBaseBlocks(){
       noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?'nota ▾':(hasN?'nota ▸':'+ nota')}`;
       if(open)noteArea.querySelector('.blk-note-input').focus();
     });
-
-    // note save
     bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
       block.note=e.target.value;
-      saveBase();
+      cfg.save();
       const hasN=!!(block.note&&block.note.trim());
       noteDot.classList.toggle('has-note',hasN);
     });
@@ -2767,107 +2354,13 @@ function renderBaseBlocks(){
   });
 }
 
-document.getElementById('btn-add-base-blk').addEventListener('click',()=>{
-  baseData.blocks.push({id:uid(),name:'',color:'',note:'',tricks:[]});
-  saveBase();renderBaseBlocks();
-});
-
-// ── WARMUP BLOCKS (panel fijo de calentamiento) ──
-function renderWarmupBlocks(){
-  const area=document.getElementById('warmup-blocks-area');area.innerHTML='';
-
-  warmupData.blocks.forEach(block=>{
-    const bdiv=document.createElement('div');bdiv.className='block';
-    if(block.color){
-      bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(block.color,0.25));
-      bdiv.style.setProperty('--blk-fg','#111');
-    }
-    const hasNote=!!(block.note&&block.note.trim());
-    bdiv.innerHTML=`<div class="blk-hdr">
-      <div class="blk-color" style="background:${block.color||'transparent'}" title="Color del bloque"></div>
-      <input class="blk-name" value="${block.name||''}" placeholder="nombre del bloque...">
-      <button class="blk-rm">×</button>
-    </div>
-    <div class="blk-tricks">
-      ${block.tricks.map((name,i)=>`
-        <div class="btrick">
-          <span class="bchk"></span>
-          <span class="btrick-name">${name}</span>
-          <button class="btrm" data-i="${i}">×</button>
-        </div>`).join('')}
-      <button class="blk-add">+ añadir ejercicio</button>
-    </div>
-    <button class="blk-note-toggle">
-      <span class="note-dot${hasNote?' has-note':''}"></span>
-      ${hasNote?'nota ▾':'+ nota'}
-    </button>
-    <div class="blk-note-area${hasNote?' open':''}">
-      <textarea class="blk-note-input" placeholder="anotaciones, objetivos, referencias...">${block.note||''}</textarea>
-    </div>`;
-
-    bdiv.querySelector('.blk-color').addEventListener('click',function(e){
-      e.stopPropagation();
-      openColorPicker(this,block.color||'#ffffff',color=>{
-        block.color=color;saveWarmup();
-        bdiv.querySelector('.blk-color').style.background=color||'transparent';
-        if(color){
-          bdiv.style.setProperty('--blk-c-bg',hexToMixedWhite(color,0.25));
-          bdiv.style.setProperty('--blk-fg','#111');
-        } else {
-          bdiv.style.removeProperty('--blk-c-bg');
-          bdiv.style.removeProperty('--blk-fg');
-        }
-      });
-    });
-    bdiv.querySelector('.blk-name').addEventListener('input',e=>{block.name=e.target.value;saveWarmup();});
-    bdiv.querySelector('.blk-rm').addEventListener('click',()=>{
-      if(!confirm('¿Borrar este bloque de Calentamiento?'))return;
-      warmupData.blocks=warmupData.blocks.filter(b=>b.id!==block.id);saveWarmup();renderWarmupBlocks();
-    });
-    bdiv.querySelectorAll('.bchk').forEach(chk=>{
-      chk.addEventListener('click',()=>chk.classList.toggle('done'));
-    });
-    bdiv.querySelectorAll('.btrm').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
-        saveWarmup();renderWarmupBlocks();
-      });
-    });
-    bdiv.querySelectorAll('.btrick-name').forEach(el=>{
-      el.style.cursor='pointer';
-      el.addEventListener('click',()=>{
-        navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast(el.textContent.trim()));
-      });
-    });
-    bdiv.querySelector('.blk-add').addEventListener('click',()=>openModal('WARMUP',block.id,'warmup'));
-
-    // note toggle
-    const noteToggle=bdiv.querySelector('.blk-note-toggle');
-    const noteArea=bdiv.querySelector('.blk-note-area');
-    const noteDot=bdiv.querySelector('.note-dot');
-    noteToggle.addEventListener('click',()=>{
-      const open=noteArea.classList.toggle('open');
-      const hasN=!!(block.note&&block.note.trim());
-      noteToggle.innerHTML=`<span class="note-dot${hasN?' has-note':''}"></span>${open?'nota ▾':(hasN?'nota ▸':'+ nota')}`;
-      if(open)noteArea.querySelector('.blk-note-input').focus();
-    });
-
-    // note save
-    bdiv.querySelector('.blk-note-input').addEventListener('input',e=>{
-      block.note=e.target.value;
-      saveWarmup();
-      const hasN=!!(block.note&&block.note.trim());
-      noteDot.classList.toggle('has-note',hasN);
-    });
-
-    area.appendChild(bdiv);
+Object.entries(CATS).forEach(([mode,cfg])=>{
+  document.getElementById(cfg.addBtnId).addEventListener('click',()=>{
+    cfg.get().blocks.push({id:uid(),name:'',color:'',note:'',tricks:[]});
+    cfg.save();renderCat(mode);
   });
-}
-
-document.getElementById('btn-add-warmup-blk').addEventListener('click',()=>{
-  warmupData.blocks.push({id:uid(),name:'',color:'',note:'',tricks:[]});
-  saveWarmup();renderWarmupBlocks();
 });
+
 
 // panel collapse — calentamiento
 const WARMUP_COLLAPSED_KEY='sk_warmup_collapsed';
@@ -2894,7 +2387,7 @@ document.getElementById('warmup-info-toggle').addEventListener('click',function(
 const BASE_COLLAPSED_KEY='sk_base_collapsed';
 let baseCollapsed=localStorage.getItem(BASE_COLLAPSED_KEY)==='1';
 function applyBaseCollapsed(){
-  document.getElementById('fold-body').classList.toggle('collapsed',baseCollapsed);
+  document.getElementById('base-body').classList.toggle('collapsed',baseCollapsed);
   document.getElementById('btn-toggle-base').textContent=baseCollapsed?'+':'−';
 }
 document.getElementById('btn-toggle-base').addEventListener('click',()=>{
@@ -2915,8 +2408,8 @@ document.getElementById('base-info-toggle').addEventListener('click',function(){
 // ── CALENDARIO ──
 // ─────────────────────────────
 // Plantilla semanal esquemática: 7 columnas fijas, sin fechas.
-// Cada día guarda referencias {type:'base'} o {type:'routine',id} — nunca copia
-// contenido, solo apunta a Base o a una rutina de Técnica ya existente.
+// Cada día guarda referencias {type:'base'} o {type:'skate',id} — nunca copia
+// contenido, solo apunta a un bloque de Base o de Técnica ya existente.
 const CAL_KEY='sk_calendar';
 function defaultCalendar(){
   return {days:[
@@ -2951,27 +2444,26 @@ function openCalAdd(dayIdx,anchor){
     list.appendChild(secB);
     baseData.blocks.forEach(b=>{
       const it=document.createElement('div');it.className='fdd-item';
-      it.innerHTML=`<span style="width:12px;height:12px;border-radius:2px;flex-shrink:0;border:1px dashed ${b.color?'transparent':'var(--muted)'};background:${b.color||'none'};"></span>${b.name||'Bloque sin nombre'}`;
+      it.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;flex-shrink:0;background:${b.color||'transparent'};border:1px solid ${b.color?'transparent':'#aaa'};"></span>${b.name||'Sin nombre'}`;
       it.addEventListener('click',e=>{e.stopPropagation();addCalItem(dayIdx,{type:'base',id:b.id});closeCalAdd();});
       list.appendChild(it);
     });
   }
 
-  const rs=sortedR();
   const secT=document.createElement('div');secT.className='fdd-section';secT.textContent='Técnica';
   if(baseData.blocks.length){const sep=document.createElement('div');sep.className='fdd-sep';list.appendChild(sep);}
   list.appendChild(secT);
-  if(rs.length){
-    rs.forEach(r=>{
+  if(tecnicaData.blocks.length){
+    tecnicaData.blocks.forEach(b=>{
       const it=document.createElement('div');it.className='fdd-item';
-      it.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;flex-shrink:0;background:${r.color||'transparent'};border:1px solid ${r.color?'transparent':'#aaa'};"></span>${r.name||'Sin nombre'}`;
-      it.addEventListener('click',e=>{e.stopPropagation();addCalItem(dayIdx,{type:'routine',id:r.id});closeCalAdd();});
+      it.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;flex-shrink:0;background:${b.color||'transparent'};border:1px solid ${b.color?'transparent':'#aaa'};"></span>${b.name||'Sin nombre'}`;
+      it.addEventListener('click',e=>{e.stopPropagation();addCalItem(dayIdx,{type:'skate',id:b.id});closeCalAdd();});
       list.appendChild(it);
     });
   } else {
     const empty=document.createElement('div');
     empty.style.cssText='padding:6px 14px 10px;font-size:11px;color:var(--muted);';
-    empty.textContent='ninguna rutina todavía';
+    empty.textContent='ningún bloque todavía';
     list.appendChild(empty);
   }
 
@@ -3000,7 +2492,7 @@ function renderCalendar(){
     // limpieza de referencias a bloques base o rutinas ya borrados
     const before=day.items.length;
     day.items=day.items.filter(it=>
-      it.type==='base' ? baseData.blocks.some(b=>b.id===it.id) : routines.some(r=>r.id===it.id)
+      it.type==='base' ? baseData.blocks.some(b=>b.id===it.id) : tecnicaData.blocks.some(b=>b.id===it.id)
     );
     if(day.items.length!==before)saveCalendar();
 
@@ -3020,19 +2512,19 @@ function renderCalendar(){
         const b=baseData.blocks.find(x=>x.id===item.id);
         if(!b)return;
         pill.className='cal-pill base';
-        pill.innerHTML=`<span class="cal-pill-dot" style="background:${b.color||'none'};border:1px dashed ${b.color?'transparent':'var(--muted)'};"></span><span class="cal-pill-name">${b.name||'Bloque sin nombre'}</span><button class="cal-pill-rm">×</button>`;
+        pill.innerHTML=`<span class="cal-pill-dot" style="background:${b.color||'var(--muted)'}"></span><span class="cal-pill-name">${b.name||'Sin nombre'}</span><button class="cal-pill-rm">×</button>`;
         pill.querySelector('.cal-pill-name').addEventListener('click',()=>{
           baseCollapsed=false;localStorage.setItem(BASE_COLLAPSED_KEY,'0');applyBaseCollapsed();
           document.getElementById('panel-base').scrollIntoView({behavior:'smooth',block:'start'});
         });
       } else {
-        const r=routines.find(x=>x.id===item.id);
-        if(!r)return;
+        const b=tecnicaData.blocks.find(x=>x.id===item.id);
+        if(!b)return;
         pill.className='cal-pill';
-        pill.innerHTML=`<span class="cal-pill-dot" style="background:${r.color||'var(--muted)'}"></span><span class="cal-pill-name">${r.name||'Sin nombre'}</span><button class="cal-pill-rm">×</button>`;
+        pill.innerHTML=`<span class="cal-pill-dot" style="background:${b.color||'var(--muted)'}"></span><span class="cal-pill-name">${b.name||'Sin nombre'}</span><button class="cal-pill-rm">×</button>`;
         pill.querySelector('.cal-pill-name').addEventListener('click',()=>{
-          activeRid=r.id;renderRoutineList();renderDetail();
-          document.getElementById('panel-detail').scrollIntoView({behavior:'smooth',block:'start'});
+          tecnicaCollapsed=false;localStorage.setItem(TECNICA_COLLAPSED_KEY,'0');applyTecnicaCollapsed();
+          document.getElementById('panel-tecnica').scrollIntoView({behavior:'smooth',block:'start'});
         });
       }
       pill.querySelector('.cal-pill-rm').addEventListener('click',e=>{
@@ -3071,42 +2563,16 @@ document.getElementById('btn-toggle-cal').addEventListener('click',()=>{
 });
 applyCalCollapsed();
 
-function updateBreakdown(){
-  const r=routines.find(x=>x.id===activeRid);
-  const el=document.getElementById('bdtags');
-  if(!r){el.textContent='—';return;}
-  const counts={};
-  const allTricks=[...(r.general||[]),...r.blocks.flatMap(b=>b.tricks)];
-  allTricks.forEach(tname=>{
-    for(const fam of DATA){for(const sf of fam.subfamilies){
-      if(sf.tricks.some(t=>t.name===tname)){counts[fam.name]=(counts[fam.name]||0)+1;return;}
-    }}
-  });
-  const total=Object.values(counts).reduce((s,n)=>s+n,0);
-  if(!total){el.textContent='—';return;}
-  el.innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1])
-    .map(([name,n])=>`<span class="bdtag">${name} ${Math.round(n/total*100)}%</span>`).join(' ');
-}
-
 // ─────────────────────────────
 // ── MODAL ──
 // ─────────────────────────────
-let modalMode='skate'; // 'skate', 'base' or 'warmup'
-function openModal(rid,bid,mode){
-  modalTarget={rid,bid,isBase:rid==='BASE',isWarmup:rid==='WARMUP'};modalSel.clear();
-  modalMode=mode||'skate';
-  const modeLabel=modalMode==='base'?'truco base':(modalMode==='warmup'?'ejercicio de calentamiento':'truco');
-  let bname='bloque';
-  if(modalTarget.isBase){
-    bname=baseData.blocks.find(b=>b.id===bid)?.name||'bloque';
-  } else if(modalTarget.isWarmup){
-    bname=warmupData.blocks.find(b=>b.id===bid)?.name||'bloque';
-  } else {
-    const r=routines.find(x=>x.id===rid);
-    const b=bid?r?.blocks.find(b=>b.id===bid):null;
-    bname=b?.name||'bloque';
-  }
-  document.getElementById('mtitle').textContent=bid?`Añadir ${modeLabel} › ${bname}`:`Añadir ${modeLabel} › general`;
+function openModal(mode,bid){
+  modalTarget={mode,bid};modalSel.clear();
+  const modeLabel=mode==='base'?'truco base':(mode==='warmup'?'ejercicio de calentamiento':'truco');
+  const data=CATS[mode].get();
+  const b=bid?data.blocks.find(x=>x.id===bid):null;
+  const bname=b?.name||'bloque';
+  document.getElementById('mtitle').textContent=`Añadir ${modeLabel} › ${bname}`;
   document.getElementById('msearch').value='';
   renderModal('');
   document.getElementById('modal-ov').classList.add('open');
@@ -3114,18 +2580,15 @@ function openModal(rid,bid,mode){
 }
 
 function renderModal(q){
-  const isBase=modalTarget?.isBase;
-  const isWarmup=modalTarget?.isWarmup;
-  const r=(isBase||isWarmup)?null:routines.find(x=>x.id===modalTarget?.rid);
-  const b=isBase?baseData.blocks.find(b=>b.id===modalTarget.bid):
-    (isWarmup?warmupData.blocks.find(b=>b.id===modalTarget.bid):
-    (modalTarget?.bid?r?.blocks.find(b=>b.id===modalTarget.bid):null));
-  const inTarget=new Set(b?b.tricks:(r?.general||[]));
+  const mode=modalTarget?.mode||'skate';
+  const data=CATS[mode].get();
+  const b=modalTarget?.bid?data.blocks.find(x=>x.id===modalTarget.bid):null;
+  const inTarget=new Set(b?b.tricks:[]);
   const body=document.getElementById('mbody');body.innerHTML='';
 
   // BASE MODE / WARMUP MODE — solo el esquema reducido correspondiente
-  if(modalMode==='base'||modalMode==='warmup'){
-    const AXES=modalMode==='base'?BASE_AXES:WARMUP_AXES;
+  if(mode==='base'||mode==='warmup'){
+    const AXES=mode==='base'?BASE_AXES:WARMUP_AXES;
     AXES.forEach(section=>{
       const axes=section.axes.filter(a=>!q||a.name.toLowerCase().includes(q));
       if(!axes.length)return;
@@ -3203,63 +2666,33 @@ document.getElementById('mcollapseall').addEventListener('click',()=>{
 document.getElementById('modal-ov').addEventListener('click',e=>{if(e.target===document.getElementById('modal-ov'))document.getElementById('modal-ov').classList.remove('open');});
 document.getElementById('mconfirm').addEventListener('click',()=>{
   let added=0;
-  if(modalTarget?.isBase){
-    const b=baseData.blocks.find(b=>b.id===modalTarget.bid);
-    if(!b)return;
-    modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
-    saveBase();
-    document.getElementById('modal-ov').classList.remove('open');
-    renderBaseBlocks();
-    if(added)toast(`${added} fundamentos añadidos`);
-    return;
-  }
-  if(modalTarget?.isWarmup){
-    const b=warmupData.blocks.find(b=>b.id===modalTarget.bid);
-    if(!b)return;
-    modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
-    saveWarmup();
-    document.getElementById('modal-ov').classList.remove('open');
-    renderWarmupBlocks();
-    if(added)toast(`${added} ejercicios añadidos`);
-    return;
-  }
-  const r=routines.find(x=>x.id===modalTarget?.rid);
-  if(!r)return;
-  if(modalTarget.bid){
-    const b=r.blocks.find(b=>b.id===modalTarget.bid);
-    if(b)modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
-  }else{
-    if(!r.general)r.general=[];
-    modalSel.forEach(name=>{if(!r.general.includes(name)){r.general.push(name);added++;}});
-  }
-  SK.saveRoutines(routines);
+  const mode=modalTarget?.mode||'skate';
+  const cfg=CATS[mode];
+  const data=cfg.get();
+  const b=modalTarget?.bid?data.blocks.find(x=>x.id===modalTarget.bid):null;
+  if(!b)return;
+  modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
+  cfg.save();
   document.getElementById('modal-ov').classList.remove('open');
-  renderDetail();updateBreakdown();
-  if(added)toast(`${added} trucos añadidos`);
+  renderCat(mode);
+  const labels={skate:'trucos',base:'fundamentos',warmup:'ejercicios'};
+  if(added)toast(`${added} ${labels[mode]||'trucos'} añadidos`);
 });
 
 // ── EXPORT / IMPORT ──
+function blocksOut(blocks){
+  return (blocks||[]).map(b=>({
+    id: b.id, name: b.name||'', color: b.color||'', note: b.note||'', tricks: b.tricks||[]
+  }));
+}
 function getAllData(){
   return {
-    version: 2,
+    version: 3,
     exportDate: new Date().toISOString(),
-    // ── CHECKS: {nombre: "fecha_iso"} 
+    // ── CHECKS: {nombre: "fecha_iso"}
     checks: Object.fromEntries([...checked].map(name => [name, checksTs[name]||''])),
-    // ── ROUTINES: lista completa con todos los campos
-    routines: routines.map(r=>({
-      id: r.id,
-      name: r.name,
-      created: r.created,
-      color: r.color||'',
-      blocks: (r.blocks||[]).map(b=>({
-        id: b.id,
-        name: b.name||'',
-        color: b.color||'',
-        note: b.note||'',
-        tricks: b.tricks||[]
-      })),
-      general: r.general||[]
-    })),
+    // ── TÉCNICA: una única lista de bloques
+    tecnica: { blocks: blocksOut(tecnicaData.blocks) },
     // ── PROGRESION: lista de trucos con escalones
     progresion: progData.map(e=>({
       trickName: e.trickName,
@@ -3270,26 +2703,10 @@ function getAllData(){
       }))
     })),
     // ── BASE: bloques fijos de los fundamentales
-    base: {
-      blocks: (baseData.blocks||[]).map(b=>({
-        id: b.id,
-        name: b.name||'',
-        color: b.color||'',
-        note: b.note||'',
-        tricks: b.tricks||[]
-      }))
-    },
-    // ── CALENTAMIENTO: bloques fijos de ejercicios de calentamiento
-    calentamiento: {
-      blocks: (warmupData.blocks||[]).map(b=>({
-        id: b.id,
-        name: b.name||'',
-        color: b.color||'',
-        note: b.note||'',
-        tricks: b.tricks||[]
-      }))
-    },
-    // ── CALENDARIO: plantilla semanal, referencias por id a rutinas + Base
+    base: { blocks: blocksOut(baseData.blocks) },
+    // ── CALENTAMIENTO: misma forma que Base y Técnica
+    calentamiento: { blocks: blocksOut(warmupData.blocks) },
+    // ── CALENDARIO: plantilla semanal, referencias por id a bloques de Base/Técnica
     calendario: calendarData.days.map(d=>({
       key: d.key,
       items: d.items,
@@ -3298,8 +2715,34 @@ function getAllData(){
   };
 }
 
+// fusiona bloques nuevos dentro de una lista {blocks:[...]} existente,
+// por id o por nombre; si no existe el bloque, lo añade.
+function mergeBlocksData(targetData, incoming){
+  incoming.forEach(nb=>{
+    const idx = targetData.blocks.findIndex(b=>b.id===nb.id||(nb.name&&b.name===nb.name));
+    if(idx>-1){
+      const b = targetData.blocks[idx];
+      if(nb.name!==undefined) b.name=nb.name;
+      if(nb.color!==undefined) b.color=nb.color;
+      if(nb.note!==undefined) b.note=nb.note;
+      if(nb.tricks!==undefined) b.tricks=nb.tricks;
+    } else {
+      targetData.blocks.push({
+        id: nb.id||uid(), name: nb.name||'', color: nb.color||'',
+        note: nb.note||'', tricks: nb.tricks||[]
+      });
+    }
+  });
+}
+// compatibilidad con el formato antiguo (array de "rutinas" con blocks[]/general[])
+function blocksFromLegacy(payload){
+  if(Array.isArray(payload.blocks)) return payload.blocks;
+  if(Array.isArray(payload.routines)) return mergeRoutinesIntoBlocks(payload.routines);
+  return [];
+}
+
 function loadAllData(data){
-  if(!data||![1,2].includes(data.version)){toast('Formato no válido');return;}
+  if(!data||![1,2,3].includes(data.version)){toast('Formato no válido');return;}
 
   // ── CHECKS
   // _deleteChecks: ["nombre"] — borra checks específicos
@@ -3318,35 +2761,20 @@ function loadAllData(data){
   SK.saveChecks(checked);
   saveChecksTs(checksTs);
 
-  // ── ROUTINES
-  // _deleteRoutines: ["id_o_nombre"] — borra rutinas
-  // _replaceRoutines: true — reemplaza todas las rutinas
-  // routines: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe la añade
-  const deleteRids = new Set(data._deleteRoutines||[]);
-  routines = routines.filter(r=>!deleteRids.has(r.id)&&!deleteRids.has(r.name));
-  if(data._replaceRoutines){
-    routines = data.routines||[];
-  } else {
-    (data.routines||[]).forEach(nr=>{
-      const idx = routines.findIndex(r=>r.id===nr.id||r.name===nr.name);
-      if(idx>-1){
-        // merge field by field — only update fields present in JSON
-        const r = routines[idx];
-        if(nr.name!==undefined) r.name=nr.name;
-        if(nr.color!==undefined) r.color=nr.color;
-        if(nr.blocks!==undefined) r.blocks=nr.blocks;
-        if(nr.general!==undefined) r.general=nr.general;
-      } else {
-        // ensure required fields
-        if(!nr.id) nr.id = Date.now().toString(36)+Math.random().toString(36).slice(2,4);
-        if(!nr.created) nr.created = new Date().toISOString();
-        if(!nr.blocks) nr.blocks = [];
-        if(!nr.general) nr.general = [];
-        routines.unshift(nr);
-      }
-    });
+  // ── TÉCNICA (una única lista de bloques)
+  // _replaceTecnica: true — reemplaza todos los bloques
+  // tecnica.blocks: [...] — fusiona por id o nombre
+  // (compatible con el formato antiguo routines: [...] de varias rutinas)
+  const tecnicaPayload = data.tecnica || (data.routines?{routines:data.routines}:null);
+  if(tecnicaPayload){
+    if(data._replaceTecnica||data._replaceRoutines){
+      const blocks=blocksFromLegacy(tecnicaPayload);
+      tecnicaData = {blocks: blocks.length?blocks:defaultTecnicaData().blocks};
+    } else {
+      mergeBlocksData(tecnicaData, blocksFromLegacy(tecnicaPayload));
+    }
+    saveTecnica();
   }
-  SK.saveRoutines(routines);
 
   // ── PROGRESION
   // _deleteProgresion: ["trickName"] — borra trucos de progresión
@@ -3369,52 +2797,30 @@ function loadAllData(data){
   }
   saveProg();
 
-  // ── BASE
-  // _replaceBase: true — reemplaza todos los bloques de Base
-  // base.blocks: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe se añade
+  // ── BASE (una única lista de bloques)
+  // _replaceBase: true — reemplaza todos los bloques
+  // base.blocks: [...] — fusiona por id o nombre
+  // (compatible con el formato antiguo base.routines: [...] de varias rutinas)
   if(data.base){
     if(data._replaceBase){
-      baseData = {blocks: data.base.blocks||[]};
+      const blocks=blocksFromLegacy(data.base);
+      baseData = {blocks: blocks.length?blocks:defaultBaseData().blocks};
     } else {
-      (data.base.blocks||[]).forEach(nb=>{
-        const idx = baseData.blocks.findIndex(b=>b.id===nb.id||b.name===nb.name);
-        if(idx>-1){
-          const b = baseData.blocks[idx];
-          if(nb.name!==undefined) b.name=nb.name;
-          if(nb.color!==undefined) b.color=nb.color;
-          if(nb.note!==undefined) b.note=nb.note;
-          if(nb.tricks!==undefined) b.tricks=nb.tricks;
-        } else {
-          if(!nb.id) nb.id = uid();
-          if(!nb.tricks) nb.tricks = [];
-          baseData.blocks.push(nb);
-        }
-      });
+      mergeBlocksData(baseData, blocksFromLegacy(data.base));
     }
     saveBase();
   }
 
-  // ── CALENTAMIENTO
-  // _replaceCalentamiento: true — reemplaza todos los bloques de Calentamiento
-  // calentamiento.blocks: [...] — fusiona por id o nombre; si existe actualiza campo a campo, si no existe se añade
+  // ── CALENTAMIENTO (una única lista de bloques)
+  // _replaceCalentamiento: true — reemplaza todos los bloques
+  // calentamiento.blocks: [...] — fusiona por id o nombre
+  // (compatible con el formato antiguo calentamiento.routines: [...] de varias rutinas)
   if(data.calentamiento){
     if(data._replaceCalentamiento){
-      warmupData = {blocks: data.calentamiento.blocks||[]};
+      const blocks=blocksFromLegacy(data.calentamiento);
+      warmupData = {blocks: blocks.length?blocks:defaultWarmupData().blocks};
     } else {
-      (data.calentamiento.blocks||[]).forEach(nb=>{
-        const idx = warmupData.blocks.findIndex(b=>b.id===nb.id||b.name===nb.name);
-        if(idx>-1){
-          const b = warmupData.blocks[idx];
-          if(nb.name!==undefined) b.name=nb.name;
-          if(nb.color!==undefined) b.color=nb.color;
-          if(nb.note!==undefined) b.note=nb.note;
-          if(nb.tricks!==undefined) b.tricks=nb.tricks;
-        } else {
-          if(!nb.id) nb.id = uid();
-          if(!nb.tricks) nb.tricks = [];
-          warmupData.blocks.push(nb);
-        }
-      });
+      mergeBlocksData(warmupData, blocksFromLegacy(data.calentamiento));
     }
     saveWarmup();
   }
@@ -3444,12 +2850,9 @@ function loadAllData(data){
     if(name) el.classList.toggle('done', checked.has(name));
   });
   document.getElementById('conseguidos-count').textContent = checked.size;
-  renderRoutineList();
-  renderDetail();
   renderProgScheme();
   renderProgList();
-  renderBaseBlocks();
-  renderWarmupBlocks();
+  renderCat('skate');renderCat('base');renderCat('warmup');
   renderCalendar();
   toast('✓ datos importados');
 }
@@ -3485,70 +2888,30 @@ document.getElementById('btn-import').addEventListener('change', function(){
   reader.readAsText(file);
 });
 
-// ── PRINT / EXPORT TXT ──
-document.getElementById('btn-print').addEventListener('click',()=>{
-  const r = routines.find(x=>x.id===activeRid);
-  if(!r) return;
-
-  let txt = '';
-  txt += `RUTINA: ${r.name||'Sin nombre'}\n`;
-  txt += `Creada: ${fmtDate(r.created)}\n`;
-  txt += '\n';
-
-  // general tricks
-  if((r.general||[]).length){
-    txt += `── General ──\n`;
-    r.general.forEach(t=>{ txt += `- ${t}\n`; });
-    txt += '\n';
-  }
-
-  // blocks
-  (r.blocks||[]).forEach(block=>{
-    txt += `── ${block.name||'Bloque'} ──\n`;
-    (block.tricks||[]).forEach(t=>{ txt += `- ${t}\n`; });
-    if(block.note&&block.note.trim()){
-      txt += `\nNota: ${block.note.trim()}\n`;
-    }
-    txt += '\n';
-  });
-
-  // download
-  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${(r.name||'rutina').replace(/[^a-z0-9]/gi,'_')}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Descargado como .txt');
+// panel collapse — técnica (mismo mecanismo que calentamiento/base)
+const TECNICA_COLLAPSED_KEY='sk_tecnica_collapsed';
+let tecnicaCollapsed=localStorage.getItem(TECNICA_COLLAPSED_KEY)==='1';
+function applyTecnicaCollapsed(){
+  document.getElementById('tecnica-body').classList.toggle('collapsed',tecnicaCollapsed);
+  document.getElementById('btn-toggle-tecnica').textContent=tecnicaCollapsed?'+':'−';
+}
+document.getElementById('btn-toggle-tecnica').addEventListener('click',()=>{
+  tecnicaCollapsed=!tecnicaCollapsed;
+  localStorage.setItem(TECNICA_COLLAPSED_KEY,tecnicaCollapsed?'1':'0');
+  applyTecnicaCollapsed();
 });
+applyTecnicaCollapsed();
 
-// ── ROUTINES PANEL COLLAPSE ──
-let routinesPanelOpen = true;
-document.getElementById('btn-toggle-routines').addEventListener('click', function(){
-  routinesPanelOpen = !routinesPanelOpen;
-  const panel = document.getElementById('panel-routines');
-  const title = document.getElementById('routines-title');
-  const sortBtn = document.getElementById('fdd-sort-btn');
-  const newBtn = document.getElementById('btn-new');
-  const rlist = document.getElementById('rlist');
-  if(routinesPanelOpen){
-    panel.style.width = '230px';
-    this.textContent = '‹';
-    this.title = 'Colapsar panel';
-    title.style.display = '';
-    sortBtn.style.display = '';
-    newBtn.style.display = '';
-    rlist.style.display = '';
-  } else {
-    panel.style.width = '32px';
-    this.textContent = '›';
-    this.title = 'Expandir panel';
-    title.style.display = 'none';
-    sortBtn.style.display = 'none';
-    newBtn.style.display = 'none';
-    rlist.style.display = 'none';
-  }
+// info toggle técnica (mismo mecanismo que calentamiento/base)
+const TECNICA_INFO_TEXT = `TÉCNICA
+
+Por qué existe: trucos que aún no se dominan, con foco puesto en conseguirlos. Aquí vive el esquema completo — cualquier truco del catálogo puede entrar. Va después de Calentamiento y Base en el orden de la sesión.
+
+Se organiza igual que Base y Calentamiento: bloques con los trucos que se están trabajando ahora mismo. Cuando un truco se consigue, puede pasar a Base si es uno de los fundamentales, o simplemente queda conseguido si no lo es.`;
+document.getElementById('tecnica-info-text').textContent=TECNICA_INFO_TEXT;
+document.getElementById('tecnica-info-toggle').addEventListener('click',function(){
+  const open=document.getElementById('tecnica-info-text').classList.toggle('open');
+  this.textContent=open?'ocultar':'¿qué es esto?';
 });
 
 // ── THEME ──
@@ -3895,9 +3258,9 @@ applyTheme(localStorage.getItem(THEME_KEY)==='dark');
 const SEED_DIAS_KEY='sk_seeded_dias_v2';
 if(!localStorage.getItem(SEED_DIAS_KEY)){
   localStorage.setItem(SEED_DIAS_KEY,'1');
-  const before=routines.length;
-  routines=routines.filter(r=>!['Día 1','Día 2','Día 3'].includes(r.name));
-  if(routines.length!==before)SK.saveRoutines(routines);
+  const before=tecnicaData.blocks.length;
+  tecnicaData.blocks=tecnicaData.blocks.filter(b=>!['Día 1','Día 2','Día 3'].includes(b.name));
+  if(tecnicaData.blocks.length!==before)saveTecnica();
   baseData.blocks=[
     {id:uid(),name:'Día 1',color:'',note:'',tricks:['Ollie','Manual','Nollie','Backside Pop Shove-it']},
     {id:uid(),name:'Día 2',color:'',note:'',tricks:['Ollie','Manual','Nose Manual','Kickflip']},
@@ -3906,7 +3269,8 @@ if(!localStorage.getItem(SEED_DIAS_KEY)){
   saveBase();
 }
 
-applyFilters();renderRoutineList();renderDetail();renderProgScheme();renderProgList();renderBaseBlocks();renderWarmupBlocks();renderCalendar();
+applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderProgScheme();renderProgList();
+renderCalendar();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
 </script>
