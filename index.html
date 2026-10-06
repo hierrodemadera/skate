@@ -1674,18 +1674,18 @@ const WARMUP_KEY='sk_warmup';
 // cada día lleva algo de soltura/pies, de pivots sobre el nose y de rotación de tabla,
 // con la dificultad repartida y los espejos (Shove-it / Fakie) en días distintos.
 function warmupDays(){return [
-  {id:uid(),name:'Día 1',color:'',note:'',tricks:[
+  {id:uid(),name:'Día 1',color:'#2ecc40',note:'',tricks:[
     'Regular, slide, goofy',
     'Tic-Tac (kickturns alternados FS/BS para ganar impulso)',
     'End-Over (serie de pivots 180 alternados sobre el nose)',
     'Body Varial (cuerpo 180°, tabla estática)',
     'Shove-it (sin pop)']},
-  {id:uid(),name:'Día 2',color:'',note:'',tricks:[
+  {id:uid(),name:'Día 2',color:'#ffd400',note:'',tricks:[
     'Cambio de pie rodando',
     'Monster Walk (pivots FS+FS o BS+BS consecutivos)',
     'Hang Ten Manual (ambos pies en nose)',
     'Revert (180° pivot con momentum tras aterrizar, sin pop)']},
-  {id:uid(),name:'Día 3',color:'',note:'',tricks:[
+  {id:uid(),name:'Día 3',color:'#ff5722',note:'',tricks:[
     'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)',
     'Frozono',
     'Walk The Dog (vaivén de End-Over con movimiento)',
@@ -3198,9 +3198,9 @@ if(!localStorage.getItem(SEED_DIAS_KEY)){
   tecnicaData.blocks=tecnicaData.blocks.filter(b=>!['Día 1','Día 2','Día 3'].includes(b.name));
   if(tecnicaData.blocks.length!==before)saveTecnica();
   baseData.blocks=[
-    {id:uid(),name:'Día 1',color:'',note:'',tricks:['Ollie','Manual','Nollie','Backside Pop Shove-it']},
-    {id:uid(),name:'Día 2',color:'',note:'',tricks:['Ollie','Manual','Nose Manual','Kickflip']},
-    {id:uid(),name:'Día 3',color:'',note:'',tricks:['Ollie','Manual','Body Varial + Revert','Boneless']},
+    {id:uid(),name:'Día 1',color:'#2ecc40',note:'',tricks:['Ollie','Manual','Nollie','Backside Pop Shove-it']},
+    {id:uid(),name:'Día 2',color:'#ffd400',note:'',tricks:['Ollie','Manual','Nose Manual','Kickflip']},
+    {id:uid(),name:'Día 3',color:'#ff5722',note:'',tricks:['Ollie','Manual','Body Varial + Revert','Boneless']},
   ];
   saveBase();
 }
@@ -3211,6 +3211,16 @@ if(!localStorage.getItem(SEED_WARMUP_KEY)){
   localStorage.setItem(SEED_WARMUP_KEY,'1');
   warmupData.blocks=warmupDays();
   saveWarmup();
+}
+
+// colores de Día 1/2/3 (una vez; no pisa colores que tú hayas elegido)
+if(!localStorage.getItem('sk_colored_dias_v4')){
+  localStorage.setItem('sk_colored_dias_v4','1');
+  const DC={'Día 1':'#2ecc40','Día 2':'#ffd400','Día 3':'#ff5722'};
+  const OLD=['','#4fc3f7','#ffa726','#66bb6a','#9fc5a8','#e3a7b5','#b7a6e0','#1fa971','#f0457f','#7a4dff'];
+  [[baseData,saveBase],[warmupData,saveWarmup]].forEach(([d,sv])=>{
+    d.blocks.forEach(b=>{if(DC[b.name]&&OLD.includes(b.color||''))b.color=DC[b.name];});sv();
+  });
 }
 
 applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderProgScheme();renderProgList();
