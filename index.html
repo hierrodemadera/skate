@@ -39,7 +39,8 @@ body{font-family:'Courier New',Courier,monospace;background:var(--bg);color:var(
 .view{display:none;flex:1;overflow:hidden;padding:10px;gap:10px;}
 .view.active{display:flex;}
 #view-esquema{flex-direction:column;}
-#view-entrenamiento{flex-direction:column;}
+#view-entrenamiento{flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+#view-entrenamiento>*{flex-shrink:0;}
 
 /* WINDOW */
 .window{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:0 3px 3px 3px;
