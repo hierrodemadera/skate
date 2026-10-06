@@ -1592,7 +1592,7 @@ const WARMUP_AXES = [
   {
     id:'calentamiento', label:'Calentamiento',
     axes:[
-      {id:'wregular', name:'Regular, slide, goofy', desc:'rodar en cada postura, soltura inicial', trickName:'Regular, slide, goofy', custom:true},
+      {id:'wregular', name:'Regular / Goofy', desc:'rodar en cada postura, soltura inicial', trickName:'Regular / Goofy', custom:true},
       {id:'wtictac', name:'Tic-Tac (Regular y Goofy)', desc:'kickturns alternados FS/BS para ganar impulso', trickName:'Tic-Tac (kickturns alternados FS/BS para ganar impulso)'},
       {id:'wcambiopie', name:'Cambio de pie rodando (Regular y Goofy)', desc:'el pie que patea sube a la tabla, el que estaba delante baja al suelo, sin saltar', trickName:'Cambio de pie rodando', custom:true},
       {id:'whippie', name:'Hippie Jump', desc:'saltar sobre la tabla mientras rueda sola, caer de nuevo encima', trickName:'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)'},
@@ -1675,7 +1675,7 @@ const WARMUP_KEY='sk_warmup';
 // con la dificultad repartida y los espejos (Shove-it / Fakie) en días distintos.
 function warmupDays(){return [
   {id:uid(),name:'Día 1',color:'#2ecc40',note:'',tricks:[
-    'Regular, slide, goofy',
+    'Regular / Goofy',
     'Tic-Tac (kickturns alternados FS/BS para ganar impulso)',
     'End-Over (serie de pivots 180 alternados sobre el nose)',
     'Body Varial (cuerpo 180°, tabla estática)',
@@ -3221,6 +3221,14 @@ if(!localStorage.getItem('sk_colored_dias_v4')){
   [[baseData,saveBase],[warmupData,saveWarmup]].forEach(([d,sv])=>{
     d.blocks.forEach(b=>{if(DC[b.name]&&OLD.includes(b.color||''))b.color=DC[b.name];});sv();
   });
+}
+
+// renombrar 'Regular, slide, goofy' -> 'Regular / Goofy' (una vez, conserva checks)
+if(!localStorage.getItem('sk_ren_regular_v1')){
+  localStorage.setItem('sk_ren_regular_v1','1');
+  const OLDN='Regular, slide, goofy',NEWN='Regular / Goofy';
+  warmupData.blocks.forEach(b=>{b.tricks=b.tricks.map(t=>t===OLDN?NEWN:t);});saveWarmup();
+  if(checked.has(OLDN)){checked.delete(OLDN);checked.add(NEWN);if(checksTs[OLDN]){checksTs[NEWN]=checksTs[OLDN];delete checksTs[OLDN];}SK.saveChecks(checked);saveChecksTs(checksTs);}
 }
 
 applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderProgScheme();renderProgList();
