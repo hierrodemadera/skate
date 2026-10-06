@@ -774,6 +774,7 @@ const DATA = [
         name: "Shove-its base",
         tricks: [
           { name: "Shove-it (sin pop)", terreno: ["flat"], nivel: "basico" },
+          { name: "Fakie Shove-it (sin pop)", terreno: ["flat"], nivel: "basico" },
           { name: "Backside Pop Shove-it", terreno: ["flat","ledge","rail","quarter","bowl"], nivel: "basico" },
           { name: "Frontside Pop Shove-it", terreno: ["flat","ledge","quarter","bowl"], nivel: "basico" },
           { name: "Fakie Backside Pop Shove-it", terreno: ["flat","ledge","quarter"], nivel: "basico" },
@@ -1600,8 +1601,8 @@ const WARMUP_AXES = [
       {id:'wwalkthedog', name:'Walk the Dog', desc:'vaivén de End-Over con movimiento', trickName:'Walk The Dog (vaivén de End-Over con movimiento)'},
       {id:'whangten', name:'Hang Ten Manual', desc:'ambos pies en el nose durante el manual', trickName:'Hang Ten Manual (ambos pies en nose)'},
       {id:'wrevert', name:'Revert', desc:'giro con la tabla, como un power slide pero completando el cambio de dirección', trickName:'Revert (180° pivot con momentum tras aterrizar, sin pop)'},
-      {id:'wshoveit', name:'Pop Shove-it', desc:'pop + rotación de tabla desacoplada del cuerpo', trickName:'Backside Pop Shove-it'},
-      {id:'wfakieshoveit', name:'Fakie Pop Shove-it', desc:'el mismo shove-it, rodando hacia atrás', trickName:'Fakie Backside Pop Shove-it'},
+      {id:'wshoveit', name:'Shove-it', desc:'rotación de tabla desacoplada del cuerpo, sin pop', trickName:'Shove-it (sin pop)'},
+      {id:'wfakieshoveit', name:'Fakie Shove-it', desc:'el mismo shove-it, rodando hacia atrás', trickName:'Fakie Shove-it (sin pop)'},
     ]
   }
 ];
@@ -1667,9 +1668,28 @@ function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));}
 let baseData=loadBaseData();
 
 const WARMUP_KEY='sk_warmup';
-function defaultWarmupData(){return {blocks:[
-  {id:uid(),name:'Calentamiento',color:'',note:'',tricks:[]},
-]};}
+// Reparto de los 13 ejercicios de WARMUP_AXES en 3 días, mezclando tipos:
+// cada día lleva algo de soltura/pies, de pivots sobre el nose y de rotación de tabla,
+// con la dificultad repartida y los espejos (Shove-it / Fakie) en días distintos.
+function warmupDays(){return [
+  {id:uid(),name:'Día 1',color:'',note:'',tricks:[
+    'Regular, slide, goofy',
+    'Tic-Tac (kickturns alternados FS/BS para ganar impulso)',
+    'End-Over (serie de pivots 180 alternados sobre el nose)',
+    'Body Varial (cuerpo 180°, tabla estática)',
+    'Shove-it (sin pop)']},
+  {id:uid(),name:'Día 2',color:'',note:'',tricks:[
+    'Cambio de pie rodando',
+    'Monster Walk (pivots FS+FS o BS+BS consecutivos)',
+    'Hang Ten Manual (ambos pies en nose)',
+    'Revert (180° pivot con momentum tras aterrizar, sin pop)']},
+  {id:uid(),name:'Día 3',color:'',note:'',tricks:[
+    'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)',
+    'Frozono',
+    'Walk The Dog (vaivén de End-Over con movimiento)',
+    'Fakie Shove-it (sin pop)']},
+];}
+function defaultWarmupData(){return {blocks:warmupDays()};}
 function loadWarmupData(){
   try{
     const d=JSON.parse(localStorage.getItem(WARMUP_KEY));
@@ -3181,6 +3201,14 @@ if(!localStorage.getItem(SEED_DIAS_KEY)){
     {id:uid(),name:'Día 3',color:'',note:'',tricks:['Ollie','Manual','Body Varial + Revert','Boneless']},
   ];
   saveBase();
+}
+
+// seed único (v2): Calentamiento repartido en 3 días mezclados
+const SEED_WARMUP_KEY='sk_seeded_warmup_v3';
+if(!localStorage.getItem(SEED_WARMUP_KEY)){
+  localStorage.setItem(SEED_WARMUP_KEY,'1');
+  warmupData.blocks=warmupDays();
+  saveWarmup();
 }
 
 applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderProgScheme();renderProgList();
