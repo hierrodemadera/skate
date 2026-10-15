@@ -161,11 +161,12 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 #panel-warmup{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 #panel-base{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 #panel-tecnica{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
+#panel-speed{flex-shrink:0;border-radius:3px;margin-bottom:10px;transition:none;}
 .fold-toggle{background:none;border:none;font-family:inherit;font-size:14px;color:var(--muted);
   cursor:pointer;padding:0;line-height:1;margin-right:4px;}
 .fold-body{display:block;}
 .fold-body.collapsed{display:none;}
-#warmup-blocks-area,#base-blocks-area,#tecnica-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
+#warmup-blocks-area,#base-blocks-area,#tecnica-blocks-area,#speed-blocks-area{padding:10px 14px;max-height:340px;overflow-y:auto;}
 
 /* CALENDARIO */
 #panel-calendar{flex-shrink:0;border-radius:3px;margin-bottom:10px;display:none;} /* oculto por ahora, a petición de Jorge — quitar esta línea para recuperarlo */
@@ -244,7 +245,12 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
 .bchk.done::after{content:'';display:block;width:6px;height:4px;
   border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);
   transform:rotate(-45deg) translate(1px,-1px);}
-.btrick-name{flex:1;color:var(--blk-fg,var(--fg));}
+.btrick-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.btrick-name{color:var(--blk-fg,var(--fg));}
+.btrick-src{font-size:10px;line-height:1.3;color:var(--blk-fg,var(--fg));opacity:.45;pointer-events:none;user-select:none;}
+.mcustom{display:flex;gap:6px;padding:6px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.mcustom input{font-family:inherit;font-size:11px;padding:4px 6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);min-width:0;}
+#mc-name{flex:2 1 150px;}#mc-video{flex:2 1 150px;}
 .btrm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;
   padding:0;opacity:0;transition:opacity 0.1s;}
 .btrick:hover .btrm{opacity:1;}
@@ -464,6 +470,20 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
     </div>
   </div>
 
+  <!-- VELOCIDAD -->
+  <div class="window" id="panel-speed">
+    <div class="win-tb">
+      <button class="fold-toggle" id="btn-toggle-speed" title="Colapsar panel">−</button>
+      <span>Velocidad</span>
+    </div>
+    <div class="fold-body" id="speed-body">
+      <div class="blocks-area" id="speed-blocks-area"></div>
+      <div style="padding:0 14px 10px;flex-shrink:0;">
+        <button class="add-blk-btn" id="btn-add-speed-blk">+ añadir bloque</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CALENDARIO -->
   <div class="window" id="panel-calendar">
     <div class="win-tb">
@@ -508,6 +528,11 @@ button.filter.active{background:var(--fg);color:#fff;border-color:var(--fg);}
       <button class="mclose" id="mclose">×</button>
     </div>
     <div class="msbar"><input type="search" id="msearch" placeholder="buscar truco..." autocomplete="off" spellcheck="false"></div>
+    <div class="mcustom">
+      <input id="mc-name" placeholder="truco propio, ej: Casper (11)" autocomplete="off" spellcheck="false">
+      <input id="mc-video" placeholder="vídeo de origen (opcional)" autocomplete="off" spellcheck="false">
+      <button class="bsm" id="mc-add">+ propio</button>
+    </div>
     <div class="mbody" id="mbody"></div>
     <div class="mfooter">
       <span class="mselcnt" id="mselcnt"></span>
@@ -1552,6 +1577,7 @@ const BASE_AXES = [
       {id:'nollie', name:'Nollie', desc:'espejo del ollie — pop desde el nose', trickName:'Nollie'},
       {id:'manual', name:'Manual', desc:'equilibrio en dos ruedas traseras', trickName:'Manual'},
       {id:'nosemanual', name:'Nose Manual', desc:'espejo del manual — equilibrio sobre ruedas delanteras', trickName:'Nose Manual'},
+      {id:'hangten', name:'Hang Ten Manual', desc:'manual con ambos pies en el nose', trickName:'Hang Ten Manual (ambos pies en nose)'},
       {id:'ollie180', name:'Ollie 180 (FS)', desc:'pop + rotación corporal acoplada, frontside', trickName:'Frontside 180'},
       {id:'ollie180bs', name:'Ollie 180 (BS)', desc:'espejo del anterior, backside', trickName:'Backside 180'},
       {id:'kickflip', name:'Kickflip', desc:'pop + rotación longitudinal', trickName:'Kickflip'},
@@ -1581,6 +1607,14 @@ const BASE_AXES = [
       {id:'grab', name:'Indy Grab', desc:'mano sobre la tabla en el aire', trickName:'Indy (BS air, back hand toeside entre los pies)'},
     ]
   }
+  ,{
+    id:'powerslides', label:'Power slides',
+    axes:[
+      {id:'psfs', name:'Frontside Powerslide', desc:'derrape de 180° frontside, frenar y girar', trickName:'Frontside Powerslide', custom:true, src:{v:'How to stop on a skateboard',n:7}},
+      {id:'psfakie', name:'Fakie Powerslide', desc:'el mismo derrape, rodando hacia atrás', trickName:'Fakie Powerslide', custom:true, src:{v:'How to stop on a skateboard',n:8}},
+      {id:'psbs', name:'Backside Powerslide', desc:'derrape de 180° backside', trickName:'Backside Powerslide', custom:true, src:{v:'How to stop on a skateboard',n:9}},
+    ]
+  }
 ];
 
 // ── CALENTAMIENTO ──
@@ -1601,7 +1635,6 @@ const WARMUP_AXES = [
       {id:'wendover', name:'End-Over', desc:'serie de pivots de 180° alternados sobre el nose', trickName:'End-Over (serie de pivots 180 alternados sobre el nose)'},
       {id:'wmonsterwalk', name:'Monster Walk', desc:'pivots consecutivos del mismo lado, FS+FS o BS+BS', trickName:'Monster Walk (pivots FS+FS o BS+BS consecutivos)'},
       {id:'wwalkthedog', name:'Walk the Dog', desc:'vaivén de End-Over con movimiento', trickName:'Walk The Dog (vaivén de End-Over con movimiento)'},
-      {id:'whangten', name:'Hang Ten Manual', desc:'ambos pies en el nose durante el manual', trickName:'Hang Ten Manual (ambos pies en nose)'},
       {id:'wrevert', name:'Revert', desc:'giro con la tabla, como un power slide pero completando el cambio de dirección', trickName:'Revert (180° pivot con momentum tras aterrizar, sin pop)'},
       {id:'wshoveit', name:'Shove-it', desc:'rotación de tabla desacoplada del cuerpo, sin pop', trickName:'Shove-it (sin pop)'},
       {id:'wfakieshoveit', name:'Fakie Shove-it', desc:'el mismo shove-it, rodando hacia atrás', trickName:'Fakie Shove-it (sin pop)'},
@@ -1677,18 +1710,19 @@ function warmupDays(){return [
   {id:uid(),name:'Día 1',color:'#2ecc40',note:'',tricks:[
     'Regular / Goofy',
     'Tic-Tac (kickturns alternados FS/BS para ganar impulso)',
-    'End-Over (serie de pivots 180 alternados sobre el nose)',
+    'Cambio de pie rodando',
     'Body Varial (cuerpo 180°, tabla estática)',
     'Shove-it (sin pop)']},
   {id:uid(),name:'Día 2',color:'#ffd400',note:'',tricks:[
-    'Cambio de pie rodando',
+    'Regular / Goofy',
     'Monster Walk (pivots FS+FS o BS+BS consecutivos)',
-    'Hang Ten Manual (ambos pies en nose)',
-    'Revert (180° pivot con momentum tras aterrizar, sin pop)']},
+    'End-Over (serie de pivots 180 alternados sobre el nose)',
+    'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)']},
   {id:uid(),name:'Día 3',color:'#ff5722',note:'',tricks:[
-    'Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)',
+    'Regular / Goofy',
     'Frozono',
     'Walk The Dog (vaivén de End-Over con movimiento)',
+    'Revert (180° pivot con momentum tras aterrizar, sin pop)',
     'Fakie Shove-it (sin pop)']},
 ];}
 function defaultWarmupData(){return {blocks:warmupDays()};}
@@ -1705,6 +1739,52 @@ function loadWarmupData(){
 }
 function saveWarmup(){localStorage.setItem(WARMUP_KEY,JSON.stringify(warmupData));}
 let warmupData=loadWarmupData();
+
+// ── VELOCIDAD ──
+// Técnicas de downhill/freeride adaptadas a llano (carretera larga y lisa), sin cuesta ni frenos con la mano.
+// Todo es custom:true: son gestos sin nombre formal en el catálogo de trucos.
+const SPEED_AXES = [
+  {
+    id:'velocidad', label:'Velocidad',
+    axes:[
+      {id:'sstab', name:'Estabilidad a velocidad', desc:'relajado, rodillas flexionadas, peso un poco adelantado; base contra el speed wobble', trickName:'Estabilidad a velocidad (relajado, rodillas flexionadas, peso adelantado)', custom:true},
+      {id:'sfall', name:'Caída a velocidad', desc:'seguir corriendo la caída, sin apoyar la mano', trickName:'Caída a velocidad (seguir corriendo, sin apoyar la mano)', custom:true},
+      {id:'sfoot', name:'Foot braking', desc:'arrastrar la suela del pie de atrás, peso en el pie de delante', trickName:'Foot braking (arrastrar la suela del pie de atrás)', custom:true},
+      {id:'sheel', name:'Freno de talón', desc:'nose arriba y el talón, que sobresale del tail, roza el suelo', trickName:'Freno de talón (nose arriba, talón sobre la cola rozando el suelo)', custom:true},
+      {id:'sslide', name:'Power slide', desc:'stand-up slide de 180°, sin mano: frenar y girar', trickName:'Power slide (stand-up slide 180°, frenar y girar)', custom:true},
+      {id:'scarve', name:'Carving', desc:'curvas amplias para cambiar de dirección sin frenar', trickName:'Carving (curvas amplias para cambiar de dirección sin frenar)', custom:true},
+      {id:'smanual', name:'Manual a velocidad', desc:'equilibrio sobre las ruedas traseras rodando rápido', trickName:'Manual a velocidad', custom:true},
+      {id:'sollie', name:'Ollie a velocidad', desc:'ollie rodando rápido, mirando dónde se aterriza', trickName:'Ollie a velocidad', custom:true},
+    ]
+  }
+];
+function speedStages(){return [
+  {id:uid(),name:'1 · Estabilidad',color:'#2979ff',tricks:[
+    'Estabilidad a velocidad (relajado, rodillas flexionadas, peso adelantado)',
+    'Caída a velocidad (seguir corriendo, sin apoyar la mano)'],
+   note:'Mirar hacia donde quieres ir, no al suelo. Postura aerodinámica (tuck) para aguantar rodando. Casco y muñequeras. Revisar la carretera de día y llevar luz.'},
+  {id:uid(),name:'2 · Frenado',color:'#ff1744',tricks:[
+    'Foot braking (arrastrar la suela del pie de atrás)',
+    'Freno de talón (nose arriba, talón sobre la cola rozando el suelo)',
+    'Power slide (stand-up slide 180°, frenar y girar)'],
+   note:'Empezar a velocidad baja y subir poco a poco, de una sesión a la siguiente. El freno de talón solo rueda el eje de atrás: mejor a velocidad baja o media; a más velocidad, foot braking.'},
+  {id:uid(),name:'3 · Control',color:'#aa00ff',tricks:[
+    'Carving (curvas amplias para cambiar de dirección sin frenar)',
+    'Manual a velocidad',
+    'Ollie a velocidad'],
+   note:'Subir la velocidad gradualmente. En el ollie, mirar dónde se aterriza: a velocidad se recorre mucha más distancia en el aire.'},
+];}
+const SPEED_KEY='sk_speed';
+function defaultSpeedData(){return {blocks:speedStages()};}
+function loadSpeedData(){
+  try{
+    const d=JSON.parse(localStorage.getItem(SPEED_KEY));
+    if(d&&Array.isArray(d.blocks))return d;
+    return defaultSpeedData();
+  }catch{return defaultSpeedData();}
+}
+function saveSpeed(){localStorage.setItem(SPEED_KEY,JSON.stringify(speedData));}
+let speedData=loadSpeedData();
 
 let modalTarget=null,modalSel=new Set();
 let ddTrick=null,ddOpen=false,ctxTrick=null,cpTarget=null,cpCallback=null;
@@ -2224,8 +2304,20 @@ const CATS={
   skate:{areaId:'tecnica-blocks-area', addBtnId:'btn-add-tecnica-blk', get:()=>tecnicaData, save:saveTecnica},
   base:{areaId:'base-blocks-area', addBtnId:'btn-add-base-blk', get:()=>baseData, save:saveBase},
   warmup:{areaId:'warmup-blocks-area', addBtnId:'btn-add-warmup-blk', get:()=>warmupData, save:saveWarmup},
+  speed:{areaId:'speed-blocks-area', addBtnId:'btn-add-speed-blk', get:()=>speedData, save:saveSpeed},
 };
 
+function srcLabel(block,name){
+  const sc=block.sources&&block.sources[name];
+  if(!sc||(!sc.v&&!sc.n))return '';
+  const txt=[sc.v||'',sc.n?('nº '+sc.n):''].filter(Boolean).join(' · ');
+  return `<span class="btrick-src">${txt.replace(/</g,'&lt;')}</span>`;
+}
+function setSrc(block,name,v,n){
+  if(!v&&!n)return;
+  block.sources=block.sources||{};
+  block.sources[name]={v:v||'',n:n||null};
+}
 function renderCat(mode){
   const cfg=CATS[mode];
   const data=cfg.get();
@@ -2247,7 +2339,7 @@ function renderCat(mode){
       ${block.tricks.map((name,i)=>`
         <div class="btrick">
           <span class="bchk"></span>
-          <span class="btrick-name">${name}</span>
+          <span class="btrick-main"><span class="btrick-name">${name}</span>${srcLabel(block,name)}</span>
           <button class="btrm" data-i="${i}">×</button>
         </div>`).join('')}
       <button class="blk-add">+ añadir trucos</button>
@@ -2284,7 +2376,7 @@ function renderCat(mode){
     });
     bdiv.querySelectorAll('.btrm').forEach(btn=>{
       btn.addEventListener('click',()=>{
-        const i=parseInt(btn.dataset.i);block.tricks.splice(i,1);
+        const i=parseInt(btn.dataset.i);const rn=block.tricks[i];block.tricks.splice(i,1);if(block.sources&&!block.tricks.includes(rn))delete block.sources[rn];
         cfg.save();renderCat(mode);
       });
     });
@@ -2337,6 +2429,20 @@ document.getElementById('btn-toggle-warmup').addEventListener('click',()=>{
   applyWarmupCollapsed();
 });
 applyWarmupCollapsed();
+
+// panel collapse — velocidad
+const SPEED_COLLAPSED_KEY='sk_speed_collapsed';
+let speedCollapsed=localStorage.getItem(SPEED_COLLAPSED_KEY)==='1';
+function applySpeedCollapsed(){
+  document.getElementById('speed-body').classList.toggle('collapsed',speedCollapsed);
+  document.getElementById('btn-toggle-speed').textContent=speedCollapsed?'+':'−';
+}
+document.getElementById('btn-toggle-speed').addEventListener('click',()=>{
+  speedCollapsed=!speedCollapsed;
+  localStorage.setItem(SPEED_COLLAPSED_KEY,speedCollapsed?'1':'0');
+  applySpeedCollapsed();
+});
+applySpeedCollapsed();
 
 // panel collapse (cuerpo entero, plegado por defecto tras la primera vez que se cierra)
 const BASE_COLLAPSED_KEY='sk_base_collapsed';
@@ -2516,7 +2622,7 @@ applyCalCollapsed();
 // ─────────────────────────────
 function openModal(mode,bid){
   modalTarget={mode,bid};modalSel.clear();
-  const modeLabel=mode==='base'?'truco base':(mode==='warmup'?'ejercicio de calentamiento':'truco');
+  const modeLabel=mode==='base'?'truco base':(mode==='warmup'?'ejercicio de calentamiento':(mode==='speed'?'ejercicio de velocidad':'truco'));
   const data=CATS[mode].get();
   const b=bid?data.blocks.find(x=>x.id===bid):null;
   const bname=b?.name||'bloque';
@@ -2535,8 +2641,8 @@ function renderModal(q){
   const body=document.getElementById('mbody');body.innerHTML='';
 
   // BASE MODE / WARMUP MODE — solo el esquema reducido correspondiente
-  if(mode==='base'||mode==='warmup'){
-    const AXES=mode==='base'?BASE_AXES:WARMUP_AXES;
+  if(mode==='base'||mode==='warmup'||mode==='speed'){
+    const AXES=mode==='base'?BASE_AXES:(mode==='speed'?SPEED_AXES:WARMUP_AXES);
     AXES.forEach(section=>{
       const axes=section.axes.filter(a=>!q||a.name.toLowerCase().includes(q));
       if(!axes.length)return;
@@ -2603,6 +2709,26 @@ function renderModal(q){
   document.getElementById('mselcnt').textContent=modalSel.size?`${modalSel.size} seleccionados`:'';
 }
 
+document.getElementById('mc-video').value=(()=>{try{return localStorage.getItem('sk_last_video')||''}catch{return ''}})();
+document.getElementById('mc-add').addEventListener('click',()=>{
+  const mode=modalTarget?.mode||'skate';
+  const data=CATS[mode].get();
+  const b=modalTarget?.bid?data.blocks.find(x=>x.id===modalTarget.bid):null;
+  if(!b)return;
+  const raw=document.getElementById('mc-name').value.trim();
+  if(!raw)return;
+  const m=raw.match(/^(.*?)\s*\((\d+)\)\s*$/);
+  const name=(m?m[1]:raw).trim(), n=m?parseInt(m[2]):null;
+  const v=document.getElementById('mc-video').value.trim();
+  if(!name)return;
+  try{localStorage.setItem('sk_last_video',v)}catch{}
+  if(b.tricks.includes(name)){toast('ya está en el bloque');return;}
+  b.tricks.push(name);setSrc(b,name,v,n);
+  CATS[mode].save();renderCat(mode);renderModal(document.getElementById('msearch').value.toLowerCase().trim());
+  document.getElementById('mc-name').value='';document.getElementById('mc-name').focus();
+  toast('añadido: '+name);
+});
+document.getElementById('mc-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('mc-add').click();}});
 document.getElementById('msearch').addEventListener('input',e=>renderModal(e.target.value.toLowerCase().trim()));
 document.getElementById('mclose').addEventListener('click',()=>document.getElementById('modal-ov').classList.remove('open'));
 document.getElementById('mcollapseall').addEventListener('click',()=>{
@@ -2619,18 +2745,21 @@ document.getElementById('mconfirm').addEventListener('click',()=>{
   const data=cfg.get();
   const b=modalTarget?.bid?data.blocks.find(x=>x.id===modalTarget.bid):null;
   if(!b)return;
-  modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;}});
+  const AX=mode==='base'?BASE_AXES:(mode==='speed'?SPEED_AXES:(mode==='warmup'?WARMUP_AXES:[]));
+  modalSel.forEach(name=>{if(!b.tricks.includes(name)){b.tricks.push(name);added++;
+    const ax=AX.flatMap(sec=>sec.axes).find(a=>a.trickName===name);
+    if(ax&&ax.src)setSrc(b,name,ax.src.v,ax.src.n);}});
   cfg.save();
   document.getElementById('modal-ov').classList.remove('open');
   renderCat(mode);
-  const labels={skate:'trucos',base:'fundamentos',warmup:'ejercicios'};
+  const labels={skate:'trucos',base:'fundamentos',warmup:'ejercicios',speed:'ejercicios'};
   if(added)toast(`${added} ${labels[mode]||'trucos'} añadidos`);
 });
 
 // ── EXPORT / IMPORT ──
 function blocksOut(blocks){
   return (blocks||[]).map(b=>({
-    id: b.id, name: b.name||'', color: b.color||'', note: b.note||'', tricks: b.tricks||[]
+    id: b.id, name: b.name||'', color: b.color||'', note: b.note||'', tricks: b.tricks||[], sources: b.sources||{}
   }));
 }
 function getAllData(){
@@ -2654,6 +2783,8 @@ function getAllData(){
     base: { blocks: blocksOut(baseData.blocks) },
     // ── CALENTAMIENTO: misma forma que Base y Técnica
     calentamiento: { blocks: blocksOut(warmupData.blocks) },
+    // ── VELOCIDAD: misma forma
+    velocidad: { blocks: blocksOut(speedData.blocks) },
     // ── CALENDARIO: plantilla semanal, referencias por id a bloques de Base/Técnica
     calendario: calendarData.days.map(d=>({
       key: d.key,
@@ -2674,10 +2805,11 @@ function mergeBlocksData(targetData, incoming){
       if(nb.color!==undefined) b.color=nb.color;
       if(nb.note!==undefined) b.note=nb.note;
       if(nb.tricks!==undefined) b.tricks=nb.tricks;
+      if(nb.sources!==undefined) b.sources=nb.sources;
     } else {
       targetData.blocks.push({
         id: nb.id||uid(), name: nb.name||'', color: nb.color||'',
-        note: nb.note||'', tricks: nb.tricks||[]
+        note: nb.note||'', tricks: nb.tricks||[], sources: nb.sources||{}
       });
     }
   });
@@ -2773,6 +2905,18 @@ function loadAllData(data){
     saveWarmup();
   }
 
+  // ── VELOCIDAD (una única lista de bloques)
+  // _replaceVelocidad: true — reemplaza todos los bloques; si no, fusiona por id o nombre
+  if(data.velocidad){
+    if(data._replaceVelocidad){
+      const blocks=blocksFromLegacy(data.velocidad);
+      speedData = {blocks: blocks.length?blocks:defaultSpeedData().blocks};
+    } else {
+      mergeBlocksData(speedData, blocksFromLegacy(data.velocidad));
+    }
+    saveSpeed();
+  }
+
   // ── CALENDARIO
   // _replaceCalendar: true — sustituye la plantilla semanal entera
   // calendario: [...] — fusiona por key de día: los items nuevos se añaden sin duplicar, la nota sustituye si viene
@@ -2800,7 +2944,7 @@ function loadAllData(data){
   document.getElementById('conseguidos-count').textContent = checked.size;
   renderProgScheme();
   renderProgList();
-  renderCat('skate');renderCat('base');renderCat('warmup');
+  renderCat('skate');renderCat('base');renderCat('warmup');renderCat('speed');
   renderCalendar();
   toast('✓ datos importados');
 }
@@ -3191,7 +3335,7 @@ applyTheme(localStorage.getItem(THEME_KEY)==='dark');
 // seed único (primera vez en este navegador): los 3 días acordados, como bloques de Base
 // v2: fuerza el cambio aunque v1 ya hubiera corrido antes, y limpia las rutinas de Técnica
 // que se sembraron por error en el intento anterior.
-const SEED_DIAS_KEY='sk_seeded_dias_v2';
+const SEED_DIAS_KEY='sk_seeded_dias_v3';
 if(!localStorage.getItem(SEED_DIAS_KEY)){
   localStorage.setItem(SEED_DIAS_KEY,'1');
   const before=tecnicaData.blocks.length;
@@ -3200,13 +3344,13 @@ if(!localStorage.getItem(SEED_DIAS_KEY)){
   baseData.blocks=[
     {id:uid(),name:'Día 1',color:'#2ecc40',note:'',tricks:['Ollie','Manual','Nollie','Backside Pop Shove-it']},
     {id:uid(),name:'Día 2',color:'#ffd400',note:'',tricks:['Ollie','Manual','Nose Manual','Kickflip']},
-    {id:uid(),name:'Día 3',color:'#ff5722',note:'',tricks:['Ollie','Manual','Body Varial + Revert','Boneless']},
+    {id:uid(),name:'Día 3',color:'#ff5722',note:'',tricks:['Ollie','Manual','Hang Ten Manual (ambos pies en nose)','Body Varial + Revert','Boneless']},
   ];
   saveBase();
 }
 
 // seed único (v2): Calentamiento repartido en 3 días mezclados
-const SEED_WARMUP_KEY='sk_seeded_warmup_v3';
+const SEED_WARMUP_KEY='sk_seeded_warmup_v5';
 if(!localStorage.getItem(SEED_WARMUP_KEY)){
   localStorage.setItem(SEED_WARMUP_KEY,'1');
   warmupData.blocks=warmupDays();
@@ -3231,7 +3375,34 @@ if(!localStorage.getItem('sk_ren_regular_v1')){
   if(checked.has(OLDN)){checked.delete(OLDN);checked.add(NEWN);if(checksTs[OLDN]){checksTs[NEWN]=checksTs[OLDN];delete checksTs[OLDN];}SK.saveChecks(checked);saveChecksTs(checksTs);}
 }
 
-applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderProgScheme();renderProgList();
+// ── seeds de bloques con vídeo de origen (una vez cada uno; no pisan lo que ya tengas)
+(function(){
+  const V1='25 tricks you need to know with Andy Anderson', V2='How to stop on a skateboard';
+  const mk=(name,color,list,v)=>{const b={id:uid(),name,color,note:'',tricks:[],sources:{}};list.forEach(([t,n])=>{b.tricks.push(t);setSrc(b,t,v,n);});return b;};
+  if(!localStorage.getItem('sk_seeded_tecnica_v1')){
+    localStorage.setItem('sk_seeded_tecnica_v1','1');
+    const nb=[
+      mk('25 tricks · Andy Anderson','#00acc1',[['The Stupid',5],['Pivot 360',7],['Blindside Pivot',8],['Jay Walk',9],['Casper',11],['Railstand',12],['Stepping Stone',14],['Tail Stop Sal Flip',16],['Kickback',17],['OG Kickflip',18],['Bean Plant',19],['Varial Fingerflip',20],['Tail Stop Bunny Hop',21],['Tail Stop Fingerflip',22],['Tail Stop Varial Flip',23],['Around the World',24],['Ninja Plant',25]],V1),
+      mk('Frenado','#ff1744',[['Pop Out Run Out',5]],V2),
+    ];
+    const t=tecnicaData.blocks;
+    const empty=t.length===1&&!t[0].name&&!(t[0].tricks||[]).length;
+    tecnicaData.blocks=empty?nb:t.concat(nb);
+    saveTecnica();
+  }
+  if(!localStorage.getItem('sk_seeded_powerslide_v1')){
+    localStorage.setItem('sk_seeded_powerslide_v1','1');
+    if(!baseData.blocks.some(b=>b.name==='Power slides')){
+      baseData.blocks.push(mk('Power slides','#00bcd4',[['Frontside Powerslide',7],['Fakie Powerslide',8],['Backside Powerslide',9]],V2));
+      saveBase();
+    }
+  }
+})();
+
+// corrección: Backside Powerslide = nº 9 (para quien ya tenía el bloque sin número)
+baseData.blocks.forEach(b=>{if(b.name==='Power slides'&&b.sources&&b.sources['Backside Powerslide']&&!b.sources['Backside Powerslide'].n){b.sources['Backside Powerslide'].n=9;saveBase();}});
+
+applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderCat('speed');renderProgScheme();renderProgList();
 renderCalendar();
 document.getElementById('conseguidos-count').textContent=checked.size;
 
