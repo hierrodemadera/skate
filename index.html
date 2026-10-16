@@ -1632,6 +1632,18 @@ const BASE_AXES = [
       {id:'psbs', name:'Backside Powerslide', desc:'derrape de 180° backside', trickName:'Backside Powerslide', custom:true, src:{v:'How to stop on a skateboard',n:9}},
     ]
   }
+  ,{
+    id:'hippie', label:'Hippie Jump',
+    axes:[
+      {id:'hjstraight', name:'Hippie Jump, piernas estiradas', desc:'saltar con las piernas rectas, la tabla rueda debajo; trabaja gemelos y aterrizaje', trickName:'Hippie Jump, piernas estiradas (tabla rueda debajo, aterrizar encima)', custom:true},
+      {id:'hjtuck', name:'Hippie Jump, rodillas al pecho', desc:'recoger las piernas al saltar: más separación de la tabla, se parece al ollie', trickName:'Hippie Jump, rodillas al pecho (recoger las piernas, más altura)', custom:true},
+      {id:'hjland', name:'Hippie Jump, aterrizar en puntos distintos', desc:'caer a propósito en tornillos de delante, de atrás, centro o con un pie primero, para acostumbrarse a caer imperfecto', trickName:'Hippie Jump, aterrizar en puntos distintos (a propósito, también mal)', custom:true},
+      {id:'hj180', name:'Hippie Jump 180', desc:'salto con rotación de cuerpo de 180° mientras la tabla rueda debajo; FS y BS', trickName:'Hippie Jump 180 (rotación de cuerpo, tabla rueda debajo)', custom:true},
+      {id:'hjmanual', name:'Hippie Jump + Manual / Nose Manual', desc:'aterrizar y salir directamente en manual o nose manual', trickName:'Hippie Jump + Manual / Nose Manual (aterrizar y salir en manual)', custom:true},
+      {id:'hjcurb', name:'Hippie Jump sobre bordillo bajo', desc:'bajar y subir un bordillo bajo con el salto; puente hacia el ollie en la calle', trickName:'Hippie Jump sobre bordillo bajo (bajar y subir)', custom:true},
+      {id:'hjpop', name:'Hippie Jump con pop de cola corto', desc:'pisar un poco el tail al saltar; puente directo al ollie, para el final', trickName:'Hippie Jump con pop de cola corto (puente al ollie)', custom:true},
+    ]
+  }
 ];
 
 // ── CALENTAMIENTO ──
@@ -3418,6 +3430,15 @@ if(!localStorage.getItem('sk_ren_regular_v1')){
 
 // corrección: Backside Powerslide = nº 9 (para quien ya tenía el bloque sin número)
 baseData.blocks.forEach(b=>{if(b.name==='Power slides'&&b.sources&&b.sources['Backside Powerslide']&&!b.sources['Backside Powerslide'].n){b.sources['Backside Powerslide'].n=9;saveBase();}});
+
+// ── bloque Hippie Jump en Base (una vez; no pisa lo que ya tengas)
+if(!localStorage.getItem('sk_seeded_hippie_v1')){
+  localStorage.setItem('sk_seeded_hippie_v1','1');
+  if(!baseData.blocks.some(b=>b.name==='Hippie Jump')){
+    baseData.blocks.push({id:uid(),name:'Hippie Jump',color:'#e91e63',note:'Ordenados de más fácil a más difícil. El hippie jump sencillo sigue también en Calentamiento.',tricks:["Hippie Jump, piernas estiradas (tabla rueda debajo, aterrizar encima)","Hippie Jump, rodillas al pecho (recoger las piernas, más altura)","Hippie Jump, aterrizar en puntos distintos (a propósito, también mal)","Hippie Jump 180 (rotación de cuerpo, tabla rueda debajo)","Hippie Jump + Manual / Nose Manual (aterrizar y salir en manual)","Hippie Jump sobre bordillo bajo (bajar y subir)","Hippie Jump con pop de cola corto (puente al ollie)"],sources:{}});
+    saveBase();
+  }
+}
 
 applyFilters();renderCat('skate');renderCat('base');renderCat('warmup');renderCat('speed');renderProgScheme();renderProgList();
 renderCalendar();
