@@ -1525,6 +1525,13 @@ const DATA = [
         ]
       },
       {
+        name: "Gaps de skatepark",
+        tricks: [
+          { name: "Fly Out (saltar la tapa plana de una pirámide y caer por el otro lado)", terreno: ["quarter"], nivel: "intermedio" },
+          { name: "Euro Gap (saltar el hueco entre dos rampas o ledges)", terreno: ["quarter","ledge"], nivel: "avanzado" },
+        ]
+      },
+      {
         name: "Trucos de obstáculo urbano",
         tricks: [
           { name: "Pole Jam (montar sobre un poste doblado)", terreno: ["flat"], nivel: "intermedio" },
@@ -3358,6 +3365,20 @@ function addToProgression(trickName){
   openStepSelector(trickName, ()=>{renderProgScheme();renderProgList();});
 }
 
+// ── OFFLINE: service worker + copia de la propia página ──
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{
+      if(!window.caches)return;
+      return caches.open('skate-v1').then(c=>{
+        const base=location.href.split('#')[0].split('?')[0];
+        return Promise.all([base,new URL('./',base).href,new URL('icon-192.png',base).href,new URL('favicon.ico',base).href]
+          .map(u=>c.add(u).catch(()=>{})));
+      });
+    }).catch(()=>{});
+  });
+}
+
 // ── INIT ──
 applyTheme(localStorage.getItem(THEME_KEY)==='dark');
 
@@ -3437,6 +3458,15 @@ if(!localStorage.getItem('sk_seeded_hippie_v1')){
   if(!baseData.blocks.some(b=>b.name==='Hippie Jump')){
     baseData.blocks.push({id:uid(),name:'Hippie Jump',color:'#e91e63',note:'Ordenados de más fácil a más difícil. El hippie jump sencillo sigue también en Calentamiento.',tricks:["Hippie Jump, piernas estiradas (tabla rueda debajo, aterrizar encima)","Hippie Jump, rodillas al pecho (recoger las piernas, más altura)","Hippie Jump, aterrizar en puntos distintos (a propósito, también mal)","Hippie Jump 180 (rotación de cuerpo, tabla rueda debajo)","Hippie Jump + Manual / Nose Manual (aterrizar y salir en manual)","Hippie Jump sobre bordillo bajo (bajar y subir)","Hippie Jump con pop de cola corto (puente al ollie)"],sources:{}});
     saveBase();
+  }
+}
+
+// ── bloque Gaps en Técnica (una vez; no pisa lo que ya tengas)
+if(!localStorage.getItem('sk_seeded_gaps_v1')){
+  localStorage.setItem('sk_seeded_gaps_v1','1');
+  if(!tecnicaData.blocks.some(b=>b.name==='Gaps')){
+    tecnicaData.blocks.push({id:uid(),name:'Gaps',color:'#ff9100',note:'Empezar por rampas bajas y tapas cortas, controlar la velocidad de entrada y caer siempre en la rampa, no en el plano. Fly out: tapa plana sólida. Euro gap: hueco real entre dos obstáculos, más peligroso.',tricks:["Fly Out (saltar la tapa plana de una pirámide y caer por el otro lado)","Euro Gap (saltar el hueco entre dos rampas o ledges)"],sources:{}});
+    saveTecnica();
   }
 }
 
