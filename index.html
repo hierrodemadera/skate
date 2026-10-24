@@ -3806,6 +3806,7 @@ if(!localStorage.getItem('sk_seeded_gaps_v1')){
       return out.sort((a,b)=>a.name.localeCompare(b.name,'es'));
     },
     blocksFull(){const out=[];cats().forEach(([c,d])=>d.blocks.forEach(b=>{if(b.tricks.length)out.push({id:b.id,name:b.name,cat:c,color:b.color,note:b.note||'',tricks:b.tricks.slice(),sources:b.sources?JSON.parse(JSON.stringify(b.sources)):{}});}));return out;},
+    fullModel(){return {blocks:this.blocksFull(),catalog:DATA.map(f=>({id:f.id,name:f.name,desc:f.desc,subfamilies:f.subfamilies.map(s=>({name:s.name,tricks:s.tricks.map(t=>({name:t.name,nivel:t.nivel,terreno:t.terreno}))}))})),progs:progData.map(e=>({trickName:e.trickName,steps:e.steps.map(s=>({name:(PROG_STEPS[s.idx]||{}).name||'',done:!!s.done}))}))};},
     allBlocks(){const out=[];cats().forEach(([c,d])=>d.blocks.forEach(b=>{if(b.tricks.length)out.push({name:b.name,cat:c,tricks:b.tricks.slice()});}));return out;},
     showTrick(name){
       if(!idx)build();
@@ -5795,8 +5796,8 @@ function browserAction(a, anchor, e){
     S.folders.push({ id: 'f' + uid(), name: n.trim(), parent: br.loc.t === 'folder' ? br.loc.id : null, created: Date.now() }); saveNow(); return drawBrowser();
   }
   if(k === 'gen'){
-    const bl = (window.skateApi && window.skateApi.blocksFull) ? window.skateApi.blocksFull() : [];
-    return generateRoutines(bl).then(n=>{ toast(n ? n + ' pizarras de rutinas listas' : 'Ya estaban todas creadas'); br.loc = { t: 'all' }; br.q = ''; drawBrowser(); });
+    const model = (window.skateApi && window.skateApi.fullModel) ? window.skateApi.fullModel() : { blocks: [] };
+    return generateAll(model).then(n=>{ toast(n ? n + ' pizarras de rutinas listas' : 'Ya estaban todas creadas'); br.loc = { t: 'all' }; br.q = ''; drawBrowser(); });
   }
   if(k === 'more'){
     return openMenu(anchor, `<button class="pz-mi" data-m="exp">${IC.file}Exportar todas las pizarras</button><button class="pz-mi" data-m="imp">${IC.folder}Importar pizarras…</button>`,
@@ -6017,7 +6018,80 @@ async function generateRoutines(blocks, force){
   return made + redone;
 }
 
-window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines };
+/* --- esquemas del catálogo y de la progresión --- */
+const FAM_COLORS = ['#2979ff','#00b8d4','#2ecc40','#ffb300','#ff5722','#e91e63','#aa00ff','#6d4c41','#546e7a','#00897b','#d81b60','#7cb342'];
+const NIVEL_FILL = { basico: '#c9efd1', intermedio: '#fff0b3', avanzado: '#ffd2a8', pro: '#ffb4b4' };
+function catalogBoard(f, ci){
+  const col = FAM_COLORS[ci % FAM_COLORS.length], items = [], W = 230, H = 76, GY = 16, GX = 30, MAXR = 6, MAXC = 5, CW = W + GX;
+  const tw = MAXC * CW - GX;
+  items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: 0, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + f.name });
+  items.push({ id: 'i' + uid(), t: 'text', x: 4, y: 104, w: tw, h: 30, fs: 18, color: '#8e8e93', text: f.desc || '' });
+  [['basico', 'Básico'], ['intermedio', 'Intermedio'], ['avanzado', 'Avanzado'], ['pro', 'Pro']].forEach(([k, l], i)=> items.push({ id: 'i' + uid(), t: 'shape', kind: 'pill', x: 4 + i * 150, y: 140, w: 136, h: 32, fill: NIVEL_FILL[k], stroke: '#1c1c1e', sw: 0, fs: 14, color: '#1c1c1e', text: l }));
+  // las subfamilias se colocan en filas (como estantes) de hasta 5 columnas
+  let shelfY = 200, x = 0, shelfH = 0;
+  f.subfamilies.forEach(sf=>{
+    const nc = Math.min(MAXC, Math.max(1, Math.ceil(sf.tricks.length / MAXR)));
+    if(x > 0 && x + nc > MAXC){ shelfY += shelfH + 50; x = 0; shelfH = 0; }
+    items.push({ id: 'i' + uid(), t: 'text', x: x * CW, y: shelfY, w: nc * CW - GX, h: 30, fs: 20, bold: true, text: sf.name });
+    const rows = Math.min(MAXR, sf.tricks.length);
+    sf.tricks.forEach((t, i)=>{
+      const c = Math.floor(i / MAXR), r = i % MAXR;
+      items.push({ id: 'i' + uid(), t: 'trick', name: t.name, x: (x + c) * CW, y: shelfY + 36 + r * (H + GY), w: W, h: H, fill: NIVEL_FILL[t.nivel] || '#ffffff' });
+    });
+    shelfH = Math.max(shelfH, 36 + rows * (H + GY));
+    x += nc;
+  });
+  return items;
+}
+function overviewBoard(cat){
+  const items = [], R = 620, N = cat.length;
+  const root = { id: 'i' + uid(), t: 'shape', kind: 'circle', x: -110, y: -110, w: 220, h: 220, fill: '#1c1c1e', stroke: '#1c1c1e', sw: 0, fs: 40, bold: true, color: '#ffffff', text: 'SKATE' };
+  items.push(root);
+  cat.forEach((f, ci)=>{
+    const a = -Math.PI / 2 + ci * 2 * Math.PI / N, col = FAM_COLORS[ci % FAM_COLORS.length];
+    const total = f.subfamilies.reduce((s, x)=> s + x.tricks.length, 0);
+    const fit = { id: 'i' + uid(), t: 'shape', kind: 'rrect', x: Math.cos(a) * R * 1.35 - 150, y: Math.sin(a) * R - 55, w: 300, h: 110, fill: col, stroke: '#1c1c1e', sw: 0, fs: 24, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', text: f.name + '\n' + f.subfamilies.length + ' grupos · ' + total + ' trucos' };
+    items.push(fit);
+    items.push({ id: 'i' + uid(), t: 'line', a: { id: root.id }, b: { id: fit.id }, sw: 3, color: '#8e8e93', cs: 'straight' });
+  });
+  return items;
+}
+function progBoard(progs){
+  const items = []; let y = 0;
+  items.push({ id: 'i' + uid(), t: 'text', x: 0, y: -80, w: 700, h: 50, fs: 40, bold: true, text: 'Progresión de trucos' });
+  progs.forEach(p=>{
+    const head = { id: 'i' + uid(), t: 'trick', name: p.trickName, x: 0, y, w: 260, h: 80, fill: '#e4e4e6' };
+    items.push(head); let prev = head;
+    p.steps.forEach((s, i)=>{
+      const st = { id: 'i' + uid(), t: 'shape', kind: 'pill', x: 330 + i * 250, y: y + 12, w: 220, h: 56, fill: s.done ? '#93dfa3' : '#ffffff', stroke: '#8e8e93', sw: 1.5, fs: 16, color: '#1c1c1e', text: (s.done ? '✓ ' : '') + (s.name || 'Paso ' + (i + 1)) };
+      items.push(st); items.push({ id: 'i' + uid(), t: 'line', a: { id: prev.id }, b: { id: st.id }, sw: 2, color: '#8e8e93', ea: true, cs: 'straight' }); prev = st;
+    });
+    y += 120;
+  });
+  return items;
+}
+async function generateAll(model, force){
+  let n = await generateRoutines(model.blocks, force);
+  await load();
+  const extra = [];
+  const add = (gen, name, items, folder)=>{
+    const ex = S.boards.find(b=> !b.trashed && b.gen === gen);
+    if(ex){ if(force !== false){ ex.items = items; ex.fit = true; ex.updated = Date.now(); n++; } return; }
+    const b = newBoard(name); b.items = items; b.gen = gen; b.fit = true; b.view = null;
+    if(folder){ let f = S.folders.find(x=> x.name === folder && !x.trashed && !x.parent); if(!f){ f = { id: 'f' + uid(), name: folder, parent: null, created: Date.now() }; S.folders.push(f); } b.folder = f.id; }
+    S.boards.push(b); n++;
+  };
+  if(model.catalog && model.catalog.length){
+    add('catalogo-general', 'Esquema general de trucos', overviewBoard(model.catalog), null);
+    const g = S.boards.find(b=> b.gen === 'catalogo-general'); if(g && g.fav == null) g.fav = true;
+    model.catalog.forEach((f, ci)=> add('catalogo:' + f.id, 'Esquema · ' + f.name, catalogBoard(f, ci), 'Esquema de trucos'));
+  }
+  if(model.progs && model.progs.length) add('progresion', 'Progresión', progBoard(model.progs), null);
+  saveNow();
+  return n;
+}
+
+window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines, generateAll };
 })();
 </script>
 </body>
