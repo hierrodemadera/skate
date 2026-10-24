@@ -5965,40 +5965,44 @@ function mixWhite(hex, a){
   const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, f = c=> Math.round(c*a + 255*(1 - a)).toString(16).padStart(2, '0');
   return '#' + f(r) + f(g) + f(b);
 }
-function routineBoard(bl){
-  const items = [], COLS = 280, ROWS = 6, W = 240, H = 80, GX = 40, GY = 22, y0 = 150;
-  const n = bl.tricks.length, cols = Math.max(2, Math.ceil(n / ROWS)), tw = cols * COLS - GX;
-  const col = bl.color || '#8e8e93', dark = isDark(col);
-  items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: 0, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: dark ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + (bl.name || 'Rutina') });
-  items.push({ id: 'i' + uid(), t: 'text', x: 4, y: 104, w: tw, h: 32, fs: 18, color: '#8e8e93', text: bl.cat + ' · ' + n + (n === 1 ? ' truco' : ' trucos') });
-  let prev = null;
-  bl.tricks.forEach((name, i)=>{
-    const c = Math.floor(i / ROWS), r = i % ROWS;
-    const it = { id: 'i' + uid(), t: 'trick', name, x: c * COLS, y: y0 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
-    const s = bl.sources && bl.sources[name];
-    if(s && (s.v || s.n)) it.src = [s.v || '', s.n ? 'nº ' + s.n : ''].filter(Boolean).join(' · ');
-    items.push(it);
-    if(prev && Math.floor((i - 1) / ROWS) === c) items.push({ id: 'i' + uid(), t: 'line', a: { id: prev.id }, b: { id: it.id }, sw: 2, color: '#8e8e93', ea: true, cs: 'straight' });
-    prev = it;
+const isDayBlock = n=> /^d[ií]a\s*\d/i.test(String(n || '').trim());
+function srcOf(bl, n){ const s = bl.sources && bl.sources[n]; return s && (s.v || s.n) ? [s.v || '', s.n ? 'nº ' + s.n : ''].filter(Boolean).join(' · ') : ''; }
+/* una pizarra por categoría: cada día / bloque es una sección de color con sus trucos encadenados */
+function categoryBoard(cat, blocks, catColor){
+  const items = [], W = 250, H = 100, GX = 36, GY = 22, ROWS = 7, CW = W + GX, y0 = 170;
+  let x = 0, total = 0;
+  const secs = [];
+  blocks.forEach(bl=>{
+    const nc = Math.max(1, Math.ceil(bl.tricks.length / ROWS)), col = bl.color || catColor, w = nc * CW - GX;
+    items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x, y: 0, w, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 28, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + (bl.name || 'Rutina') });
+    items.push({ id: 'i' + uid(), t: 'text', x: x + 4, y: 102, w, h: 28, fs: 17, color: '#8e8e93', text: bl.tricks.length + (bl.tricks.length === 1 ? ' truco' : ' trucos') });
+    let prev = null;
+    bl.tricks.forEach((name, i)=>{
+      const c = Math.floor(i / ROWS), r = i % ROWS;
+      const it = { id: 'i' + uid(), t: 'trick', name, x: x + c * CW, y: y0 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
+      const s = srcOf(bl, name); if(s) it.src = s;
+      items.push(it);
+      if(prev && r > 0) items.push({ id: 'i' + uid(), t: 'line', a: { id: prev.id }, b: { id: it.id }, sw: 2, color: '#8e8e93', ea: true, cs: 'straight' });
+      prev = it;
+    });
+    if(bl.note && bl.note.trim()) items.push({ id: 'i' + uid(), t: 'note', x: x, y: y0 + Math.min(ROWS, bl.tricks.length) * (H + GY) + 10, w: Math.max(260, w), h: 130, fill: NOTE_COLORS[0], fs: 16, align: 'left', text: bl.note.trim() });
+    x += w + 90; total += bl.tricks.length;
   });
-  if(bl.note && bl.note.trim()) items.push({ id: 'i' + uid(), t: 'note', x: cols * COLS + 10, y: y0, w: 260, h: 220, fill: NOTE_COLORS[0], fs: 18, align: 'left', text: bl.note.trim() });
+  items.push({ id: 'i' + uid(), t: 'text', x: 0, y: -64, w: 700, h: 48, fs: 38, bold: true, text: cat + ' · ' + total + ' trucos' });
   return items;
 }
+const CAT_COLORS = { 'Calentamiento': '#2ecc40', 'Base': '#ffd400', 'Técnica': '#00acc1', 'Velocidad': '#2979ff' };
 async function generateRoutines(blocks, force){
   await load();
   if(!blocks || !blocks.length){ toast('No hay rutinas con trucos'); return 0; }
   const cats = ['Calentamiento', 'Base', 'Técnica', 'Velocidad'];
-  const folderFor = name=>{ let f = S.folders.find(x=> x.name === name && !x.trashed && !x.parent); if(!f){ f = { id: 'f' + uid(), name, parent: null, created: Date.now() }; S.folders.push(f); } return f; };
-  let made = 0, redone = 0;
-  const key = bl=> bl.cat + '|' + bl.id;
-  if(force == null && blocks.some(bl=> S.boards.some(b=> !b.trashed && b.gen === key(bl)))) force = confirm('Ya hay pizarras de rutinas creadas.\n\nAceptar: rehacerlas desde cero (se pierden los cambios que hayas hecho en ellas).\nCancelar: solo crear las que falten.');
-  blocks.forEach(bl=>{
-    if(!bl.tricks.length) return;
-    const ex = S.boards.find(b=> !b.trashed && b.gen === key(bl)), nm = bl.name || 'Rutina';
-    const items = routineBoard(bl);
-    if(ex){ if(force){ ex.items = items; ex.name = bl.cat + ' · ' + nm; ex.updated = Date.now(); ex.fit = true; ex.scenes = []; redone++; } return; }
-    const b = newBoard(bl.cat + ' · ' + nm); b.items = items; b.gen = key(bl); b.folder = folderFor(bl.cat).id; b.fit = true; b.view = null;
-    S.boards.push(b); made++;
+  if(force == null && cats.some(c=> S.boards.some(b=> !b.trashed && b.gen === 'cat:' + c))) force = confirm('Ya hay pizarras de rutinas creadas.\n\nAceptar: rehacerlas desde cero (se pierden los cambios que hayas hecho en ellas).\nCancelar: solo crear las que falten.');
+  let n = 0;
+  cats.forEach(cat=>{
+    const bs = blocks.filter(b=> b.cat === cat && b.tricks.length); if(!bs.length) return;
+    const items = categoryBoard(cat, bs, CAT_COLORS[cat]), ex = S.boards.find(b=> !b.trashed && b.gen === 'cat:' + cat);
+    if(ex){ if(force){ ex.items = items; ex.fit = true; ex.scenes = []; ex.updated = Date.now(); n++; } return; }
+    const b = newBoard(cat); b.items = items; b.gen = 'cat:' + cat; b.fit = true; b.view = null; S.boards.push(b); n++;
   });
   // mapa general
   let map = S.boards.find(b=> !b.trashed && b.gen === 'mapa');
@@ -6009,16 +6013,20 @@ async function generateRoutines(blocks, force){
     mi.push({ id: 'i' + uid(), t: 'text', x: 0, y, w: 500, h: 48, fs: 36, bold: true, text: cat });
     bs.forEach((bl, i)=>{
       const col = bl.color || '#8e8e93';
-      mi.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: i * 290, y: y + 64, w: 260, h: 96, fill: mixWhite(col, .85) === '#ffffff' ? col : col, stroke: '#1c1c1e', sw: 0, fs: 20, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', text: (bl.name || 'Rutina') + '\n' + bl.tricks.length + ' trucos' });
+      mi.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: i * 290, y: y + 64, w: 260, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 20, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', text: (bl.name || 'Rutina') + '\n' + bl.tricks.length + ' trucos' });
     });
     y += rowH + 30;
   });
-  if(!map){ map = newBoard('Mapa de rutinas'); map.gen = 'mapa'; map.fav = true; map.fit = true; map.view = null; map.items = mi; S.boards.push(map); made++; }
+  if(!map){ map = newBoard('Mapa de rutinas'); map.gen = 'mapa'; map.fav = true; map.fit = true; map.view = null; map.items = mi; S.boards.push(map); n++; }
   else if(force){ map.items = mi; map.fit = true; map.updated = Date.now(); }
   saveNow();
-  return made + redone;
+  return n;
 }
-
+/* quita las pizarras antiguas de «un día = una pizarra» (y las carpetas que se quedan vacías) */
+function removeOldRoutineBoards(){
+  S.boards = S.boards.filter(b=> !(b.gen && b.gen.includes('|')));
+  S.folders = S.folders.filter(f=> !(['Calentamiento','Base','Técnica','Velocidad'].includes(f.name) && !f.parent && !S.boards.some(b=> b.folder === f.id)));
+}
 /* --- esquemas del catálogo y de la progresión --- */
 const FAM_COLORS = ['#2979ff','#00b8d4','#2ecc40','#ffb300','#ff5722','#e91e63','#aa00ff','#6d4c41','#546e7a','#00897b','#d81b60','#7cb342'];
 const NIVEL_FILL = { basico: '#c9efd1', intermedio: '#fff0b3', avanzado: '#ffd2a8', pro: '#ffb4b4' };
@@ -6095,49 +6103,61 @@ async function generateAll(model, force){
 
 /* primera vez en cada dispositivo: se crean solas las pizarras de las rutinas y los esquemas */
 async function autoSeed(){
-  if(S.ui.seeded2) return;
+  if(S.ui.seeded3) return;
   const first = !S.ui.seeded1;
-  S.ui.seeded1 = S.ui.seeded2 = true;
+  S.ui.seeded1 = S.ui.seeded2 = S.ui.seeded3 = true;
   try{
     if(API.fullModel){
-      if(first) await generateAll(API.fullModel(), false);
-      else { const fb = ensureFundamentos(API.fullModel().blocks, false); if(B && !B.items.length && !B.gen){ S.cur = fb.id; B = fb; } }
-      const map = S.boards.find(b=> b.gen === 'mapa' && !b.trashed);
-      const fund = S.boards.find(b=> b.gen === 'fundamentos' && !b.trashed), pick = fund || map;
-      if(pick && B && !B.items.length && !B.gen){ S.cur = pick.id; B = pick; }
+      const model = API.fullModel();
+      removeOldRoutineBoards();
+      if(first) await generateAll(model, false);
+      else { await generateRoutines(model.blocks, false); ensureFundamentos(model.blocks, true); }
+      const fund = S.boards.find(b=> b.gen === 'fundamentos' && !b.trashed);
+      if(!B || B.trashed || !S.boards.includes(B)){ B = S.boards.find(b=> !b.trashed); S.cur = B.id; }
+      if(fund && (!first || (B && !B.items.length && !B.gen))){ S.cur = fund.id; B = fund; }
     }
-  }catch(e){}
+  }catch(err){}
   saveNow();
 }
 
-/* una sola pizarra con TODOS los trucos de Calentamiento, Base y Velocidad (sin días ni rutinas) */
+/* una sola pizarra con TODOS los trucos de Calentamiento, Base y Velocidad, subdivididos */
 function fundamentosBoard(blocks){
   const sections = [['Calentamiento', '#2ecc40'], ['Base', '#ffd400'], ['Velocidad', '#2979ff']];
   const items = [], W = 260, H = 104, GX = 40, GY = 18, ROWS = 8, CW = W + GX;
   let x = 0;
   sections.forEach(([cat, col])=>{
-    const seen = new Map();
-    blocks.filter(b=> b.cat === cat).forEach(b=> b.tricks.forEach(n=>{
-      const s = b.sources && b.sources[n], src = s && (s.v || s.n) ? [s.v || '', s.n ? 'nº ' + s.n : ''].filter(Boolean).join(' · ') : '';
-      if(!seen.has(n)) seen.set(n, src); else if(!seen.get(n) && src) seen.set(n, src);
-    }));
-    const names = [...seen.keys()]; if(!names.length) return;
-    const nc = Math.max(1, Math.ceil(names.length / ROWS)), tw = nc * CW - GX;
-    items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + cat });
-    items.push({ id: 'i' + uid(), t: 'text', x: x + 4, y: 104, w: tw, h: 30, fs: 18, color: '#8e8e93', text: names.length + ' trucos' });
-    names.forEach((n, i)=>{
-      const c = Math.floor(i / ROWS), r = i % ROWS, it = { id: 'i' + uid(), t: 'trick', name: n, x: x + c * CW, y: 150 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
-      if(seen.get(n)) it.src = seen.get(n);
-      items.push(it);
+    const bs = blocks.filter(b=> b.cat === cat && b.tricks.length); if(!bs.length) return;
+    const allDays = bs.every(b=> isDayBlock(b.name));
+    const groups = [];
+    bs.forEach(b=>{
+      const gname = allDays ? '' : (isDayBlock(b.name) ? 'Básicos' : (b.name || 'Rutina'));
+      let g = groups.find(q=> q.name === gname); if(!g){ g = { name: gname, map: new Map() }; groups.push(g); }
+      b.tricks.forEach(n=>{ const s = srcOf(b, n); if(!g.map.has(n)) g.map.set(n, s); else if(!g.map.get(n) && s) g.map.set(n, s); });
     });
-    x += tw + 140;
+    const widths = groups.map(g=> Math.max(1, Math.ceil(g.map.size / ROWS)));
+    const tw = widths.reduce((a, c)=> a + c * CW, 0) + (groups.length - 1) * 60 - GX;
+    const count = groups.reduce((a, g)=> a + g.map.size, 0);
+    items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + cat });
+    items.push({ id: 'i' + uid(), t: 'text', x: x + 4, y: 104, w: tw, h: 30, fs: 18, color: '#8e8e93', text: count + ' trucos' + (groups.length > 1 ? ' · ' + groups.length + ' grupos' : '') });
+    let gx = x;
+    groups.forEach((g, gi)=>{
+      const nc = widths[gi], gw = nc * CW - GX, y0 = groups.length > 1 ? 210 : 160;
+      if(g.name) items.push({ id: 'i' + uid(), t: 'shape', kind: 'pill', x: gx, y: 150, w: gw, h: 46, fill: mixWhite(col, .6), stroke: '#1c1c1e', sw: 0, fs: 20, bold: true, color: '#1c1c1e', text: g.name + ' · ' + g.map.size });
+      [...g.map.keys()].forEach((n, i)=>{
+        const c = Math.floor(i / ROWS), r = i % ROWS, it = { id: 'i' + uid(), t: 'trick', name: n, x: gx + c * CW, y: y0 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
+        if(g.map.get(n)) it.src = g.map.get(n);
+        items.push(it);
+      });
+      gx += nc * CW + 60;
+    });
+    x += tw + 160;
   });
   return items;
 }
 function ensureFundamentos(blocks, force){
   const items = fundamentosBoard(blocks);
   const ex = S.boards.find(b=> !b.trashed && b.gen === 'fundamentos');
-  if(ex){ if(force){ ex.items = items; ex.fit = true; ex.updated = Date.now(); return ex; } return ex; }
+  if(ex){ if(force){ ex.items = items; ex.fit = true; ex.updated = Date.now(); } return ex; }
   const b = newBoard('Fundamentos · todos los trucos'); b.items = items; b.gen = 'fundamentos'; b.fav = true; b.fit = true; b.view = null;
   S.boards.push(b); return b;
 }
