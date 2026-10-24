@@ -3319,8 +3319,8 @@ document.getElementById('btn-import').addEventListener('change', function(){
     try {
       const data = JSON.parse(e.target.result);
       if(confirm(`¿Importar ${file.name}? Los datos nuevos se fusionarán con los existentes.`)){
-        loadAllData(data);
-        if(data.pizarras&&window.pizarra)window.pizarra.restore(data.pizarras).then(n=>{if(n)toast(n+' pizarras importadas');});
+        if(data.pizarras&&window.pizarra)window.pizarra.restore(data.pizarras).then(n=>{toast(n?n+' pizarras importadas':'Las pizarras ya estaban importadas');}).catch(()=>toast('No se pudieron importar las pizarras'));
+        try{loadAllData(data);}catch(err){if(!data.pizarras)throw err;}
       }
     } catch {
       toast('Error: archivo JSON no válido');
@@ -5396,8 +5396,9 @@ function importBoard(e){
   const rd = new FileReader();
   rd.onload = ()=>{
     try{
-      const d = JSON.parse(rd.result);
-      if(d.format === 'skate-pizarras'){ restore(d).then(n=>{ toast(n + ' pizarras importadas'); if(root.classList.contains('open')) switchBoard(B.id); }); return; }
+      let d = JSON.parse(rd.result);
+      if(d && d.pizarras && d.pizarras.boards) d = d.pizarras;
+      if(d.format === 'skate-pizarras'){ restore(d).then(n=>{ toast(n + ' pizarras importadas'); if(root.classList.contains('open')) switchBoard(B.id); if(document.getElementById('pz-browser')) drawBrowser(); }); return; }
       if(d.format !== 'skate-pizarra' || !d.board) throw new Error();
       Object.entries(d.assets || {}).forEach(([id, url])=>{ if(url){ assets[id] = url; idbSet('asset:' + id, url).catch(()=>{}); } });
       const b = d.board; b.id = 'b' + uid(); if(S.boards.some(x=> x.name === b.name)) b.name += ' (importada)';
@@ -5480,7 +5481,7 @@ function onPaste(e){
 /* ---------- abrir / cerrar ---------- */
 async function open(){
   if(!root) build();
-  await load();
+  await load(); await autoSeed();
   root.classList.add('open'); document.body.classList.add('pz-open');
   await switchBoard(S.cur);
   if(B.view.x === 0 && B.view.y === 0 && !B.items.length){ B.view = { x: vp.clientWidth/2, y: vp.clientHeight/2, z: 1 }; applyView(); }
@@ -6089,6 +6090,20 @@ async function generateAll(model, force){
   if(model.progs && model.progs.length) add('progresion', 'Progresión', progBoard(model.progs), null);
   saveNow();
   return n;
+}
+
+/* primera vez en cada dispositivo: se crean solas las pizarras de las rutinas y los esquemas */
+async function autoSeed(){
+  if(S.ui.seeded1) return;
+  S.ui.seeded1 = true;
+  try{
+    if(API.fullModel){
+      await generateAll(API.fullModel(), false);
+      const map = S.boards.find(b=> b.gen === 'mapa' && !b.trashed);
+      if(map && B && !B.items.length && !B.gen){ S.cur = map.id; B = map; }
+    }
+  }catch(e){}
+  saveNow();
 }
 
 window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines, generateAll };
