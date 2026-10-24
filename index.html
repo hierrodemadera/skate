@@ -677,6 +677,7 @@ body.pz-open{overflow:hidden;}
 .pz-ctx{max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none;}
 .pz-ctx::-webkit-scrollbar{display:none;}
 .pz-ctx button{flex-shrink:0;white-space:nowrap;}
+.pz-trick .n small.sr{text-transform:none;letter-spacing:0;opacity:.5;}
 #pz-browser .empty{opacity:.55;padding:30px 4px;text-align:center;font-size:15px;line-height:1.5;}
 
 </style>
@@ -3804,6 +3805,7 @@ if(!localStorage.getItem('sk_seeded_gaps_v1')){
       cats().forEach(([c,d])=>d.blocks.forEach(b=>b.tricks.forEach(n=>{if(!seen.has(n)){seen.add(n);out.push({name:n,sub:c});}})));
       return out.sort((a,b)=>a.name.localeCompare(b.name,'es'));
     },
+    blocksFull(){const out=[];cats().forEach(([c,d])=>d.blocks.forEach(b=>{if(b.tricks.length)out.push({id:b.id,name:b.name,cat:c,color:b.color,note:b.note||'',tricks:b.tricks.slice(),sources:b.sources?JSON.parse(JSON.stringify(b.sources)):{}});}));return out;},
     allBlocks(){const out=[];cats().forEach(([c,d])=>d.blocks.forEach(b=>{if(b.tricks.length)out.push({name:b.name,cat:c,tricks:b.tricks.slice()});}));return out;},
     showTrick(name){
       if(!idx)build();
@@ -4162,7 +4164,7 @@ function itemHTML(it){
       const pi = it.name.indexOf('('), main = pi > 0 ? it.name.slice(0, pi).trim() : it.name, note = pi > 0 ? it.name.slice(pi) : '';
       const ter = (inf.terreno||[]);
       const sub = [inf.nivel, ter.length && ter.length <= 2 ? ter.join('/') : ''].filter(Boolean).join(' · ');
-      return `<span class="n">${inf.done ? '<span class="ok">✓</span>' : ''}${esc(main)}${sub || note ? `<small>${esc([sub, note].filter(Boolean).join(' · '))}</small>` : ''}</span>`;
+      return `<span class="n">${inf.done ? '<span class="ok">✓</span>' : ''}${esc(main)}${sub || note ? `<small>${esc([sub, note].filter(Boolean).join(' · '))}</small>` : ''}${it.src ? `<small class="sr">${esc(it.src)}</small>` : ''}</span>`;
     }
     case 'file': return `<div class="fi">${IC.file}</div><div class="fn"><b>${esc(it.fname || 'Archivo')}</b><small>${esc(fmtSize(it.size))}</small></div>`;
     case 'ink': {
@@ -5376,6 +5378,7 @@ async function switchBoard(id){
   root.classList.toggle('dark', !!B.opts.dark);
   if(!B.view || !B.view.z){ B.view = { x: vp.clientWidth/2, y: vp.clientHeight/2, z: 1 }; }
   drawTitle(); applyView(); render(); drawSceneNav(); updateBotR(); updateUndo(); saveNow();
+  if(B.fit){ delete B.fit; setTimeout(fitContent, 60); }
 }
 function drawTitle(){ $('#pz-title span', root).textContent = B.name; }
 
@@ -5455,7 +5458,7 @@ function onKey(e){
   if(mod && (k === '+' || k === '=')){ e.preventDefault(); const r = vp.getBoundingClientRect(); zoomAt(V().z * 1.25, r.left + r.width/2, r.top + r.height/2); return; }
   if(mod && k === '-'){ e.preventDefault(); const r = vp.getBoundingClientRect(); zoomAt(V().z / 1.25, r.left + r.width/2, r.top + r.height/2); return; }
   if(extraKeys(e, mod, k)) return;
-  if(k === 'escape'){ if(menuEl) closeMenu(); else if(sel.length) setSel([]); else close(); return; }
+  if(k === 'escape'){ if(menuEl) closeMenu(); else if(document.getElementById('pz-browser')) closeBrowser(); else if(findSt) closeFind(); else if(sel.length) setSel([]); else close(); return; }
   if((k === 'backspace' || k === 'delete') && sel.length){ e.preventDefault(); delSel(); return; }
   if(k === 'enter' && sel.length === 1){ e.preventDefault(); startEdit(sel[0]); return; }
   if(k.startsWith('arrow') && sel.length){
@@ -5482,7 +5485,7 @@ async function open(){
   if(B.view.x === 0 && B.view.y === 0 && !B.items.length){ B.view = { x: vp.clientWidth/2, y: vp.clientHeight/2, z: 1 }; applyView(); }
   setDrawMode(drawMode);
 }
-function close(){ if(!root) return; stopEdit(); closeMenu(); closeScenes(); saveNow(); root.classList.remove('open'); document.body.classList.remove('pz-open'); if(API.onClose) API.onClose(); }
+function close(){ if(!root) return; stopEdit(); closeMenu(); closeBrowser(); closeFind(); closeScenes(); saveNow(); root.classList.remove('open'); document.body.classList.remove('pz-open'); if(API.onClose) API.onClose(); }
 
 /* ---------- añadir truco(s) a una pizarra desde cualquier sitio de la app (sin abrir la pizarra) ---------- */
 async function attach(name, anchor){ return attachMany([name], name, anchor); }
@@ -5724,7 +5727,7 @@ function drawBrowser(){
   const loc = br.loc;
   const inFolder = loc.t === 'folder' ? folderById(loc.id) : null;
   el.innerHTML = `<div class="bh"><button data-bd="close" aria-label="Volver a la pizarra">${IC.back}</button><h2>${loc.t === 'folder' && inFolder ? esc(folderPath(inFolder.id)) : loc.t === 'fav' ? 'Favoritas' : loc.t === 'trash' ? 'Eliminadas recientemente' : 'Pizarras'}</h2>
-      <button data-bd="newboard">${IC.newb}<span class="t">Nueva</span></button><button data-bd="newfolder">${IC.folder}<span class="t">Carpeta</span></button><button data-bd="more">${IC.more}</button></div>
+      <button data-bd="newboard">${IC.newb}<span class="t">Nueva</span></button><button data-bd="newfolder">${IC.folder}<span class="t">Carpeta</span></button><button data-bd="gen" title="Crear una pizarra por cada rutina">${IC.scene}<span class="g">Rutinas</span></button><button data-bd="more">${IC.more}</button></div>
     <div class="bh" style="padding-top:0"><input id="pz-bq" class="pz-in" type="search" placeholder="Buscar en todas las pizarras" value="${esc(br.q)}" autocomplete="off">
       <select id="pz-bs"><option value="recent"${br.sort === 'recent' ? ' selected' : ''}>Más recientes</option><option value="name"${br.sort === 'name' ? ' selected' : ''}>Nombre</option><option value="created"${br.sort === 'created' ? ' selected' : ''}>Creación</option></select>
       <button data-bd="view">${br.view === 'grid' ? '☰ Lista' : '▦ Iconos'}</button></div>
@@ -5790,6 +5793,10 @@ function browserAction(a, anchor, e){
   if(k === 'newfolder'){
     const n = prompt('Nombre de la carpeta', 'Carpeta'); if(n == null || !n.trim()) return;
     S.folders.push({ id: 'f' + uid(), name: n.trim(), parent: br.loc.t === 'folder' ? br.loc.id : null, created: Date.now() }); saveNow(); return drawBrowser();
+  }
+  if(k === 'gen'){
+    const bl = (window.skateApi && window.skateApi.blocksFull) ? window.skateApi.blocksFull() : [];
+    return generateRoutines(bl).then(n=>{ toast(n ? n + ' pizarras de rutinas listas' : 'Ya estaban todas creadas'); br.loc = { t: 'all' }; br.q = ''; drawBrowser(); });
   }
   if(k === 'more'){
     return openMenu(anchor, `<button class="pz-mi" data-m="exp">${IC.file}Exportar todas las pizarras</button><button class="pz-mi" data-m="imp">${IC.folder}Importar pizarras…</button>`,
@@ -5950,7 +5957,67 @@ function extraInit(){
   window.addEventListener('blur', ()=>{ spaceDown = false; if(vp) vp.style.cursor = ''; });
 }
 
-window.pizarra = { open, close, attach, attachMany };
+/* --- crear una pizarra por cada rutina (bloque) de la app --- */
+function mixWhite(hex, a){
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if(!m) return '#ffffff';
+  const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, f = c=> Math.round(c*a + 255*(1 - a)).toString(16).padStart(2, '0');
+  return '#' + f(r) + f(g) + f(b);
+}
+function routineBoard(bl){
+  const items = [], COLS = 280, ROWS = 6, W = 240, H = 80, GX = 40, GY = 22, y0 = 150;
+  const n = bl.tricks.length, cols = Math.max(2, Math.ceil(n / ROWS)), tw = cols * COLS - GX;
+  const col = bl.color || '#8e8e93', dark = isDark(col);
+  items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: 0, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: dark ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + (bl.name || 'Rutina') });
+  items.push({ id: 'i' + uid(), t: 'text', x: 4, y: 104, w: tw, h: 32, fs: 18, color: '#8e8e93', text: bl.cat + ' · ' + n + (n === 1 ? ' truco' : ' trucos') });
+  let prev = null;
+  bl.tricks.forEach((name, i)=>{
+    const c = Math.floor(i / ROWS), r = i % ROWS;
+    const it = { id: 'i' + uid(), t: 'trick', name, x: c * COLS, y: y0 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
+    const s = bl.sources && bl.sources[name];
+    if(s && (s.v || s.n)) it.src = [s.v || '', s.n ? 'nº ' + s.n : ''].filter(Boolean).join(' · ');
+    items.push(it);
+    if(prev && Math.floor((i - 1) / ROWS) === c) items.push({ id: 'i' + uid(), t: 'line', a: { id: prev.id }, b: { id: it.id }, sw: 2, color: '#8e8e93', ea: true, cs: 'straight' });
+    prev = it;
+  });
+  if(bl.note && bl.note.trim()) items.push({ id: 'i' + uid(), t: 'note', x: cols * COLS + 10, y: y0, w: 260, h: 220, fill: NOTE_COLORS[0], fs: 18, align: 'left', text: bl.note.trim() });
+  return items;
+}
+async function generateRoutines(blocks, force){
+  await load();
+  if(!blocks || !blocks.length){ toast('No hay rutinas con trucos'); return 0; }
+  const cats = ['Calentamiento', 'Base', 'Técnica', 'Velocidad'];
+  const folderFor = name=>{ let f = S.folders.find(x=> x.name === name && !x.trashed && !x.parent); if(!f){ f = { id: 'f' + uid(), name, parent: null, created: Date.now() }; S.folders.push(f); } return f; };
+  let made = 0, redone = 0;
+  const key = bl=> bl.cat + '|' + bl.id;
+  if(force == null && blocks.some(bl=> S.boards.some(b=> !b.trashed && b.gen === key(bl)))) force = confirm('Ya hay pizarras de rutinas creadas.\n\nAceptar: rehacerlas desde cero (se pierden los cambios que hayas hecho en ellas).\nCancelar: solo crear las que falten.');
+  blocks.forEach(bl=>{
+    if(!bl.tricks.length) return;
+    const ex = S.boards.find(b=> !b.trashed && b.gen === key(bl)), nm = bl.name || 'Rutina';
+    const items = routineBoard(bl);
+    if(ex){ if(force){ ex.items = items; ex.name = bl.cat + ' · ' + nm; ex.updated = Date.now(); ex.fit = true; ex.scenes = []; redone++; } return; }
+    const b = newBoard(bl.cat + ' · ' + nm); b.items = items; b.gen = key(bl); b.folder = folderFor(bl.cat).id; b.fit = true; b.view = null;
+    S.boards.push(b); made++;
+  });
+  // mapa general
+  let map = S.boards.find(b=> !b.trashed && b.gen === 'mapa');
+  const mi = [], rowH = 190;
+  let y = 0;
+  cats.forEach(cat=>{
+    const bs = blocks.filter(b=> b.cat === cat && b.tricks.length); if(!bs.length) return;
+    mi.push({ id: 'i' + uid(), t: 'text', x: 0, y, w: 500, h: 48, fs: 36, bold: true, text: cat });
+    bs.forEach((bl, i)=>{
+      const col = bl.color || '#8e8e93';
+      mi.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x: i * 290, y: y + 64, w: 260, h: 96, fill: mixWhite(col, .85) === '#ffffff' ? col : col, stroke: '#1c1c1e', sw: 0, fs: 20, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', text: (bl.name || 'Rutina') + '\n' + bl.tricks.length + ' trucos' });
+    });
+    y += rowH + 30;
+  });
+  if(!map){ map = newBoard('Mapa de rutinas'); map.gen = 'mapa'; map.fav = true; map.fit = true; map.view = null; map.items = mi; S.boards.push(map); made++; }
+  else if(force){ map.items = mi; map.fit = true; map.updated = Date.now(); }
+  saveNow();
+  return made + redone;
+}
+
+window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines };
 })();
 </script>
 </body>
