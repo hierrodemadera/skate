@@ -6087,6 +6087,7 @@ async function generateAll(model, force){
     const g = S.boards.find(b=> b.gen === 'catalogo-general'); if(g && g.fav == null) g.fav = true;
     model.catalog.forEach((f, ci)=> add('catalogo:' + f.id, 'Esquema · ' + f.name, catalogBoard(f, ci), 'Esquema de trucos'));
   }
+  ensureFundamentos(model.blocks, force !== false); n++;
   if(model.progs && model.progs.length) add('progresion', 'Progresión', progBoard(model.progs), null);
   saveNow();
   return n;
@@ -6094,16 +6095,51 @@ async function generateAll(model, force){
 
 /* primera vez en cada dispositivo: se crean solas las pizarras de las rutinas y los esquemas */
 async function autoSeed(){
-  if(S.ui.seeded1) return;
-  S.ui.seeded1 = true;
+  if(S.ui.seeded2) return;
+  const first = !S.ui.seeded1;
+  S.ui.seeded1 = S.ui.seeded2 = true;
   try{
     if(API.fullModel){
-      await generateAll(API.fullModel(), false);
+      if(first) await generateAll(API.fullModel(), false);
+      else { const fb = ensureFundamentos(API.fullModel().blocks, false); if(B && !B.items.length && !B.gen){ S.cur = fb.id; B = fb; } }
       const map = S.boards.find(b=> b.gen === 'mapa' && !b.trashed);
-      if(map && B && !B.items.length && !B.gen){ S.cur = map.id; B = map; }
+      const fund = S.boards.find(b=> b.gen === 'fundamentos' && !b.trashed), pick = fund || map;
+      if(pick && B && !B.items.length && !B.gen){ S.cur = pick.id; B = pick; }
     }
   }catch(e){}
   saveNow();
+}
+
+/* una sola pizarra con TODOS los trucos de Calentamiento, Base y Velocidad (sin días ni rutinas) */
+function fundamentosBoard(blocks){
+  const sections = [['Calentamiento', '#2ecc40'], ['Base', '#ffd400'], ['Velocidad', '#2979ff']];
+  const items = [], W = 260, H = 104, GX = 40, GY = 18, ROWS = 8, CW = W + GX;
+  let x = 0;
+  sections.forEach(([cat, col])=>{
+    const seen = new Map();
+    blocks.filter(b=> b.cat === cat).forEach(b=> b.tricks.forEach(n=>{
+      const s = b.sources && b.sources[n], src = s && (s.v || s.n) ? [s.v || '', s.n ? 'nº ' + s.n : ''].filter(Boolean).join(' · ') : '';
+      if(!seen.has(n)) seen.set(n, src); else if(!seen.get(n) && src) seen.set(n, src);
+    }));
+    const names = [...seen.keys()]; if(!names.length) return;
+    const nc = Math.max(1, Math.ceil(names.length / ROWS)), tw = nc * CW - GX;
+    items.push({ id: 'i' + uid(), t: 'shape', kind: 'rrect', x, y: 0, w: tw, h: 96, fill: col, stroke: '#1c1c1e', sw: 0, fs: 36, bold: true, color: isDark(col) ? '#ffffff' : '#1c1c1e', align: 'left', text: '  ' + cat });
+    items.push({ id: 'i' + uid(), t: 'text', x: x + 4, y: 104, w: tw, h: 30, fs: 18, color: '#8e8e93', text: names.length + ' trucos' });
+    names.forEach((n, i)=>{
+      const c = Math.floor(i / ROWS), r = i % ROWS, it = { id: 'i' + uid(), t: 'trick', name: n, x: x + c * CW, y: 150 + r * (H + GY), w: W, h: H, fill: mixWhite(col, .28) };
+      if(seen.get(n)) it.src = seen.get(n);
+      items.push(it);
+    });
+    x += tw + 140;
+  });
+  return items;
+}
+function ensureFundamentos(blocks, force){
+  const items = fundamentosBoard(blocks);
+  const ex = S.boards.find(b=> !b.trashed && b.gen === 'fundamentos');
+  if(ex){ if(force){ ex.items = items; ex.fit = true; ex.updated = Date.now(); return ex; } return ex; }
+  const b = newBoard('Fundamentos · todos los trucos'); b.items = items; b.gen = 'fundamentos'; b.fav = true; b.fit = true; b.view = null;
+  S.boards.push(b); return b;
 }
 
 window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines, generateAll };
