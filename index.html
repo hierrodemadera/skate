@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style id="boot-hide">body{opacity:0 !important;}</style>
+<script>setTimeout(function(){var b=document.getElementById("boot-hide");if(b)b.remove();},2500);</script>
 <title>SKATE</title>
 <link rel="icon" type="image/png" href="favicon.ico">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -6292,8 +6294,9 @@ function build(){
       <div class="vz-bar"><button class="vz-b" data-v="back" aria-label="Atrás">${ICO.back}</button><button class="vz-b" data-v="fwd" aria-label="Adelante">${ICO.fwd}</button><button class="vz-b" data-v="home" aria-label="Inicio">${ICO.home}</button><div class="vz-crumb"></div></div>
       <div class="vz-bar vz-views"><button class="vz-b" data-vm="radial" title="Esquema">${IB}<circle cx="12" cy="12" r="2.5"/><path d="M12 9.5V4M14.2 13.3l4.8 2.7M9.8 13.3L5 16"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="19.5" cy="16.5" r="1.5"/><circle cx="4.5" cy="16.5" r="1.5"/></svg></button><button class="vz-b" data-vm="mosaic" title="Mosaico">${IB}<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button class="vz-b" data-vm="list" title="Lista">${IB}<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8"/><circle cx="4.5" cy="12" r=".8"/><circle cx="4.5" cy="18" r=".8"/></svg></button></div>
       <div class="vz-bar vz-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;opacity:.6;flex-shrink:0"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input type="search" placeholder="buscar truco…" autocomplete="off" spellcheck="false"></div>
+      <div class="vz-bar"><button class="vz-b" data-v="pz" title="Pizarra" aria-label="Pizarra">${ICO.pz}</button></div>
     </div>
-    <div class="vz-tabs"><button class="vz-tab on" data-tab="esquema">Esquema</button><button class="vz-tab" data-tab="entrenamiento">Entrenamiento</button><button class="vz-tab" data-tab="progresion">Progresión</button><button class="vz-tab" data-tab="pizarra">Pizarra</button></div>
+    <div class="vz-tabs"><button class="vz-tab on" data-tab="esquema">Esquema</button><button class="vz-tab" data-tab="entrenamiento">Entrenamiento</button><button class="vz-tab" data-tab="progresion">Progresión</button></div>
     <div class="vz-body"></div>`;
   document.body.appendChild(el);
   body = $('.vz-body', el);
@@ -6497,7 +6500,7 @@ function toggleCheck(name){
 }
 function onClick(e){
   const t = e.target;
-  const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); return; }
+  const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); if(a === 'pz' && window.pizarra) window.pizarra.open(); return; }
   const tab = t.closest('[data-tab]'); if(tab && tab.dataset.tab === 'pizarra'){ if(window.pizarra) window.pizarra.open(); return; }
   if(tab){ const m = { esquema: 'root', entrenamiento: 'ent', progresion: 'prog' }[tab.dataset.tab]; if(cur().t !== m) go({ t: m }); return; }
   const vm = t.closest('[data-vm]'); if(vm){ vmode = vm.dataset.vm; try{ localStorage.setItem('sk_vz_view', vmode); }catch(err){} render(); return; }
@@ -6545,6 +6548,9 @@ tog.addEventListener('click', ()=>{ if(el && el.classList.contains('open')) clos
 setTog();
 window.vista = { open, close };
 
+/* arranque: se muestra la página solo cuando ya está montada, para que no se vea el salto inicial */
+const bh = document.getElementById('boot-hide');
+if(bh){ requestAnimationFrame(()=> requestAnimationFrame(()=>{ bh.remove(); })); }
 })();
 
 </script>
