@@ -739,6 +739,14 @@ body.pz-open{overflow:hidden;}
 .vz-leg span{padding:3px 9px;border-radius:10px;color:#1c1c1e;}
 @media (max-width:560px){.vz-grid{grid-template-columns:1fr 1fr;}.vz-card .ac button{width:26px;height:26px;}.vz-fh{font-size:22px;}}
 
+.vz-blk{border-radius:14px;padding:10px;margin:14px 0;}
+.vz-bh{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.vz-dot{width:26px;height:26px;border-radius:8px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);}
+#vz .vz-bn{flex:1;min-width:0;font-size:18px;font-weight:700;background:transparent;border:0;outline:none;padding:4px 6px !important;cursor:text;-webkit-user-select:text;user-select:text;}
+.vz-bc{opacity:.5;font-size:13px;}
+.vz-addt{border:2px dashed var(--vzb) !important;border-radius:10px;min-height:62px;opacity:.7;font-weight:600;}
+#vz .vz-note{width:100%;margin-top:8px;min-height:44px;resize:vertical;border:1px solid var(--vzb);border-radius:10px;padding:8px !important;background:var(--vzpanel);font-size:15px;outline:none;cursor:text;-webkit-user-select:text;user-select:text;box-sizing:border-box;}
+
 </style>
 </head>
 <body>
@@ -6163,20 +6171,14 @@ async function generateAll(model, force){
 
 /* primera vez en cada dispositivo: se crean solas las pizarras de las rutinas y los esquemas */
 async function autoSeed(){
-  if(S.ui.seeded3) return;
-  const first = !S.ui.seeded1;
-  S.ui.seeded1 = S.ui.seeded2 = S.ui.seeded3 = true;
-  try{
-    if(API.fullModel){
-      const model = API.fullModel();
-      removeOldRoutineBoards();
-      if(first) await generateAll(model, false);
-      else { await generateRoutines(model.blocks, false); ensureFundamentos(model.blocks, true); }
-      const fund = S.boards.find(b=> b.gen === 'fundamentos' && !b.trashed);
-      if(!B || B.trashed || !S.boards.includes(B)){ B = S.boards.find(b=> !b.trashed); S.cur = B.id; }
-      if(fund && (!first || (B && !B.items.length && !B.gen))){ S.cur = fund.id; B = fund; }
-    }
-  }catch(err){}
+  /* ya no se crean pizarras solas; una vez por dispositivo, las generadas antes pasan a «Eliminadas recientemente» */
+  if(S.ui.cleaned1) return;
+  S.ui.cleaned1 = true;
+  const ts = Date.now();
+  S.boards.forEach(b=>{ if(b.gen && !b.trashed) b.trashed = ts; });
+  let live = S.boards.filter(b=> !b.trashed);
+  if(!live.length){ const nb = newBoard('Pizarra 1'); S.boards.push(nb); live = [nb]; }
+  if(!B || B.trashed || !S.boards.includes(B)){ B = live[0]; S.cur = B.id; }
   saveNow();
 }
 
@@ -6259,12 +6261,17 @@ function build(){
   document.body.appendChild(el);
   body = $('.vz-body', el);
   el.addEventListener('click', onClick);
+  el.addEventListener('input', e=>{
+    const t = e.target; if(cur().t !== 'cat') return; const d = CATS[cur().id];
+    if(t.dataset.bname != null){ d.get().blocks[+t.dataset.bname].name = t.value; d.save(); renderCat(cur().id); }
+    if(t.dataset.bnote != null){ d.get().blocks[+t.dataset.bnote].note = t.value; d.save(); }
+  });
   $('input', el).addEventListener('input', e=>{
     q = e.target.value;
     if(!q.trim() && cur().t === 'search'){ back(); return; }
     if(q.trim()){ if(cur().t === 'search') render(); else go({ t: 'search' }); }
   });
-  document.addEventListener('keydown', e=>{ if(el.classList.contains('open') && e.key === 'Escape' && !e.target.matches('input')){ if(pos > 0) back(); else close(); } });
+  document.addEventListener('keydown', e=>{ if(el.classList.contains('open') && e.key === 'Escape' && !e.target.matches('input,textarea')){ if(pos > 0) back(); else close(); } });
   window.addEventListener('resize', ()=>{ if(el.classList.contains('open') && ['root', 'ent', 'prog'].includes(cur().t)) render(); });
 }
 const cur = ()=> stack[pos];
@@ -6316,20 +6323,42 @@ function renderEnt(){
   radial('ENTRENO', '4 categorías', items);
 }
 function mix(hex, a){ return typeof hexToMixedWhite === 'function' ? hexToMixedWhite(hex, a) : hex; }
+let catView = 'rut';
+const isDay = n=> /^d[ií]a\s*\d/i.test(String(n || '').trim());
+function srcTxt(b, n){ const sc = b.sources && b.sources[n]; return sc && (sc.v || sc.n) ? [sc.v || '', sc.n ? 'nº ' + sc.n : ''].filter(Boolean).join(' · ') : ''; }
+function trickCard(n, bc, src, extra){
+  const c = clean(n), a = anno(n), d = checked.has(c);
+  return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(c)}" style="background:${mix(bc, .3)}"><b>${esc(c)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}${src ? `<span class="sb">${esc(src)}</span>` : ''}<span class="ac">${extra || ''}<button class="ck${d ? ' on' : ''}" data-act="ck">✓</button><button data-act="prog" title="A progresión">P</button><button data-act="pz">▦</button></span></div>`;
+}
 function renderCat2(k){
-  const bl = CATS[k].get().blocks, col = CATC[k];
-  let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div><div class="vz-fd">${bl.length} bloques</div>`;
-  bl.forEach((b, bi)=>{
-    const bc = b.color || '#bdbdbd';
-    h += `<div class="vz-sf"><span style="width:14px;height:14px;border-radius:4px;background:${bc};display:inline-block"></span>${esc(b.name || 'bloque')}<small>${b.tricks.length}</small><button class="vz-chip" data-bpz="${bi}" style="margin-left:auto">▦ bloque</button></div>`;
-    if(b.note && b.note.trim()) h += `<div class="vz-fd" style="white-space:pre-wrap;padding-top:0">${esc(b.note)}</div>`;
-    h += `<div class="vz-grid">${b.tricks.map(n=>{
-      const c = clean(n), a = anno(n), sc = b.sources && b.sources[n], src = sc ? [sc.v || '', sc.n ? 'nº ' + sc.n : ''].filter(Boolean).join(' · ') : '', d = checked.has(c);
-      return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(c)}" style="background:${mix(bc, .3)}"><b>${esc(c)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}${src ? `<span class="sb">${esc(src)}</span>` : ''}<span class="ac"><button class="ck${d ? ' on' : ''}" data-act="ck">✓</button><button data-act="prog" title="A progresión">P</button><button data-act="pz">▦</button></span></div>`;
-    }).join('')}</div>`;
-  });
-  if(!bl.length) h += '<div class="vz-empty">No hay bloques. Se crean en la versión clásica.</div>';
-  body.innerHTML = h + '</div>';
+  const bl = CATS[k].get().blocks, col = CATC[k], y = body.scrollTop;
+  let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div>
+    <div class="vz-chips" style="margin-top:8px"><button class="vz-chip${catView === 'rut' ? ' on' : ''}" data-cv="rut">Rutinas · ${bl.length}</button><button class="vz-chip${catView === 'all' ? ' on' : ''}" data-cv="all">Todos los trucos</button></div>`;
+  if(catView === 'all'){
+    const groups = [], allDays = bl.every(b=> isDay(b.name));
+    bl.forEach(b=>{
+      const g = allDays ? '' : (isDay(b.name) ? 'Básicos' : (b.name || 'Rutina'));
+      let G = groups.find(q=> q.name === g); if(!G){ G = { name: g, map: new Map(), color: b.color || col }; groups.push(G); }
+      b.tricks.forEach(n=>{ const s = srcTxt(b, n); if(!G.map.has(n)) G.map.set(n, s); else if(!G.map.get(n) && s) G.map.set(n, s); });
+    });
+    const tot = groups.reduce((a, g)=> a + g.map.size, 0);
+    h += `<div class="vz-fd">${tot} trucos, sin repetir y sin días</div>`;
+    groups.forEach(g=>{
+      if(g.name) h += `<div class="vz-sf">${esc(g.name)}<small>${g.map.size}</small></div>`;
+      h += `<div class="vz-grid">${[...g.map].map(([n, s])=> trickCard(n, g.color, s)).join('')}</div>`;
+    });
+    if(!tot) h += '<div class="vz-empty">Todavía no hay trucos.</div>';
+  } else {
+    bl.forEach((b, bi)=>{
+      const bc = b.color || '#bdbdbd';
+      h += `<div class="vz-blk" data-bi="${bi}" style="background:${mix(bc, .16)};border:1px solid ${mix(bc, .55)}">
+        <div class="vz-bh"><button class="vz-dot" data-bcol="${bi}" style="background:${bc}" title="Color"></button><input class="vz-bn" data-bname="${bi}" value="${esc(b.name || '')}" placeholder="nombre de la rutina…"><span class="vz-bc">${b.tricks.length}</span><button class="vz-chip" data-bpz="${bi}">▦</button><button class="vz-chip" data-brm="${bi}" title="Borrar rutina">×</button></div>
+        <div class="vz-grid">${b.tricks.map((n, i)=> trickCard(n, bc, srcTxt(b, n), `<button data-act="rm" data-i="${i}" title="Quitar de la rutina">×</button>`)).join('')}<button class="vz-addt" data-badd="${bi}">+ añadir trucos</button></div>
+        <textarea class="vz-note" data-bnote="${bi}" placeholder="notas, objetivos, referencias…">${esc(b.note || '')}</textarea></div>`;
+    });
+    h += `<button class="vz-chip" data-bnew="1" style="margin:12px 0;padding:10px 16px !important;font-weight:700">+ nueva rutina</button>`;
+  }
+  body.innerHTML = h + '</div>'; body.scrollTop = y;
 }
 /* --- progresión --- */
 function stepCol(i){ return typeof stepColor === 'function' ? stepColor(i) : '#26a69a'; }
@@ -6416,6 +6445,18 @@ function onClick(e){
   const gg = t.closest('[data-go]'); if(gg){ go({ t: gg.dataset.go }); return; }
   const ct = t.closest('[data-cat]'); if(ct){ go({ t: 'cat', id: ct.dataset.cat }); return; }
   const pe = t.closest('[data-pe]'); if(pe){ go({ t: 'pentry', name: pe.dataset.pe }); return; }
+  const cv = t.closest('[data-cv]'); if(cv){ catView = cv.dataset.cv; render(); return; }
+  const cdata = ()=> CATS[cur().id];
+  if(cur().t === 'cat'){
+    const bi = el=> cdata().get().blocks[+el.dataset[Object.keys(el.dataset)[0]]];
+    let x;
+    if(x = t.closest('[data-bnew]')){ cdata().get().blocks.push({ id: uid(), name: '', color: '', note: '', tricks: [] }); cdata().save(); renderCat(cur().id); render(); const l = body.querySelectorAll('.vz-bn'); if(l.length) l[l.length - 1].focus(); return; }
+    if(x = t.closest('[data-brm]')){ if(!confirm('¿Borrar esta rutina?')) return; const d = cdata().get(); d.blocks.splice(+x.dataset.brm, 1); cdata().save(); renderCat(cur().id); render(); return; }
+    if(x = t.closest('[data-badd]')){ const b = cdata().get().blocks[+x.dataset.badd]; openModal(cur().id, b.id); return; }
+    if(x = t.closest('[data-bcol]')){ const b = cdata().get().blocks[+x.dataset.bcol]; e.stopPropagation(); openColorPicker(x, b.color || '#ffffff', c=>{ b.color = c; cdata().save(); renderCat(cur().id); render(); }); return; }
+    if(x = t.closest('[data-act=rm]')){ const b = cdata().get().blocks[+t.closest('.vz-blk').dataset.bi], i = +x.dataset.i, rn = b.tricks[i]; b.tricks.splice(i, 1); if(b.sources && !b.tricks.includes(rn)) delete b.sources[rn]; cdata().save(); renderCat(cur().id); render(); return; }
+    if(t.closest('.vz-bn,.vz-note')) return;
+  }
   const bp = t.closest('[data-bpz]'); if(bp){ const b = CATS[cur().id].get().blocks[+bp.dataset.bpz]; if(window.pizarra) window.pizarra.attachMany(b.tricks.slice(), b.name || 'bloque', bp); return; }
   const st = t.closest('[data-step]'); if(st){ const e = progData.find(x=> x.trickName === cur().name), si = +st.dataset.step, s = e.steps[si]; if(si > 0 && !e.steps[si - 1].done) return; s.done = !s.done; if(!s.done) e.steps.slice(si + 1).forEach(x=> x.done = false); saveProg(); renderProgList(); const y = body.scrollTop; renderPEntry(e.trickName); body.scrollTop = y; return; }
   if(t.closest('[data-pcopy]')){ try{ navigator.clipboard.writeText(clean(cur().name)).then(()=> toast(cur().name)); }catch(err){ toast(cur().name); } return; }
@@ -6437,6 +6478,7 @@ function onClick(e){
   }
   try{ navigator.clipboard.writeText(name).then(()=> toast(name)); }catch(err){ toast(name); }
 }
+  const _rc = renderCat; renderCat = function(m){ const r = _rc.apply(this, arguments); if(el && el.classList.contains('open') && cur().t === 'cat' && !document.activeElement.matches('.vz-bn,.vz-note')) render(); return r; };
 window.vista = { open, close };
 const btn = document.getElementById('btn-visual'); if(btn) btn.addEventListener('click', open);
 })();
