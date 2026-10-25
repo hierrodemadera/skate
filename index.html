@@ -788,6 +788,11 @@ body.vz-on #pz{z-index:46;}
 
 .vz-sq{width:28px;height:28px;border-radius:8px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);}
 
+/* botones activos del selector de la pizarra: texto siempre visible */
+#pz .pz-row button.on,#pz-attach .pz-row button.on{background:#1c1c1e;color:#fff;}
+@media (prefers-color-scheme: dark){ #pz-attach .pz-row button.on{background:#ececec;color:#1c1c1e;} }
+#pz.dark .pz-row button.on{background:#ececec;color:#1c1c1e;}
+
 </style>
 </head>
 <body>
