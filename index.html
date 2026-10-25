@@ -747,6 +747,11 @@ body.pz-open{overflow:hidden;}
 .vz-addt{border:2px dashed var(--vzb) !important;border-radius:10px;min-height:62px;opacity:.7;font-weight:600;}
 #vz .vz-note{width:100%;margin-top:8px;min-height:44px;resize:vertical;border:1px solid var(--vzb);border-radius:10px;padding:8px !important;background:var(--vzpanel);font-size:15px;outline:none;cursor:text;-webkit-user-select:text;user-select:text;box-sizing:border-box;}
 
+.vz-snack{position:absolute;left:50%;bottom:18px;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:#1c1c1e;color:#fff;border-radius:14px;padding:6px 6px 6px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:.2s;z-index:5;max-width:92vw;}
+.vz-snack.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+#vz .vz-snack button{background:#fff;color:#1c1c1e;border-radius:10px;padding:8px 14px !important;font-weight:700;}
+#vz .vz-chip:disabled{opacity:.35;cursor:default;}
+
 </style>
 </head>
 <body>
@@ -6324,6 +6329,19 @@ function renderEnt(){
 }
 function mix(hex, a){ return typeof hexToMixedWhite === 'function' ? hexToMixedWhite(hex, a) : hex; }
 let catView = 'rut';
+const undoSt = []; let snackT;
+function snap(mode, msg){ undoSt.push({ mode, js: JSON.stringify(CATS[mode].get().blocks) }); if(undoSt.length > 40) undoSt.shift(); snack(msg); }
+function snack(msg){
+  let n = $('.vz-snack', el); if(!n){ n = document.createElement('div'); n.className = 'vz-snack'; el.appendChild(n); }
+  n.innerHTML = `<span>${esc(msg)}</span><button data-undo="1">Deshacer</button>`; n.classList.add('show');
+  clearTimeout(snackT); snackT = setTimeout(()=> n.classList.remove('show'), 7000);
+}
+function undo(){
+  const u = undoSt.pop(); if(!u){ toast('Nada que deshacer'); return; }
+  const d = CATS[u.mode].get(); d.blocks = JSON.parse(u.js); CATS[u.mode].save(); renderCat(u.mode);
+  const n = $('.vz-snack', el); if(n) n.classList.remove('show');
+  if(cur().t === 'cat') render(); toast('Deshecho');
+}
 const isDay = n=> /^d[ií]a\s*\d/i.test(String(n || '').trim());
 function srcTxt(b, n){ const sc = b.sources && b.sources[n]; return sc && (sc.v || sc.n) ? [sc.v || '', sc.n ? 'nº ' + sc.n : ''].filter(Boolean).join(' · ') : ''; }
 function trickCard(n, bc, src, extra){
@@ -6333,7 +6351,7 @@ function trickCard(n, bc, src, extra){
 function renderCat2(k){
   const bl = CATS[k].get().blocks, col = CATC[k], y = body.scrollTop;
   let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div>
-    <div class="vz-chips" style="margin-top:8px"><button class="vz-chip${catView === 'rut' ? ' on' : ''}" data-cv="rut">Rutinas · ${bl.length}</button><button class="vz-chip${catView === 'all' ? ' on' : ''}" data-cv="all">Todos los trucos</button></div>`;
+    <div class="vz-chips" style="margin-top:8px"><button class="vz-chip${catView === 'rut' ? ' on' : ''}" data-cv="rut">Rutinas · ${bl.length}</button><button class="vz-chip${catView === 'all' ? ' on' : ''}" data-cv="all">Todos los trucos</button><button class="vz-chip" data-undo="1" style="margin-left:auto"${undoSt.length ? '' : ' disabled'}>↶ Deshacer</button></div>`;
   if(catView === 'all'){
     const groups = [], allDays = bl.every(b=> isDay(b.name));
     bl.forEach(b=>{
@@ -6445,16 +6463,17 @@ function onClick(e){
   const gg = t.closest('[data-go]'); if(gg){ go({ t: gg.dataset.go }); return; }
   const ct = t.closest('[data-cat]'); if(ct){ go({ t: 'cat', id: ct.dataset.cat }); return; }
   const pe = t.closest('[data-pe]'); if(pe){ go({ t: 'pentry', name: pe.dataset.pe }); return; }
+  if(t.closest('[data-undo]')){ undo(); return; }
   const cv = t.closest('[data-cv]'); if(cv){ catView = cv.dataset.cv; render(); return; }
   const cdata = ()=> CATS[cur().id];
   if(cur().t === 'cat'){
     const bi = el=> cdata().get().blocks[+el.dataset[Object.keys(el.dataset)[0]]];
     let x;
     if(x = t.closest('[data-bnew]')){ cdata().get().blocks.push({ id: uid(), name: '', color: '', note: '', tricks: [] }); cdata().save(); renderCat(cur().id); render(); const l = body.querySelectorAll('.vz-bn'); if(l.length) l[l.length - 1].focus(); return; }
-    if(x = t.closest('[data-brm]')){ if(!confirm('¿Borrar esta rutina?')) return; const d = cdata().get(); d.blocks.splice(+x.dataset.brm, 1); cdata().save(); renderCat(cur().id); render(); return; }
+    if(x = t.closest('[data-brm]')){ if(!confirm('¿Borrar esta rutina?')) return; snap(cur().id, 'Rutina borrada'); const d = cdata().get(); d.blocks.splice(+x.dataset.brm, 1); cdata().save(); renderCat(cur().id); render(); return; }
     if(x = t.closest('[data-badd]')){ const b = cdata().get().blocks[+x.dataset.badd]; openModal(cur().id, b.id); return; }
     if(x = t.closest('[data-bcol]')){ const b = cdata().get().blocks[+x.dataset.bcol]; e.stopPropagation(); openColorPicker(x, b.color || '#ffffff', c=>{ b.color = c; cdata().save(); renderCat(cur().id); render(); }); return; }
-    if(x = t.closest('[data-act=rm]')){ const b = cdata().get().blocks[+t.closest('.vz-blk').dataset.bi], i = +x.dataset.i, rn = b.tricks[i]; b.tricks.splice(i, 1); if(b.sources && !b.tricks.includes(rn)) delete b.sources[rn]; cdata().save(); renderCat(cur().id); render(); return; }
+    if(x = t.closest('[data-act=rm]')){ const b = cdata().get().blocks[+t.closest('.vz-blk').dataset.bi], i = +x.dataset.i, rn = b.tricks[i]; snap(cur().id, 'Truco quitado: ' + clean(rn)); b.tricks.splice(i, 1); if(b.sources && !b.tricks.includes(rn)) delete b.sources[rn]; cdata().save(); renderCat(cur().id); render(); return; }
     if(t.closest('.vz-bn,.vz-note')) return;
   }
   const bp = t.closest('[data-bpz]'); if(bp){ const b = CATS[cur().id].get().blocks[+bp.dataset.bpz]; if(window.pizarra) window.pizarra.attachMany(b.tricks.slice(), b.name || 'bloque', bp); return; }
