@@ -6351,21 +6351,28 @@ function trickCard(n, bc, src, extra){
 function renderCat2(k){
   const bl = CATS[k].get().blocks, col = CATC[k], y = body.scrollTop;
   let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div>
-    <div class="vz-chips" style="margin-top:8px"><button class="vz-chip${catView === 'rut' ? ' on' : ''}" data-cv="rut">Rutinas · ${bl.length}</button><button class="vz-chip${catView === 'all' ? ' on' : ''}" data-cv="all">Todos los trucos</button><button class="vz-chip" data-undo="1" style="margin-left:auto"${undoSt.length ? '' : ' disabled'}>↶ Deshacer</button></div>`;
+    <div class="vz-chips" style="margin-top:8px"><button class="vz-chip${catView === 'rut' ? ' on' : ''}" data-cv="rut">Rutinas · ${bl.length}</button><button class="vz-chip${catView === 'all' ? ' on' : ''}" data-cv="all">Todos los ejercicios</button><button class="vz-chip" data-undo="1" style="margin-left:auto"${undoSt.length ? '' : ' disabled'}>↶ Deshacer</button></div>`;
   if(catView === 'all'){
-    const groups = [], allDays = bl.every(b=> isDay(b.name));
-    bl.forEach(b=>{
-      const g = allDays ? '' : (isDay(b.name) ? 'Básicos' : (b.name || 'Rutina'));
-      let G = groups.find(q=> q.name === g); if(!G){ G = { name: g, map: new Map(), color: b.color || col }; groups.push(G); }
-      b.tricks.forEach(n=>{ const s = srcTxt(b, n); if(!G.map.has(n)) G.map.set(n, s); else if(!G.map.get(n) && s) G.map.set(n, s); });
-    });
-    const tot = groups.reduce((a, g)=> a + g.map.size, 0);
-    h += `<div class="vz-fd">${tot} trucos, sin repetir y sin días</div>`;
-    groups.forEach(g=>{
-      if(g.name) h += `<div class="vz-sf">${esc(g.name)}<small>${g.map.size}</small></div>`;
-      h += `<div class="vz-grid">${[...g.map].map(([n, s])=> trickCard(n, g.color, s)).join('')}</div>`;
-    });
-    if(!tot) h += '<div class="vz-empty">Todavía no hay trucos.</div>';
+    if(k === 'skate'){
+      const tot = DATA.reduce((a, f)=> a + famCount(f), 0);
+      h += `<div class="vz-fd">Todo el esquema: ${tot} trucos</div>`;
+      DATA.forEach(f=>{
+        const fc = famColor(f);
+        h += `<div class="vz-sf"><span style="border-radius:8px;padding:2px 12px;background:${fc};color:${isDark(fc) ? '#fff' : '#1c1c1e'}">${esc(f.name)}</span><small>${famCount(f)}</small></div>`;
+        f.subfamilies.forEach(sf=>{ h += `<div class="vz-sf" style="font-size:15px;margin-top:8px">${esc(sf.name)}<small>${sf.tricks.length}</small></div><div class="vz-grid">${sf.tricks.map(cardHTML).join('')}</div>`; });
+      });
+    } else {
+      const AX = k === 'base' ? BASE_AXES : k === 'speed' ? SPEED_AXES : WARMUP_AXES;
+      const inB = new Set(); bl.forEach(b=> b.tricks.forEach(n=> inB.add(n)));
+      const tot = AX.reduce((a, g)=> a + g.axes.length, 0);
+      h += `<div class="vz-fd">Todo el esquema: ${tot} ejercicios</div>`;
+      AX.forEach(g=>{
+        h += `<div class="vz-sf">${esc(g.label)}<small>${g.axes.length}</small></div><div class="vz-grid">${g.axes.map(a=>{
+          const n = clean(a.trickName), d = checked.has(n), used = inB.has(a.trickName);
+          return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(n)}" style="background:${mix(col, .3)}"><b>${esc(a.name)}</b><span class="an">${esc(a.desc || '')}</span>${used ? '<span class="sb">✓ en alguna rutina</span>' : ''}<span class="ac"><button data-act="add" title="Añadir a una rutina">+</button><button class="ck${d ? ' on' : ''}" data-act="ck">✓</button><button data-act="prog" title="A progresión">P</button><button data-act="pz">▦</button></span></div>`;
+        }).join('')}</div>`;
+      });
+    }
   } else {
     bl.forEach((b, bi)=>{
       const bc = b.color || '#bdbdbd';
