@@ -680,6 +680,65 @@ body.pz-open{overflow:hidden;}
 .pz-trick .n small.sr{text-transform:none;letter-spacing:0;opacity:.5;}
 #pz-browser .empty{opacity:.55;padding:30px 4px;text-align:center;font-size:15px;line-height:1.5;}
 
+/* ===== CARA VISUAL (estética Freeform, solo para navegar) ===== */
+#vz{position:fixed;inset:0;z-index:45;display:none;background:#fff;color:#1c1c1e;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.3;
+  -webkit-user-select:none;user-select:none;--vzdot:rgba(0,0,0,.2);--vzpanel:rgba(255,255,255,.94);--vzb:rgba(0,0,0,.09);--vzh:rgba(0,0,0,.06);--vzsel:#2f8cf5;}
+:root.dark #vz{background:#1b1b1d;color:#ececec;--vzdot:rgba(255,255,255,.16);--vzpanel:rgba(44,44,46,.95);--vzb:rgba(255,255,255,.12);--vzh:rgba(255,255,255,.09);}
+#vz.open{display:flex;flex-direction:column;}
+#vz button,#vz input{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;}
+#vz svg{display:block;}
+.vz-top{display:flex;flex-wrap:wrap;gap:8px;padding:calc(10px + env(safe-area-inset-top,0px)) 10px 6px;align-items:center;flex-shrink:0;z-index:2;}
+.vz-bar{display:flex;align-items:center;gap:2px;background:var(--vzpanel);border-radius:22px;padding:4px;box-shadow:0 2px 14px rgba(0,0,0,.12),0 0 0 .5px var(--vzb);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);min-width:0;}
+.vz-b{height:36px;min-width:36px;padding:0 10px !important;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
+.vz-b:hover{background:var(--vzh);}
+.vz-b:disabled{opacity:.3;cursor:default;}
+.vz-b svg{width:20px;height:20px;}
+.vz-crumb{padding:0 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw;}
+.vz-crumb i{font-style:normal;opacity:.4;margin:0 5px;}
+.vz-crumb a{cursor:pointer;}
+.vz-search{display:flex;align-items:center;gap:4px;flex:1 1 150px;min-width:130px;max-width:360px;}
+.vz-search input{flex:1;min-width:0;height:36px;padding:0 8px !important;font-size:16px;outline:none;cursor:text !important;}
+.vz-sp{flex:1;}
+.vz-tabs{display:flex;gap:6px;padding:0 10px 8px;flex-shrink:0;overflow-x:auto;}
+.vz-tab{padding:7px 14px !important;border-radius:16px;background:var(--vzh) !important;font-weight:600;white-space:nowrap;}
+.vz-tab.on{background:var(--vzsel) !important;color:#fff !important;}
+.vz-body{flex:1;position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background-image:radial-gradient(circle,var(--vzdot) 1.1px,transparent 1.3px);background-size:22px 22px;}
+.vz-body.root{overflow:hidden;}
+.vz-in{animation:vzin .22s ease-out;}
+@keyframes vzin{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:none;}}
+.vz-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.vz-node{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:14px;font-weight:700;line-height:1.15;padding:4px 6px !important;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .12s;}
+.vz-node:active{transform:scale(.95);}
+.vz-node small{font-weight:500;opacity:.8;font-size:.72em;margin-top:2px;}
+.vz-root{position:absolute;border-radius:50%;background:#1c1c1e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+:root.dark .vz-root{background:#ececec;color:#1c1c1e;}
+.vz-root small{font-weight:500;font-size:.5em;opacity:.8;margin-top:2px;}
+.vz-fam{max-width:1500px;margin:0 auto;padding:0 12px 80px;}
+.vz-fh{border-radius:16px;padding:16px 18px;font-size:28px;font-weight:800;margin:6px 0 4px;}
+.vz-fd{opacity:.6;padding:0 4px 8px;}
+.vz-chips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px;}
+.vz-chip{padding:6px 12px !important;border-radius:14px;background:var(--vzh) !important;font-size:14px;}
+.vz-chip.on{background:var(--vzsel) !important;color:#fff !important;}
+.vz-chips .sep{width:1px;background:var(--vzb);margin:0 4px;}
+.vz-sf{margin:14px 0 4px;font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:8px;}
+.vz-sf small{opacity:.5;font-weight:500;font-size:13px;}
+.vz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.vz-card{position:relative;border-radius:10px;padding:10px 12px 38px;min-height:84px;color:#1c1c1e;box-shadow:0 1px 2px rgba(0,0,0,.12);border:1px solid rgba(0,0,0,.06);cursor:pointer;}
+.vz-card:active{filter:brightness(.96);}
+.vz-card b{display:block;font-size:15px;}
+.vz-card .an{display:block;font-size:12px;opacity:.65;margin-top:1px;}
+.vz-card .sb{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;opacity:.55;margin-top:3px;}
+.vz-card .ac{position:absolute;right:6px;bottom:5px;display:flex;gap:4px;}
+.vz-card .ac button{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(255,255,255,.55);}
+.vz-card .ac button:hover{background:rgba(255,255,255,.9);}
+.vz-card .ac .ck.on{background:#34c759;color:#fff;}
+.vz-card.done{box-shadow:0 0 0 2px #34c759;}
+.vz-empty{opacity:.55;padding:40px 10px;text-align:center;}
+.vz-leg{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;opacity:.9;}
+.vz-leg span{padding:3px 9px;border-radius:10px;color:#1c1c1e;}
+@media (max-width:560px){.vz-grid{grid-template-columns:1fr 1fr;}.vz-card .ac button{width:26px;height:26px;}.vz-fh{font-size:22px;}}
+
 </style>
 </head>
 <body>
@@ -688,6 +747,7 @@ body.pz-open{overflow:hidden;}
   <div class="topbar-row">
     <h1>SKATE</h1>
     <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <button id="btn-visual" title="Cara visual (estilo pizarra)" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg);cursor:pointer;padding:3px 10px;border-radius:2px;font-weight:700;">◫ visual</button>
     <button id="btn-export" title="Exportar datos" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">↓ exportar</button>
     <label id="btn-import-label" title="Importar datos" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">↑ importar<input type="file" id="btn-import" accept=".json" style="display:none;"></label>
     <button id="theme-toggle" title="Cambiar tema" style="background:none;border:1px solid var(--border);font-family:inherit;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:2px;">☀ día</button>
@@ -6164,6 +6224,151 @@ function ensureFundamentos(blocks, force){
 
 window.pizarra = { open, close, attach, attachMany, dump, restore, generateRoutines, generateAll };
 })();
+</script>
+<script>
+/* ================= CARA VISUAL ================= */
+(function(){
+"use strict";
+const $ = (s, el)=> (el || document).querySelector(s);
+const esc = s=> String(s == null ? '' : s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clean = n=>{ const i = n.indexOf('('); return i > -1 ? n.slice(0, i).trim() : n; };
+const anno = n=>{ const i = n.indexOf('('); return i > -1 ? n.slice(i) : ''; };
+const COLORS = ['#2979ff','#00b8d4','#2ecc40','#ffb300','#ff5722','#e91e63','#aa00ff','#6d4c41','#546e7a','#00897b','#d81b60','#7cb342'];
+const NFILL = { basico: '#c9efd1', intermedio: '#fff0b3', avanzado: '#ffd2a8', pro: '#ffb4b4' };
+const NLAB = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado', pro: 'Pro' };
+const TLAB = { flat: 'Plano', ledge: 'Ledge', rail: 'Rail', quarter: 'Quarter', bowl: 'Bowl' };
+const isDark = c=>{ const m = /^#?([0-9a-f]{6})$/i.exec(c); if(!m) return false; const n = parseInt(m[1], 16); return (((n >> 16) * 299) + (((n >> 8) & 255) * 587) + ((n & 255) * 114)) / 1000 < 140; };
+const IB = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">';
+const ICO = { back: IB + '<path d="M15 5l-7 7 7 7"/></svg>', fwd: IB + '<path d="M9 5l7 7-7 7"/></svg>', home: IB + '<path d="M4 11l8-7 8 7v9H4z"/></svg>', pz: IB + '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7.5 21l2-3M16.5 21l-2-3"/></svg>' };
+
+let el, body, stack = [{ t: 'root' }], pos = 0, filt = { nivel: null, terreno: null, pend: false }, q = '';
+const famColor = f=> COLORS[DATA.indexOf(f) % COLORS.length];
+const total = ()=> DATA.reduce((a, f)=> a + f.subfamilies.reduce((b, s)=> b + s.tricks.length, 0), 0);
+const famCount = f=> f.subfamilies.reduce((a, s)=> a + s.tricks.length, 0);
+
+function build(){
+  el = document.createElement('div'); el.id = 'vz';
+  el.innerHTML = `<div class="vz-top">
+      <div class="vz-bar"><button class="vz-b" data-v="back" aria-label="Atrás">${ICO.back}</button><button class="vz-b" data-v="fwd" aria-label="Adelante">${ICO.fwd}</button><button class="vz-b" data-v="home" aria-label="Inicio">${ICO.home}</button><div class="vz-crumb"></div></div>
+      <div class="vz-bar vz-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;opacity:.6;flex-shrink:0"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input type="search" placeholder="buscar truco…" autocomplete="off" spellcheck="false"></div>
+      <div class="vz-sp"></div>
+      <div class="vz-bar"><button class="vz-b" data-v="close">✕ Clásica</button></div>
+    </div>
+    <div class="vz-tabs"><button class="vz-tab on" data-tab="esquema">Esquema</button><button class="vz-tab" data-tab="entrenamiento">Entrenamiento</button><button class="vz-tab" data-tab="progresion">Progresión</button></div>
+    <div class="vz-body"></div>`;
+  document.body.appendChild(el);
+  body = $('.vz-body', el);
+  el.addEventListener('click', onClick);
+  $('input', el).addEventListener('input', e=>{
+    q = e.target.value;
+    if(!q.trim() && cur().t === 'search'){ back(); return; }
+    if(q.trim()){ if(cur().t === 'search') render(); else go({ t: 'search' }); }
+  });
+  document.addEventListener('keydown', e=>{ if(el.classList.contains('open') && e.key === 'Escape' && !e.target.matches('input')){ if(pos > 0) back(); else close(); } });
+  window.addEventListener('resize', ()=>{ if(el.classList.contains('open') && cur().t === 'root') render(); });
+}
+const cur = ()=> stack[pos];
+function go(s){ stack = stack.slice(0, pos + 1); stack.push(s); pos++; render(true); }
+function back(){ if(pos > 0){ pos--; render(true); } }
+function fwd(){ if(pos < stack.length - 1){ pos++; render(true); } }
+function open(){ if(!el) build(); el.classList.add('open'); document.body.style.overflow = 'hidden'; render(true); }
+function close(){ if(el) el.classList.remove('open'); document.body.style.overflow = ''; }
+
+function crumb(){
+  const s = cur(), c = $('.vz-crumb', el);
+  const root = `<a data-v="home">SKATE</a>`;
+  c.innerHTML = s.t === 'root' ? 'SKATE' : s.t === 'fam' ? root + '<i>›</i>' + esc(DATA.find(f=> f.id === s.id).name) : root + '<i>›</i>Búsqueda';
+  $('[data-v=back]', el).disabled = pos === 0; $('[data-v=fwd]', el).disabled = pos >= stack.length - 1;
+}
+function render(anim){
+  crumb(); body.className = 'vz-body' + (cur().t === 'root' ? ' root' : '');
+  body.scrollTop = 0;
+  const s = cur();
+  if(s.t === 'root') renderRoot(); else if(s.t === 'fam') renderFam(DATA.find(f=> f.id === s.id)); else renderSearch();
+  if(anim){ body.firstElementChild && body.firstElementChild.classList.add('vz-in'); }
+}
+
+/* --- pantalla inicial: SKATE en el centro y las familias alrededor --- */
+function renderRoot(){
+  const r = body.getBoundingClientRect(), W = r.width, H = r.height, portrait = H > W * 1.1;
+  const nw = Math.max(96, Math.min(190, W * (portrait ? .31 : .15))), nh = portrait ? 56 : 64;
+  const rx = Math.max(60, W / 2 - nw / 2 - 10), ry = Math.max(60, H / 2 - nh / 2 - 14), cx = W / 2, cy = H / 2;
+  const rr = Math.max(42, Math.min(86, Math.min(W, H) * .11));
+  const done = DATA.reduce((a, f)=> a + f.subfamilies.reduce((b, s)=> b + s.tricks.filter(t=> checked.has(clean(t.name))).length, 0), 0);
+  let lines = '', nodes = '';
+  DATA.forEach((f, i)=>{
+    const a = -Math.PI / 2 + i * 2 * Math.PI / DATA.length, x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry, col = famColor(f);
+    lines += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${col}" stroke-opacity=".55" stroke-width="2.5"/>`;
+    const nd = f.subfamilies.reduce((b, s)=> b + s.tricks.filter(t=> checked.has(clean(t.name))).length, 0);
+    nodes += `<button class="vz-node" data-fam="${f.id}" style="left:${x - nw / 2}px;top:${y - nh / 2}px;width:${nw}px;height:${nh}px;background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'};font-size:${portrait ? 14 : 17}px">${esc(f.name)}<small>${famCount(f)} trucos${nd ? ' · ✓' + nd : ''}</small></button>`;
+  });
+  body.innerHTML = `<svg class="vz-lines" viewBox="0 0 ${W} ${H}">${lines}</svg>${nodes}<div class="vz-root" style="left:${cx - rr}px;top:${cy - rr}px;width:${rr * 2}px;height:${rr * 2}px;font-size:${Math.round(rr * .36)}px">SKATE<small>✓ ${done} / ${total()}</small></div>`;
+}
+
+/* --- una familia: subfamilias con sus trucos --- */
+function passes(t){
+  return (!filt.nivel || t.nivel === filt.nivel) && (!filt.terreno || t.terreno.includes(filt.terreno)) && (!filt.pend || !checked.has(clean(t.name)));
+}
+function chipsHTML(){
+  return `<div class="vz-chips">${Object.keys(NLAB).map(k=> `<button class="vz-chip${filt.nivel === k ? ' on' : ''}" data-nivel="${k}" style="${filt.nivel === k ? '' : 'box-shadow:inset 0 -3px 0 ' + NFILL[k]}">${NLAB[k]}</button>`).join('')}<span class="sep"></span>${Object.keys(TLAB).map(k=> `<button class="vz-chip${filt.terreno === k ? ' on' : ''}" data-terreno="${k}">${TLAB[k]}</button>`).join('')}<span class="sep"></span><button class="vz-chip${filt.pend ? ' on' : ''}" data-pend="1">Sin conseguir</button></div>`;
+}
+function cardHTML(t){
+  const n = clean(t.name), a = anno(t.name), d = checked.has(n);
+  return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(n)}" style="background:${NFILL[t.nivel] || '#fff'}"><b>${esc(n)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}<span class="sb">${esc(NLAB[t.nivel] || '')} · ${esc(t.terreno.map(x=> TLAB[x] || x).join(' / '))}</span>
+    <span class="ac"><button class="ck${d ? ' on' : ''}" data-act="ck" title="Marcar conseguido">✓</button><button data-act="add" title="Añadir a un bloque">+</button><button data-act="pz" title="Añadir a una pizarra">▦</button></span></div>`;
+}
+function renderFam(f){
+  const col = famColor(f); let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${esc(f.name)}</div><div class="vz-fd">${esc(f.desc || '')}</div>${chipsHTML()}`;
+  let shown = 0;
+  f.subfamilies.forEach(sf=>{
+    const ts = sf.tricks.filter(passes); if(!ts.length) return; shown += ts.length;
+    h += `<div class="vz-sf">${esc(sf.name)}<small>${ts.length}</small></div><div class="vz-grid">${ts.map(cardHTML).join('')}</div>`;
+  });
+  if(!shown) h += `<div class="vz-empty">Ningún truco con estos filtros.</div>`;
+  body.innerHTML = h + '</div>';
+}
+function renderSearch(){
+  const qq = q.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let h = `<div class="vz-fam" style="padding-top:8px">${chipsHTML()}`, shown = 0;
+  DATA.forEach(f=>{
+    const ts = []; f.subfamilies.forEach(sf=> sf.tricks.forEach(t=>{ if(passes(t) && (!qq || t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(qq))) ts.push(t); }));
+    if(!ts.length) return; shown += ts.length; const col = famColor(f);
+    h += `<div class="vz-sf"><a data-fam="${f.id}" style="cursor:pointer;border-radius:8px;padding:2px 10px;background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${esc(f.name)}</a><small>${ts.length}</small></div><div class="vz-grid">${ts.map(cardHTML).join('')}</div>`;
+  });
+  if(!shown) h += `<div class="vz-empty">Nada con «${esc(q)}».</div>`;
+  body.innerHTML = h + '</div>';
+}
+
+function toggleCheck(name){
+  if(checked.has(name)){ checked.delete(name); delete checksTs[name]; } else { checked.add(name); checksTs[name] = new Date().toISOString(); }
+  SK.saveChecks(checked); saveChecksTs(checksTs);
+  const c = document.getElementById('conseguidos-count'); if(c) c.textContent = checked.size;
+  document.querySelectorAll(`.trick[data-fullname="${CSS.escape(name)}"] .tchk`).forEach(x=> x.classList.toggle('done', checked.has(name)));
+  return checked.has(name);
+}
+function onClick(e){
+  const t = e.target;
+  const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); return; }
+  const tab = t.closest('[data-tab]'); if(tab){ if(tab.dataset.tab !== 'esquema'){ close(); const b = document.querySelector(`.app-tab[data-tab="${tab.dataset.tab}"]`); if(b) b.click(); toast('Esta parte todavía está solo en la versión clásica'); } return; }
+  const fam = t.closest('[data-fam]'); if(fam){ go({ t: 'fam', id: fam.dataset.fam }); return; }
+  const nv = t.closest('[data-nivel]'); if(nv){ filt.nivel = filt.nivel === nv.dataset.nivel ? null : nv.dataset.nivel; render(); return; }
+  const tr = t.closest('[data-terreno]'); if(tr){ filt.terreno = filt.terreno === tr.dataset.terreno ? null : tr.dataset.terreno; render(); return; }
+  if(t.closest('[data-pend]')){ filt.pend = !filt.pend; render(); return; }
+  const card = t.closest('.vz-card'); if(!card) return;
+  const name = card.dataset.name, act = t.closest('[data-act]');
+  if(act){
+    e.stopPropagation();
+    if(act.dataset.act === 'ck'){ const on = toggleCheck(name); card.classList.toggle('done', on); act.classList.toggle('on', on); toast(on ? 'Marcado conseguido' : 'Desmarcado'); }
+    if(act.dataset.act === 'add'){ if(typeof closeCtx === 'function') closeCtx(); if(typeof closeDD === 'function') closeDD(); openDD(name, act); }
+    if(act.dataset.act === 'pz' && window.pizarra) window.pizarra.attach(name, act);
+    return;
+  }
+  try{ navigator.clipboard.writeText(name).then(()=> toast(name)); }catch(err){ toast(name); }
+}
+window.vista = { open, close };
+const btn = document.getElementById('btn-visual'); if(btn) btn.addEventListener('click', open);
+})();
+
 </script>
 </body>
 </html>
