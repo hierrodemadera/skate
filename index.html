@@ -6265,7 +6265,7 @@ function build(){
     if(q.trim()){ if(cur().t === 'search') render(); else go({ t: 'search' }); }
   });
   document.addEventListener('keydown', e=>{ if(el.classList.contains('open') && e.key === 'Escape' && !e.target.matches('input')){ if(pos > 0) back(); else close(); } });
-  window.addEventListener('resize', ()=>{ if(el.classList.contains('open') && cur().t === 'root') render(); });
+  window.addEventListener('resize', ()=>{ if(el.classList.contains('open') && ['root', 'ent', 'prog'].includes(cur().t)) render(); });
 }
 const cur = ()=> stack[pos];
 function go(s){ stack = stack.slice(0, pos + 1); stack.push(s); pos++; render(true); }
@@ -6277,18 +6277,81 @@ function close(){ if(el) el.classList.remove('open'); document.body.style.overfl
 function crumb(){
   const s = cur(), c = $('.vz-crumb', el);
   const root = `<a data-v="home">SKATE</a>`;
-  c.innerHTML = s.t === 'root' ? 'SKATE' : s.t === 'fam' ? root + '<i>›</i>' + esc(DATA.find(f=> f.id === s.id).name) : root + '<i>›</i>Búsqueda';
+  const ta = a=> `<a data-go="${a}">${a === 'ent' ? 'ENTRENAMIENTO' : 'PROGRESIÓN'}</a>`;
+  c.innerHTML = s.t === 'root' ? 'SKATE' : s.t === 'ent' ? 'ENTRENAMIENTO' : s.t === 'prog' ? 'PROGRESIÓN'
+    : s.t === 'fam' ? root + '<i>›</i>' + esc(DATA.find(f=> f.id === s.id).name)
+    : s.t === 'cat' ? ta('ent') + '<i>›</i>' + esc(CATN[s.id])
+    : s.t === 'pentry' ? ta('prog') + '<i>›</i>' + esc(s.name)
+    : root + '<i>›</i>Búsqueda';
+  const tb = { root: 'esquema', fam: 'esquema', search: 'esquema', ent: 'entrenamiento', cat: 'entrenamiento', prog: 'progresion', pentry: 'progresion' }[s.t];
+  el.querySelectorAll('.vz-tab').forEach(b=> b.classList.toggle('on', b.dataset.tab === tb));
   $('[data-v=back]', el).disabled = pos === 0; $('[data-v=fwd]', el).disabled = pos >= stack.length - 1;
 }
 function render(anim){
-  crumb(); body.className = 'vz-body' + (cur().t === 'root' ? ' root' : '');
-  body.scrollTop = 0;
+  crumb(); body.scrollTop = 0;
   const s = cur();
-  if(s.t === 'root') renderRoot(); else if(s.t === 'fam') renderFam(DATA.find(f=> f.id === s.id)); else renderSearch();
+  body.className = 'vz-body' + (['root', 'ent', 'prog'].includes(s.t) && !(s.t === 'prog' && progData.length > 14) ? ' root' : '');
+  if(s.t === 'root') renderRoot(); else if(s.t === 'fam') renderFam(DATA.find(f=> f.id === s.id)); else if(s.t === 'ent') renderEnt(); else if(s.t === 'cat') renderCat2(s.id); else if(s.t === 'prog') renderProg(); else if(s.t === 'pentry') renderPEntry(s.name); else renderSearch();
   if(anim){ body.firstElementChild && body.firstElementChild.classList.add('vz-in'); }
 }
 
 /* --- pantalla inicial: SKATE en el centro y las familias alrededor --- */
+function radial(center, sub, items){
+  const r = body.getBoundingClientRect(), W = r.width, H = r.height, portrait = H > W * 1.1, n = items.length;
+  const nw = Math.max(96, Math.min(190, W * (portrait ? .31 : .15))), nh = portrait ? 56 : 64;
+  const rx = Math.max(60, W / 2 - nw / 2 - 10), ry = Math.max(60, H / 2 - nh / 2 - 14), cx = W / 2, cy = H / 2;
+  const rr = Math.max(42, Math.min(86, Math.min(W, H) * .11));
+  let lines = '', nodes = '';
+  items.forEach((it, i)=>{
+    const a = -Math.PI / 2 + i * 2 * Math.PI / n, x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry;
+    lines += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${it.color}" stroke-opacity=".55" stroke-width="2.5"/>`;
+    nodes += `<button class="vz-node" ${it.attr} style="left:${x - nw / 2}px;top:${y - nh / 2}px;width:${nw}px;height:${nh}px;background:${it.color};color:${isDark(it.color) ? '#fff' : '#1c1c1e'};font-size:${portrait ? 14 : 17}px">${esc(it.label)}<small>${esc(it.sub)}</small></button>`;
+  });
+  body.innerHTML = `<svg class="vz-lines" viewBox="0 0 ${W} ${H}">${lines}</svg>${nodes}<div class="vz-root" style="left:${cx - rr}px;top:${cy - rr}px;width:${rr * 2}px;height:${rr * 2}px;font-size:${Math.round(rr * (center.length > 8 ? .2 : .36))}px">${esc(center)}<small>${esc(sub)}</small></div>`;
+}
+const CATN = { warmup: 'Calentamiento', base: 'Base', skate: 'Técnica', speed: 'Velocidad' };
+const CATC = { warmup: '#ffb300', base: '#2979ff', skate: '#aa00ff', speed: '#ff5722' };
+function renderEnt(){
+  const items = ['warmup', 'base', 'skate', 'speed'].map(k=>{ const bl = CATS[k].get().blocks; return { attr: `data-cat="${k}"`, label: CATN[k], sub: bl.length + ' bloques · ' + bl.reduce((a, b)=> a + b.tricks.length, 0) + ' trucos', color: CATC[k] }; });
+  radial('ENTRENO', '4 categorías', items);
+}
+function mix(hex, a){ return typeof hexToMixedWhite === 'function' ? hexToMixedWhite(hex, a) : hex; }
+function renderCat2(k){
+  const bl = CATS[k].get().blocks, col = CATC[k];
+  let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div><div class="vz-fd">${bl.length} bloques</div>`;
+  bl.forEach((b, bi)=>{
+    const bc = b.color || '#bdbdbd';
+    h += `<div class="vz-sf"><span style="width:14px;height:14px;border-radius:4px;background:${bc};display:inline-block"></span>${esc(b.name || 'bloque')}<small>${b.tricks.length}</small><button class="vz-chip" data-bpz="${bi}" style="margin-left:auto">▦ bloque</button></div>`;
+    if(b.note && b.note.trim()) h += `<div class="vz-fd" style="white-space:pre-wrap;padding-top:0">${esc(b.note)}</div>`;
+    h += `<div class="vz-grid">${b.tricks.map(n=>{
+      const c = clean(n), a = anno(n), sc = b.sources && b.sources[n], src = sc ? [sc.v || '', sc.n ? 'nº ' + sc.n : ''].filter(Boolean).join(' · ') : '', d = checked.has(c);
+      return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(c)}" style="background:${mix(bc, .3)}"><b>${esc(c)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}${src ? `<span class="sb">${esc(src)}</span>` : ''}<span class="ac"><button class="ck${d ? ' on' : ''}" data-act="ck">✓</button><button data-act="prog" title="A progresión">P</button><button data-act="pz">▦</button></span></div>`;
+    }).join('')}</div>`;
+  });
+  if(!bl.length) h += '<div class="vz-empty">No hay bloques. Se crean en la versión clásica.</div>';
+  body.innerHTML = h + '</div>';
+}
+/* --- progresión --- */
+function stepCol(i){ return typeof stepColor === 'function' ? stepColor(i) : '#26a69a'; }
+function renderProg(){
+  if(!progData.length){ body.innerHTML = `<div class="vz-empty" style="padding-top:25vh">Aún no hay trucos en progresión.<br>Busca un truco arriba, o abre una familia, y toca <b>P</b> en su tarjeta.</div>`; return; }
+  const items = progData.map(e=>{ const d = e.steps.filter(s=> s.done).length, p = e.steps.length ? Math.round(d / e.steps.length * 100) : 0; return { attr: `data-pe="${esc(e.trickName)}"`, label: clean(e.trickName), sub: p + '% · ' + d + '/' + e.steps.length, color: mixc(p) }; });
+  if(items.length > 14){
+    body.innerHTML = `<div class="vz-fam"><div class="vz-fh" style="background:#26a69a;color:#fff">PROGRESIÓN</div><div class="vz-grid" style="margin-top:10px">${items.map(it=> `<button class="vz-card" ${it.attr} style="background:${it.color};text-align:left"><b>${esc(it.label)}</b><span class="sb">${esc(it.sub)}</span></button>`).join('')}</div></div>`;
+  } else radial('PROGRESIÓN', progData.length + ' trucos', items);
+}
+function mixc(p){ return p >= 100 ? '#34c759' : p > 0 ? '#ffd966' : '#d9d9de'; }
+function renderPEntry(name){
+  const e = progData.find(x=> x.trickName === name);
+  if(!e){ body.innerHTML = '<div class="vz-empty">Ya no está en progresión.</div>'; return; }
+  const d = e.steps.filter(s=> s.done).length, p = e.steps.length ? Math.round(d / e.steps.length * 100) : 0;
+  let h = `<div class="vz-fam"><div class="vz-fh" style="background:${mixc(p)};color:#1c1c1e">${esc(name)}<div style="font-size:15px;font-weight:600;margin-top:4px">${p}% · ${d}/${e.steps.length}</div></div><div class="vz-chips"><button class="vz-chip" data-pcopy="1">Copiar nombre</button><button class="vz-chip" data-pedit="1">Editar pasos</button><button class="vz-chip" data-prm="1">Quitar de progresión</button></div><div class="vz-grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">`;
+  e.steps.forEach((s, si)=>{
+    const info = PROG_STEPS[s.idx], lock = si > 0 && !e.steps[si - 1].done;
+    h += `<div class="vz-card" data-step="${si}" style="padding-bottom:10px;background:${s.done ? stepCol(s.idx) : '#fff'};opacity:${lock ? .45 : 1}"><b>${s.done ? '✓ ' : ''}${esc(info ? info.name : 'Paso ' + (si + 1))}</b><span class="an">${esc(info ? info.desc : '')}</span></div>`;
+  });
+  body.innerHTML = h + '</div></div>';
+}
 function renderRoot(){
   const r = body.getBoundingClientRect(), W = r.width, H = r.height, portrait = H > W * 1.1;
   const nw = Math.max(96, Math.min(190, W * (portrait ? .31 : .15))), nh = portrait ? 56 : 64;
@@ -6315,7 +6378,7 @@ function chipsHTML(){
 function cardHTML(t){
   const n = clean(t.name), a = anno(t.name), d = checked.has(n);
   return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(n)}" style="background:${NFILL[t.nivel] || '#fff'}"><b>${esc(n)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}<span class="sb">${esc(NLAB[t.nivel] || '')} · ${esc(t.terreno.map(x=> TLAB[x] || x).join(' / '))}</span>
-    <span class="ac"><button class="ck${d ? ' on' : ''}" data-act="ck" title="Marcar conseguido">✓</button><button data-act="add" title="Añadir a un bloque">+</button><button data-act="pz" title="Añadir a una pizarra">▦</button></span></div>`;
+    <span class="ac"><button class="ck${d ? ' on' : ''}" data-act="ck" title="Marcar conseguido">✓</button><button data-act="add" title="Añadir a un bloque">+</button><button data-act="prog" title="A progresión">P</button><button data-act="pz" title="Añadir a una pizarra">▦</button></span></div>`;
 }
 function renderFam(f){
   const col = famColor(f); let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${esc(f.name)}</div><div class="vz-fd">${esc(f.desc || '')}</div>${chipsHTML()}`;
@@ -6349,7 +6412,15 @@ function toggleCheck(name){
 function onClick(e){
   const t = e.target;
   const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); return; }
-  const tab = t.closest('[data-tab]'); if(tab){ if(tab.dataset.tab !== 'esquema'){ close(); const b = document.querySelector(`.app-tab[data-tab="${tab.dataset.tab}"]`); if(b) b.click(); toast('Esta parte todavía está solo en la versión clásica'); } return; }
+  const tab = t.closest('[data-tab]'); if(tab){ const m = { esquema: 'root', entrenamiento: 'ent', progresion: 'prog' }[tab.dataset.tab]; if(cur().t !== m) go({ t: m }); return; }
+  const gg = t.closest('[data-go]'); if(gg){ go({ t: gg.dataset.go }); return; }
+  const ct = t.closest('[data-cat]'); if(ct){ go({ t: 'cat', id: ct.dataset.cat }); return; }
+  const pe = t.closest('[data-pe]'); if(pe){ go({ t: 'pentry', name: pe.dataset.pe }); return; }
+  const bp = t.closest('[data-bpz]'); if(bp){ const b = CATS[cur().id].get().blocks[+bp.dataset.bpz]; if(window.pizarra) window.pizarra.attachMany(b.tricks.slice(), b.name || 'bloque', bp); return; }
+  const st = t.closest('[data-step]'); if(st){ const e = progData.find(x=> x.trickName === cur().name), si = +st.dataset.step, s = e.steps[si]; if(si > 0 && !e.steps[si - 1].done) return; s.done = !s.done; if(!s.done) e.steps.slice(si + 1).forEach(x=> x.done = false); saveProg(); renderProgList(); const y = body.scrollTop; renderPEntry(e.trickName); body.scrollTop = y; return; }
+  if(t.closest('[data-pcopy]')){ try{ navigator.clipboard.writeText(clean(cur().name)).then(()=> toast(cur().name)); }catch(err){ toast(cur().name); } return; }
+  if(t.closest('[data-pedit]')){ openStepSelectorForExisting(cur().name, ()=>{ renderProgList(); renderPEntry(cur().name); }); return; }
+  if(t.closest('[data-prm]')){ if(!confirm('¿Quitar de progresión?')) return; progData = progData.filter(x=> x.trickName !== cur().name); saveProg(); renderProgScheme(); renderProgList(); back(); return; }
   const fam = t.closest('[data-fam]'); if(fam){ go({ t: 'fam', id: fam.dataset.fam }); return; }
   const nv = t.closest('[data-nivel]'); if(nv){ filt.nivel = filt.nivel === nv.dataset.nivel ? null : nv.dataset.nivel; render(); return; }
   const tr = t.closest('[data-terreno]'); if(tr){ filt.terreno = filt.terreno === tr.dataset.terreno ? null : tr.dataset.terreno; render(); return; }
@@ -6360,6 +6431,7 @@ function onClick(e){
     e.stopPropagation();
     if(act.dataset.act === 'ck'){ const on = toggleCheck(name); card.classList.toggle('done', on); act.classList.toggle('on', on); toast(on ? 'Marcado conseguido' : 'Desmarcado'); }
     if(act.dataset.act === 'add'){ if(typeof closeCtx === 'function') closeCtx(); if(typeof closeDD === 'function') closeDD(); openDD(name, act); }
+    if(act.dataset.act === 'prog'){ if(progData.find(x=> x.trickName === name)){ go({ t: 'pentry', name }); } else openStepSelector(name, ()=>{ renderProgScheme(); renderProgList(); go({ t: 'pentry', name }); }); }
     if(act.dataset.act === 'pz' && window.pizarra) window.pizarra.attach(name, act);
     return;
   }
