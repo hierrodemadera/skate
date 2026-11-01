@@ -6633,11 +6633,20 @@ function setState(s, msg){
 }
 
 /* ---------- API de GitHub ---------- */
-function ghApi(path, opt){
+let trace = [];
+function note(t){ trace.push(new Date().toLocaleTimeString('es-ES') + ' ' + t); if(trace.length > 6) trace.shift(); const d = $('#skg-trace'); if(d) d.textContent = trace.join('\n'); }
+async function ghApi(path, opt){
   opt = opt || {};
-  return fetch(`${apiBase()}/repos/${gh.owner}/${gh.repo}${path}`, { method: opt.method || 'GET', cache: 'no-store',
-    headers: Object.assign({ Authorization: 'Bearer ' + gh.token, Accept: opt.raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' }, opt.body ? { 'Content-Type': 'application/json' } : {}),
-    body: opt.body ? S(opt.body) : undefined });
+  const ctl = new AbortController(), to = setTimeout(()=> ctl.abort(), 25000), m = opt.method || 'GET';
+  try{
+    const r = await fetch(`${apiBase()}/repos/${gh.owner}/${gh.repo}${path}`, { method: m, cache: 'no-store', signal: ctl.signal,
+      headers: Object.assign({ Authorization: 'Bearer ' + gh.token, Accept: opt.raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' }, opt.body ? { 'Content-Type': 'application/json' } : {}),
+      body: opt.body ? S(opt.body) : undefined });
+    note(m + ' ' + r.status); return r;
+  }catch(e){
+    note(m + ' ' + (ctl.signal.aborted ? 'sin respuesta (25 s)' : 'fallo de red: ' + (e && e.message || e)));
+    throw new Error(ctl.signal.aborted ? 'GitHub no responde' : 'no se pudo hablar con GitHub (' + (e && e.message || e) + ')');
+  }finally{ clearTimeout(to); }
 }
 const b64enc = str=> btoa(unescape(encodeURIComponent(str)));
 const b64dec = b=> decodeURIComponent(escape(atob(b.replace(/\s/g, ''))));
@@ -6831,7 +6840,7 @@ function openGh(msg){
   const g = Object.assign(guessFromUrl(), gh || {});
   panel.innerHTML = `<div class="skg" role="dialog" aria-label="Guardar en GitHub">
     <h3>☁ Guardar en GitHub</h3>
-    <div class="skg-st">${ghOk() ? 'Conectado. <span id="skg-state"></span>' : 'Pega tu llave de GitHub y pulsa Conectar. El resto ya viene puesto si abres la app desde tu web.'}</div>
+    <div class="skg-st">${ghOk() ? 'Conectado. <span id="skg-state"></span><pre id="skg-trace" style="white-space:pre-wrap;font-size:11px;margin:6px 0 0;opacity:.8"></pre>' : 'Pega tu llave de GitHub y pulsa Conectar. El resto ya viene puesto si abres la app desde tu web.'}</div>
     <label for="skg-token">Llave (token)</label><input id="skg-token" type="password" value="${esc(g.token || '')}" placeholder="github_pat_…" autocomplete="off" spellcheck="false" autocapitalize="off">
     <label for="skg-owner">Usuario de GitHub</label><input id="skg-owner" value="${esc(g.owner || '')}" placeholder="tu-usuario" autocomplete="off" spellcheck="false" autocapitalize="off">
     <label for="skg-repo">Repositorio</label><input id="skg-repo" value="${esc(g.repo || '')}" placeholder="nombre-del-repositorio" autocomplete="off" spellcheck="false" autocapitalize="off">
@@ -6844,7 +6853,7 @@ function openGh(msg){
       <li>«Permissions» → Repository permissions → <b>Contents: Read and write</b>.</li>
       <li>Generar, copiar la llave (empieza por github_pat_) y pegarla aquí. Hay que hacerlo en cada aparato.</li></ol>
       <p>Las pizarras no se sincronizan: pásalas con ↓ exportar / ↑ importar.</p></details></div>`;
-  panel.classList.add('open'); setState(state);
+  panel.classList.add('open'); setState(state); note('(panel abierto)');
 }
 function closeGh(){ panel.classList.remove('open'); panel.innerHTML = ''; }
 panel.addEventListener('click', async e=>{
@@ -6852,7 +6861,7 @@ panel.addEventListener('click', async e=>{
   const t = e.target.closest('[data-g]'); if(!t) return;
   const a = t.dataset.g;
   if(a === 'close') return closeGh();
-  if(a === 'now'){ closeGh(); sync(); return; }
+  if(a === 'now'){ note('sincronizando…'); sync(); return; }
   if(a === 'off'){ gh = null; try{ localStorage.removeItem(CFG); localStorage.removeItem(BASEK); }catch(err){} clearTimeout(timer); setState('none'); closeGh(); toast('Este aparato ya no guarda en GitHub'); return; }
   if(a === 'connect'){
     const v = id=> $(id).value.trim();
