@@ -1,0 +1,330 @@
+{
+ "format": "skate-datos",
+ "version": 1,
+ "updated": "2026-11-01T20:40:19.472Z",
+ "checks": {},
+ "tecnica": [
+  {
+   "id": "mvtaklc34vpo",
+   "name": "25 tricks · Andy Anderson",
+   "color": "#00acc1",
+   "note": "",
+   "tricks": [
+    "The Stupid",
+    "Pivot 360",
+    "Blindside Pivot",
+    "Jay Walk",
+    "Casper",
+    "Railstand",
+    "Stepping Stone",
+    "Tail Stop Sal Flip",
+    "Kickback",
+    "OG Kickflip",
+    "Bean Plant",
+    "Varial Fingerflip",
+    "Tail Stop Bunny Hop",
+    "Tail Stop Fingerflip",
+    "Tail Stop Varial Flip",
+    "Around the World",
+    "Ninja Plant"
+   ],
+   "sources": {
+    "The Stupid": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 5
+    },
+    "Pivot 360": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 7
+    },
+    "Blindside Pivot": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 8
+    },
+    "Jay Walk": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 9
+    },
+    "Casper": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 11
+    },
+    "Railstand": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 12
+    },
+    "Stepping Stone": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 14
+    },
+    "Tail Stop Sal Flip": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 16
+    },
+    "Kickback": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 17
+    },
+    "OG Kickflip": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 18
+    },
+    "Bean Plant": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 19
+    },
+    "Varial Fingerflip": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 20
+    },
+    "Tail Stop Bunny Hop": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 21
+    },
+    "Tail Stop Fingerflip": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 22
+    },
+    "Tail Stop Varial Flip": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 23
+    },
+    "Around the World": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 24
+    },
+    "Ninja Plant": {
+     "v": "25 tricks you need to know with Andy Anderson",
+     "n": 25
+    }
+   }
+  },
+  {
+   "id": "mvtaklc3wwfp",
+   "name": "Frenado",
+   "color": "#ff1744",
+   "note": "",
+   "tricks": [
+    "Pop Out Run Out"
+   ],
+   "sources": {
+    "Pop Out Run Out": {
+     "v": "How to stop on a skateboard",
+     "n": 5
+    }
+   }
+  },
+  {
+   "id": "mvtaklc41fkp",
+   "name": "Gaps",
+   "color": "#ff9100",
+   "note": "Empezar por rampas bajas y tapas cortas, controlar la velocidad de entrada y caer siempre en la rampa, no en el plano. Fly out: tapa plana sólida. Euro gap: hueco real entre dos obstáculos, más peligroso.",
+   "tricks": [
+    "Fly Out (saltar la tapa plana de una pirámide y caer por el otro lado)",
+    "Euro Gap (saltar el hueco entre dos rampas o ledges)"
+   ],
+   "sources": {}
+  }
+ ],
+ "base": [
+  {
+   "id": "mvtaklc3ngco",
+   "name": "Día 1",
+   "color": "#2ecc40",
+   "note": "",
+   "tricks": [
+    "Ollie",
+    "Manual",
+    "Nollie",
+    "Backside Pop Shove-it"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvtaklc36303",
+   "name": "Día 2",
+   "color": "#ffd400",
+   "note": "",
+   "tricks": [
+    "Ollie",
+    "Manual",
+    "Nose Manual",
+    "Kickflip"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvtaklc37ez5",
+   "name": "Día 3",
+   "color": "#ff5722",
+   "note": "",
+   "tricks": [
+    "Ollie",
+    "Manual",
+    "Hang Ten Manual (ambos pies en nose)",
+    "Body Varial + Revert",
+    "Boneless"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvtaklc4mpsq",
+   "name": "Power slides",
+   "color": "#00bcd4",
+   "note": "",
+   "tricks": [
+    "Frontside Powerslide",
+    "Fakie Powerslide",
+    "Backside Powerslide"
+   ],
+   "sources": {
+    "Frontside Powerslide": {
+     "v": "How to stop on a skateboard",
+     "n": 7
+    },
+    "Fakie Powerslide": {
+     "v": "How to stop on a skateboard",
+     "n": 8
+    },
+    "Backside Powerslide": {
+     "v": "How to stop on a skateboard",
+     "n": 9
+    }
+   }
+  },
+  {
+   "id": "mvtaklc4blqr",
+   "name": "Hippie Jump",
+   "color": "#e91e63",
+   "note": "Ordenados de más fácil a más difícil. El hippie jump sencillo sigue también en Calentamiento.",
+   "tricks": [
+    "Hippie Jump, piernas estiradas (tabla rueda debajo, aterrizar encima)",
+    "Hippie Jump, rodillas al pecho (recoger las piernas, más altura)",
+    "Hippie Jump, aterrizar en puntos distintos (a propósito, también mal)",
+    "Hippie Jump 180 (rotación de cuerpo, tabla rueda debajo)",
+    "Hippie Jump + Manual / Nose Manual (aterrizar y salir en manual)",
+    "Hippie Jump sobre bordillo bajo (bajar y subir)",
+    "Hippie Jump con pop de cola corto (puente al ollie)"
+   ],
+   "sources": {}
+  }
+ ],
+ "calentamiento": [
+  {
+   "id": "mvtaklc32vr9",
+   "name": "Día 1",
+   "color": "#2ecc40",
+   "note": "",
+   "tricks": [
+    "Regular / Goofy",
+    "Tic-Tac (kickturns alternados FS/BS para ganar impulso)",
+    "Cambio de pie rodando",
+    "Body Varial (cuerpo 180°, tabla estática)",
+    "Shove-it (sin pop)"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvtaklc3qdix",
+   "name": "Día 2",
+   "color": "#ffd400",
+   "note": "",
+   "tricks": [
+    "Regular / Goofy",
+    "Monster Walk (pivots FS+FS o BS+BS consecutivos)",
+    "End-Over (serie de pivots 180 alternados sobre el nose)",
+    "Hippy Jump (saltar sobre obstáculo, tabla rueda debajo)"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvtaklc3dvdb",
+   "name": "Día 3",
+   "color": "#ff5722",
+   "note": "",
+   "tricks": [
+    "Regular / Goofy",
+    "Frozono",
+    "Walk The Dog (vaivén de End-Over con movimiento)",
+    "Revert (180° pivot con momentum tras aterrizar, sin pop)",
+    "Fakie Shove-it (sin pop)"
+   ],
+   "sources": {}
+  }
+ ],
+ "velocidad": [
+  {
+   "id": "mvyah6lnsyvr",
+   "name": "1 · Estabilidad",
+   "color": "#2979ff",
+   "note": "Mirar hacia donde quieres ir, no al suelo. Postura aerodinámica (tuck) para aguantar rodando. Casco y muñequeras. Revisar la carretera de día y llevar luz.",
+   "tricks": [
+    "Estabilidad a velocidad (relajado, rodillas flexionadas, peso adelantado)",
+    "Caída a velocidad (seguir corriendo, sin apoyar la mano)"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvyah6lnee5b",
+   "name": "2 · Frenado",
+   "color": "#ff1744",
+   "note": "Empezar a velocidad baja y subir poco a poco, de una sesión a la siguiente. El freno de talón solo rueda el eje de atrás: mejor a velocidad baja o media; a más velocidad, foot braking.",
+   "tricks": [
+    "Foot braking (arrastrar la suela del pie de atrás)",
+    "Freno de talón (nose arriba, talón sobre la cola rozando el suelo)",
+    "Power slide (stand-up slide 180°, frenar y girar)"
+   ],
+   "sources": {}
+  },
+  {
+   "id": "mvyah6lncd94",
+   "name": "3 · Control",
+   "color": "#aa00ff",
+   "note": "Subir la velocidad gradualmente. En el ollie, mirar dónde se aterriza: a velocidad se recorre mucha más distancia en el aire.",
+   "tricks": [
+    "Carving (curvas amplias para cambiar de dirección sin frenar)",
+    "Manual a velocidad",
+    "Ollie a velocidad"
+   ],
+   "sources": {}
+  }
+ ],
+ "progresion": [],
+ "calendario": [
+  {
+   "key": "lun",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "mar",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "mie",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "jue",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "vie",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "sab",
+   "items": [],
+   "note": ""
+  },
+  {
+   "key": "dom",
+   "items": [],
+   "note": ""
+  }
+ ]
+}
