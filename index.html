@@ -6642,7 +6642,9 @@ async function ghApi(path, opt){
     const r = await fetch(`${apiBase()}/repos/${gh.owner}/${gh.repo}${path}`, { method: m, cache: 'no-store', signal: ctl.signal,
       headers: Object.assign({ Authorization: 'Bearer ' + gh.token, Accept: opt.raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' }, opt.body ? { 'Content-Type': 'application/json' } : {}),
       body: opt.body ? S(opt.body) : undefined });
-    note(m + ' ' + r.status); return r;
+    note(m + ' ' + r.status);
+    if(!r.ok && r.status !== 404 || (r.status === 404 && m !== 'GET')){ try{ const j = await r.clone().json(); if(j && j.message) note('GitHub dice: ' + j.message); }catch(e){} }
+    return r;
   }catch(e){
     note(m + ' ' + (ctl.signal.aborted ? 'sin respuesta (25 s)' : 'fallo de red: ' + (e && e.message || e)));
     throw new Error(ctl.signal.aborted ? 'GitHub no responde' : 'no se pudo hablar con GitHub (' + (e && e.message || e) + ')');
@@ -6807,6 +6809,7 @@ async function sync(){
         const p = await ghApi('/contents/' + path, { method: 'PUT', body });
         if(p.status === 409 || p.status === 422) continue;
         if(p.status === 401) throw new Error('la llave no es válida o ha caducado');
+        if(p.status === 403 || p.status === 404) throw new Error('GitHub no deja escribir (' + p.status + '). Mira el motivo en el registro de abajo');
         if(!p.ok) throw new Error('escritura ' + p.status);
       }
       lastSync = Date.now();
