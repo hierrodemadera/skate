@@ -799,6 +799,41 @@ body.vz-on #pz{z-index:46;}
 #vz-toggle.on::before{display:none;}
 #vz-toggle:hover{background:transparent !important;}
 
+
+/* ===== GUARDADO EN GITHUB: nube de estado y panel ===== */
+#sk-cloud{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:52px;z-index:60;width:32px;height:32px;padding:0;margin:0;border:0;background:transparent;color:var(--muted,#888);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+#sk-cloud svg{width:23px;height:23px;display:block;}
+#sk-cloud .slash{display:none;}
+#sk-cloud.s-none{opacity:.75;}
+#sk-cloud.s-none .slash{display:inline;}
+#sk-cloud.s-ok{color:var(--muted,#888);}
+#sk-cloud.s-pending{color:var(--muted,#888);opacity:.6;}
+#sk-cloud.s-sync{color:#2f8cf5;animation:skpulse 1s ease-in-out infinite;}
+#sk-cloud.s-off{color:#d9a400;}
+#sk-cloud.s-err{color:#d32f2f;}
+@keyframes skpulse{50%{opacity:.35;}}
+@media (prefers-reduced-motion:reduce){#sk-cloud.s-sync{animation:none;}}
+body.pz-open #sk-cloud{display:none;}
+.topbar-row{padding-right:90px;}
+.vz-top{padding-right:92px !important;}
+#sk-gh{position:fixed;inset:0;z-index:950;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.35);}
+#sk-gh.open{display:flex;}
+#sk-gh .skg{background:var(--bg,#fff);color:var(--fg,#111);border:1px solid var(--border,#bbb);border-radius:10px;width:100%;max-width:440px;max-height:92vh;overflow:auto;padding:16px;font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.45;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+#sk-gh h3{font-size:15px;margin:0 0 6px;display:flex;align-items:center;gap:8px;}
+#sk-gh .skg-st{margin:6px 0 10px;color:var(--muted,#888);}
+#sk-gh .skg-err{color:#d32f2f;margin:8px 0;}
+#sk-gh label{display:block;margin:10px 0 3px;color:var(--muted,#888);font-size:12px;}
+#sk-gh input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:8px 9px;border:1px solid var(--border,#bbb);border-radius:6px;background:transparent;color:inherit;outline:none;}
+#sk-gh .skg-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+#sk-gh button{font:inherit;font-size:13px;padding:9px 14px;border:1px solid var(--fg,#111);border-radius:6px;background:transparent;color:inherit;cursor:pointer;}
+#sk-gh button.pri{background:var(--fg,#111);color:var(--bg,#fff);}
+#sk-gh button.dng{border-color:#d32f2f;color:#d32f2f;}
+#sk-gh button:disabled{opacity:.5;}
+#sk-gh details{margin-top:12px;color:var(--muted,#888);}
+#sk-gh summary{cursor:pointer;}
+#sk-gh ol{margin:8px 0 0 18px;padding:0;}
+#sk-gh li{margin:3px 0;}
+
 </style>
 </head>
 <body>
@@ -2078,7 +2113,7 @@ const WARMUP_AXES = [
 // ── STORAGE ──
 const SK={
   checks:()=>{try{return new Set(JSON.parse(localStorage.getItem('sk_checks')||'[]'));}catch{return new Set();}},
-  saveChecks:s=>localStorage.setItem('sk_checks',JSON.stringify([...s])),
+  saveChecks:s=>{localStorage.setItem('sk_checks',JSON.stringify([...s]));window.skDirty&&window.skDirty();},
 };
 let checked=SK.checks();
 
@@ -2113,7 +2148,7 @@ function loadTecnicaData(){
     return defaultTecnicaData();
   }catch{return defaultTecnicaData();}
 }
-function saveTecnica(){localStorage.setItem(TECNICA_KEY,JSON.stringify(tecnicaData));}
+function saveTecnica(){localStorage.setItem(TECNICA_KEY,JSON.stringify(tecnicaData));window.skDirty&&window.skDirty();}
 let tecnicaData=loadTecnicaData();
 
 const BASE_KEY='sk_base';
@@ -2132,7 +2167,7 @@ function loadBaseData(){
     return defaultBaseData();
   }catch{return defaultBaseData();}
 }
-function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));}
+function saveBase(){localStorage.setItem(BASE_KEY,JSON.stringify(baseData));window.skDirty&&window.skDirty();}
 let baseData=loadBaseData();
 
 const WARMUP_KEY='sk_warmup';
@@ -2170,7 +2205,7 @@ function loadWarmupData(){
     return defaultWarmupData();
   }catch{return defaultWarmupData();}
 }
-function saveWarmup(){localStorage.setItem(WARMUP_KEY,JSON.stringify(warmupData));}
+function saveWarmup(){localStorage.setItem(WARMUP_KEY,JSON.stringify(warmupData));window.skDirty&&window.skDirty();}
 let warmupData=loadWarmupData();
 
 // ── VELOCIDAD ──
@@ -2216,7 +2251,7 @@ function loadSpeedData(){
     return defaultSpeedData();
   }catch{return defaultSpeedData();}
 }
-function saveSpeed(){localStorage.setItem(SPEED_KEY,JSON.stringify(speedData));}
+function saveSpeed(){localStorage.setItem(SPEED_KEY,JSON.stringify(speedData));window.skDirty&&window.skDirty();}
 let speedData=loadSpeedData();
 
 let modalTarget=null,modalSel=new Set();
@@ -2530,7 +2565,7 @@ document.addEventListener('click',()=>closeFdd());
 // ── CONSEGUIDOS ──
 const CHECKS_TS = 'sk_checks_ts'; // {name: isoDate}
 function loadChecksTs(){try{return JSON.parse(localStorage.getItem(CHECKS_TS)||'{}');}catch{return{};}}
-function saveChecksTs(obj){localStorage.setItem(CHECKS_TS,JSON.stringify(obj));}
+function saveChecksTs(obj){localStorage.setItem(CHECKS_TS,JSON.stringify(obj));window.skDirty&&window.skDirty();}
 let checksTs = loadChecksTs();
 
 function updateConseguidos(){
@@ -2950,7 +2985,7 @@ function loadCalendar(){
     return defaultCalendar();
   }catch{return defaultCalendar();}
 }
-function saveCalendar(){localStorage.setItem(CAL_KEY,JSON.stringify(calendarData));}
+function saveCalendar(){localStorage.setItem(CAL_KEY,JSON.stringify(calendarData));window.skDirty&&window.skDirty();}
 let calendarData=loadCalendar();
 
 let calAddOpen=false,calAddDayIdx=null;
@@ -3506,7 +3541,7 @@ const PROG_STEPS = [
 ];
 
 function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY)||'[]');}catch{return[];}}
-function saveProg(){localStorage.setItem(PROG_KEY,JSON.stringify(progData));}
+function saveProg(){localStorage.setItem(PROG_KEY,JSON.stringify(progData));window.skDirty&&window.skDirty();}
 let progData = loadProg(); // [{trickName, steps:[{idx, done}]}]
 const progOpenStates = {};
 
@@ -6557,11 +6592,298 @@ const tog = document.createElement('button'); tog.id = 'vz-toggle'; document.bod
 function setTog(){ const on = !!(el && el.classList.contains('open')); tog.className = on ? 'on' : ''; tog.innerHTML = on ? '<b></b>' : ''; tog.title = tog.setAttribute('aria-label', on ? 'Volver a la web clásica' : 'Abrir la cara visual') || (on ? 'Volver a la clásica' : 'Cara visual'); }
 tog.addEventListener('click', ()=>{ if(el && el.classList.contains('open')) close(); else open(); });
 setTog();
-window.vista = { open, close };
+window.vista = { open, close, refresh(){ if(el && el.classList.contains('open')) render(); } };
 
 /* arranque: se muestra la página solo cuando ya está montada, para que no se vea el salto inicial */
 const bh = document.getElementById('boot-hide');
 if(bh){ requestAnimationFrame(()=> requestAnimationFrame(()=>{ bh.remove(); })); }
+})();
+
+</script>
+<script>
+/* ================= GUARDADO EN GITHUB (se sincroniza solo entre aparatos) =================
+   Los datos de SKATE (conseguidos, rutinas, progresión, calendario) viven en skate-datos.json dentro de tu repositorio.
+   Al cambiar algo se sube a los pocos segundos; al abrir la app se baja lo último. Si dos aparatos cambian a la vez, se juntan.
+   Las pizarras NO se sincronizan (se pasan con ↓ exportar / ↑ importar). */
+(function(){
+"use strict";
+const $ = (s, e)=> (e || document).querySelector(s);
+const esc = s=> String(s == null ? '' : s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S = JSON.stringify;
+const CFG = 'sk_gh', BASEK = 'sk_sync_base', FILE = 'skate-datos.json';
+const KEYS = ['checks', 'tecnica', 'base', 'calentamiento', 'velocidad', 'progresion', 'calendario'];
+let gh = null; try{ gh = JSON.parse(localStorage.getItem(CFG) || 'null'); }catch(e){}
+const ghOk = ()=> !!(gh && gh.owner && gh.repo && gh.token && gh.branch);
+const dirp = ()=> gh && gh.dir ? gh.dir.replace(/^\/+|\/+$/g, '') + '/' : '';
+const apiBase = ()=> (gh && gh.api) || 'https://api.github.com';
+let syncing = false, again = false, timer = 0, lastSync = 0, state = 'none', applying = false, firstMode = null, lastMsg = '';
+
+/* ---------- la nube ---------- */
+const cloud = document.createElement('button'); cloud.id = 'sk-cloud'; cloud.setAttribute('aria-label', 'Guardado en GitHub');
+cloud.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18.5h10.5a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.6 9.1 4.75 4.75 0 0 0 7 18.5z"/><path class="slash" d="M4 4l16 16"/></svg>';
+document.body.appendChild(cloud);
+function titleOf(v){
+  return { ok: 'Guardado en GitHub', sync: 'Guardando…', pending: 'Cambios por guardar', off: 'Sin conexión: se guardará al volver', err: 'No se pudo guardar' + (lastMsg ? ': ' + lastMsg : ''), none: 'Sin conectar: toca para guardar en GitHub' }[v] || '';
+}
+function setState(s, msg){
+  state = s; lastMsg = msg || (s === 'err' ? lastMsg : '');
+  const v = ghOk() ? s : 'none';
+  cloud.className = 's-' + v; cloud.title = titleOf(v);
+  const st = $('#skg-state'); if(st) st.textContent = titleOf(v);
+}
+
+/* ---------- API de GitHub ---------- */
+function ghApi(path, opt){
+  opt = opt || {};
+  return fetch(`${apiBase()}/repos/${gh.owner}/${gh.repo}${path}`, { method: opt.method || 'GET', cache: 'no-store',
+    headers: Object.assign({ Authorization: 'Bearer ' + gh.token, Accept: opt.raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' }, opt.body ? { 'Content-Type': 'application/json' } : {}),
+    body: opt.body ? S(opt.body) : undefined });
+}
+const b64enc = str=> btoa(unescape(encodeURIComponent(str)));
+const b64dec = b=> decodeURIComponent(escape(atob(b.replace(/\s/g, ''))));
+function guessFromUrl(){
+  const h = location.hostname.match(/^([^.]+)\.github\.io$/i); if(!h) return {};
+  const parts = location.pathname.split('/').filter(Boolean); if(parts.length && /\.html?$/i.test(parts[parts.length - 1])) parts.pop();
+  if(!parts.length) return { owner: h[1], repo: h[1] + '.github.io', dir: '' };
+  return { owner: h[1], repo: parts[0], dir: parts.slice(1).join('/') };
+}
+function loadBase(){ try{ return JSON.parse(localStorage.getItem(BASEK) || 'null'); }catch(e){ return null; } }
+function saveBase(o){ try{ localStorage.setItem(BASEK, S(o)); }catch(e){} }
+
+/* ---------- foto de los datos de este aparato ---------- */
+const cl = o=> JSON.parse(S(o));
+function snap(){
+  return {
+    checks: Object.fromEntries([...checked].sort().map(n=> [n, checksTs[n] || ''])),
+    tecnica: cl(blocksOut(tecnicaData.blocks)), base: cl(blocksOut(baseData.blocks)),
+    calentamiento: cl(blocksOut(warmupData.blocks)), velocidad: cl(blocksOut(speedData.blocks)),
+    progresion: progData.map(e=> ({ trickName: e.trickName, steps: e.steps.map(s=> ({ idx: s.idx, done: !!s.done })) })),
+    calendario: calendarData.days.map(d=> ({ key: d.key, items: cl(d.items || []), note: d.note || '' }))
+  };
+}
+const strip = m=> { const o = {}; KEYS.forEach(k=> o[k] = m[k]); return o; };
+const valid = o=> !!o && o.format === 'skate-datos' && o.checks && typeof o.checks === 'object' && !Array.isArray(o.checks) && KEYS.slice(1).every(k=> Array.isArray(o[k]));
+
+/* ---------- fusión a tres bandas: lo último común (b), lo de aquí (l) y lo de GitHub (r) ---------- */
+const pick = (b, l, r)=> S(l) !== S(b) ? l : r;
+function mapMerge(b, l, r){
+  const out = {}; l = l || {}; r = r || {};
+  new Set([...Object.keys(l), ...Object.keys(r), ...Object.keys(b || {})]).forEach(k=>{
+    const li = l[k], ri = r[k]; let v;
+    if(!b) v = ri !== undefined ? ri : li;
+    else { const bi = b[k], lc = S(li) !== S(bi), rc = S(ri) !== S(bi); v = !lc ? ri : !rc ? li : (li === undefined ? ri : ri === undefined ? li : li); }
+    if(v !== undefined) out[k] = v;
+  });
+  return out;
+}
+function ord(b, l, r, keep){
+  const p = b == null ? r : (S(l) !== S(b) ? l : r), s = p === r ? l : r;
+  const seq = [...p, ...s.filter(k=> !p.includes(k))].filter(k=> keep.has(k));
+  keep.forEach(k=>{ if(!seq.includes(k)) seq.push(k); });
+  return seq;
+}
+function listMerge(b, l, r, kf, mi){
+  const M = a=> new Map((a || []).map(x=> [kf(x), x]));
+  const B = b ? M(b) : null, L = M(l), R = M(r), out = new Map();
+  new Set([...L.keys(), ...R.keys(), ...(B ? B.keys() : [])]).forEach(id=>{
+    const li = L.get(id), ri = R.get(id), bi = B ? B.get(id) : undefined; let v;
+    if(!B) v = li && ri ? mi(null, li, ri) : (li || ri);
+    else if(!bi) v = li && ri ? (S(li) === S(ri) ? li : mi(null, li, ri)) : (li || ri);
+    else {
+      const lc = !li || S(li) !== S(bi), rc = !ri || S(ri) !== S(bi);
+      v = !lc ? ri : !rc ? li : (!li ? ri : !ri ? li : mi(bi, li, ri));
+    }
+    if(v) out.set(id, v);
+  });
+  const keep = new Set(out.keys());
+  return ord(B ? [...B.keys()] : null, [...L.keys()], [...R.keys()], keep).map(k=> out.get(k));
+}
+function strMerge(b, l, r){
+  if(S(l) === S(r)) return l;
+  const inB = new Set(b || []), inL = new Set(l), inR = new Set(r), keep = new Set();
+  new Set([...l, ...r]).forEach(s=>{ if(!b) keep.add(s); else if(inL.has(s) && inR.has(s)) keep.add(s); else if(!inB.has(s)) keep.add(s); });
+  return ord(b || null, l, r, keep);
+}
+function mergeBlock(b, l, r){
+  const o = { id: l.id };
+  ['name', 'color', 'note'].forEach(f=> o[f] = !b ? (r[f] || l[f] || '') : pick(b[f], l[f], r[f]));
+  o.tricks = strMerge(b ? b.tricks : null, l.tricks || [], r.tricks || []);
+  o.sources = mapMerge(b ? (b.sources || {}) : null, l.sources || {}, r.sources || {});
+  return o;
+}
+const mergeStep = (b, l, r)=> ({ idx: l.idx, done: b ? pick(b.done, l.done, r.done) : !!(l.done || r.done) });
+const mergeProg = (b, l, r)=> ({ trickName: l.trickName, steps: listMerge(b ? b.steps : null, l.steps || [], r.steps || [], s=> s.idx, mergeStep) });
+const mergeDay = (b, l, r)=> ({ key: l.key, note: b ? pick(b.note, l.note, r.note) : (l.note || r.note || ''),
+  items: listMerge(b ? b.items : [], l.items || [], r.items || [], i=> i.type + ':' + (i.id || ''), (b2, li)=> li) });
+function mergeAll(base, local, remote){
+  const bb = k=> base ? base[k] : null, bl = k=> listMerge(bb(k), local[k], remote[k], x=> x.id, mergeBlock);
+  return { checks: mapMerge(bb('checks'), local.checks, remote.checks), tecnica: bl('tecnica'), base: bl('base'), calentamiento: bl('calentamiento'), velocidad: bl('velocidad'),
+    progresion: listMerge(bb('progresion'), local.progresion, remote.progresion, x=> x.trickName, mergeProg),
+    calendario: listMerge(bb('calendario'), local.calendario, remote.calendario, x=> x.key, mergeDay) };
+}
+/* primera vez en este aparato: las rutinas con el mismo nombre se toman como la misma (así no se duplican "Día 1"…) */
+function adoptByName(rem){
+  const map = {};
+  [['tecnica', tecnicaData], ['base', baseData], ['calentamiento', warmupData], ['velocidad', speedData]].forEach(([k, d])=>{
+    const rb = rem[k] || [], taken = new Set(rb.filter(x=> d.blocks.some(y=> y.id === x.id)).map(x=> x.id));
+    d.blocks.forEach(b=>{
+      if(rb.some(x=> x.id === b.id)) return;
+      const m = b.name && rb.find(x=> x.name === b.name && !taken.has(x.id));
+      if(m){ taken.add(m.id); map[b.id] = m.id; b.id = m.id; }
+    });
+  });
+  if(Object.keys(map).length) calendarData.days.forEach(day=> (day.items || []).forEach(it=>{ if(it.id && map[it.id]) it.id = map[it.id]; }));
+}
+
+/* ---------- poner los datos en la app ---------- */
+function apply(m){
+  applying = true;
+  try{
+    checked.clear(); Object.keys(checksTs).forEach(k=> delete checksTs[k]);
+    Object.entries(m.checks).forEach(([n, t])=>{ checked.add(n); if(t) checksTs[n] = t; });
+    SK.saveChecks(checked); saveChecksTs(checksTs);
+    tecnicaData = { blocks: cl(m.tecnica) }; saveTecnica();
+    baseData = { blocks: cl(m.base) }; saveBase();
+    warmupData = { blocks: cl(m.calentamiento) }; saveWarmup();
+    speedData = { blocks: cl(m.velocidad) }; saveSpeed();
+    progData = m.progresion.map(e=> ({ trickName: e.trickName, steps: (e.steps || []).map(s=> ({ idx: s.idx, done: !!s.done })) })); saveProg();
+    calendarData = { days: defaultCalendar().days.map(d=>{ const x = m.calendario.find(y=> y.key === d.key); return { key: d.key, label: d.label, items: x ? cl(x.items || []) : [], note: x ? (x.note || '') : '' }; }) }; saveCalendar();
+  } finally { applying = false; }
+  try{
+    document.querySelectorAll('.tchk').forEach(el=>{ const name = el.closest('.trick') && el.closest('.trick').dataset.fullname; if(name) el.classList.toggle('done', checked.has(name)); });
+    const c = document.getElementById('conseguidos-count'); if(c) c.textContent = checked.size;
+    renderProgScheme(); renderProgList(); renderCat('skate'); renderCat('base'); renderCat('warmup'); renderCat('speed'); renderCalendar();
+    if(typeof applyFilters === 'function') applyFilters();
+    if(window.vista && window.vista.refresh) window.vista.refresh();
+  }catch(e){}
+}
+
+/* ---------- sincronizar ---------- */
+const editing = ()=> { const a = document.activeElement; return !!a && a.matches && a.matches('.blk-name,.blk-note-input,.cal-note-input,.vz-bn,.vz-note'); };
+function scheduleSync(ms){ if(!ghOk() || applying) return; clearTimeout(timer); setState('pending'); timer = setTimeout(sync, ms == null ? 900 : ms); }
+window.skDirty = ()=> scheduleSync();
+async function sync(){
+  if(!ghOk()) return;
+  if(syncing){ again = true; return; }
+  if(!navigator.onLine){ setState('off'); return; }
+  if(editing()){ clearTimeout(timer); setState('pending'); timer = setTimeout(sync, 1500); return; }
+  syncing = true; setState('sync'); clearTimeout(timer);
+  try{
+    for(let tries = 0; tries < 3; tries++){
+      const path = dirp() + FILE, r = await ghApi('/contents/' + path + '?ref=' + encodeURIComponent(gh.branch));
+      if(r.status === 401) throw new Error('la llave no es válida o ha caducado');
+      if(r.status === 403 || r.status === 429) throw new Error('GitHub no deja guardar ahora (' + r.status + ')');
+      if(!r.ok && r.status !== 404) throw new Error('lectura ' + r.status);
+      let remote = null, sha;
+      if(r.ok){
+        const j = await r.json(); sha = j.sha;
+        let txt = j.content ? b64dec(j.content) : '';
+        if(!txt){ const rr = await ghApi('/contents/' + path + '?ref=' + encodeURIComponent(gh.branch), { raw: true }); txt = await rr.text(); }
+        let o = null; try{ o = JSON.parse(txt); }catch(e){}
+        if(!valid(o)) throw new Error('el archivo ' + FILE + ' de GitHub no es de SKATE');
+        remote = o;
+      }
+      if(editing()){ clearTimeout(timer); setState('pending'); timer = setTimeout(sync, 1500); return; }
+      const base = loadBase(), mode = firstMode;
+      if(!base && remote && mode !== 'replace') adoptByName(remote);
+      const local = snap();
+      let merged;
+      if(remote && mode === 'replace') merged = strip(remote);
+      else if(remote) merged = mergeAll(base, local, remote);
+      else merged = local;
+      const needPush = !remote || S(strip(merged)) !== S(strip(remote));
+      if(needPush){
+        const body = { message: 'SKATE: ' + new Date().toLocaleString('es-ES'), content: b64enc(S(Object.assign({ format: 'skate-datos', version: 1, updated: new Date().toISOString() }, strip(merged)), null, 1)), branch: gh.branch };
+        if(sha) body.sha = sha;
+        const p = await ghApi('/contents/' + path, { method: 'PUT', body });
+        if(p.status === 409 || p.status === 422) continue;
+        if(p.status === 401) throw new Error('la llave no es válida o ha caducado');
+        if(!p.ok) throw new Error('escritura ' + p.status);
+      }
+      lastSync = Date.now();
+      if(S(snap()) !== S(local)){ again = true; if(firstMode === 'replace') firstMode = 'merge'; setState('pending'); return; } /* has cambiado algo mientras tanto: se vuelve a juntar */
+      if(S(strip(merged)) !== S(local)) apply(merged);
+      saveBase(snap()); firstMode = null;
+      setState('ok');
+      return;
+    }
+    throw new Error('conflicto: otro aparato guardó a la vez');
+  }catch(e){
+    setState(!navigator.onLine ? 'off' : 'err', String(e && e.message || e));
+  }finally{
+    syncing = false;
+    if(again){ again = false; scheduleSync(300); }
+  }
+}
+addEventListener('online', ()=> scheduleSync(200));
+addEventListener('offline', ()=> setState('off'));
+document.addEventListener('visibilitychange', ()=>{
+  if(!ghOk()) return;
+  if(document.visibilityState === 'visible'){ if(Date.now() - lastSync > 5000) sync(); }
+  else if(state === 'pending'){ clearTimeout(timer); sync(); }
+});
+addEventListener('pagehide', ()=>{ if(ghOk() && state === 'pending'){ clearTimeout(timer); sync(); } });
+setInterval(()=>{ if(ghOk() && document.visibilityState === 'visible' && !syncing && state !== 'pending' && Date.now() - lastSync > 30000) sync(); }, 10000);
+
+/* ---------- panel: conectar con GitHub ---------- */
+const panel = document.createElement('div'); panel.id = 'sk-gh'; document.body.appendChild(panel);
+function openGh(msg){
+  const g = Object.assign(guessFromUrl(), gh || {});
+  panel.innerHTML = `<div class="skg" role="dialog" aria-label="Guardar en GitHub">
+    <h3>☁ Guardar en GitHub</h3>
+    <div class="skg-st">${ghOk() ? 'Conectado. <span id="skg-state"></span>' : 'Pega tu llave de GitHub y pulsa Conectar. El resto ya viene puesto si abres la app desde tu web.'}</div>
+    <label for="skg-token">Llave (token)</label><input id="skg-token" type="password" value="${esc(g.token || '')}" placeholder="github_pat_…" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <label for="skg-owner">Usuario de GitHub</label><input id="skg-owner" value="${esc(g.owner || '')}" placeholder="tu-usuario" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <label for="skg-repo">Repositorio</label><input id="skg-repo" value="${esc(g.repo || '')}" placeholder="nombre-del-repositorio" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <label for="skg-dir">Carpeta dentro del repositorio (vacío si está en la raíz)</label><input id="skg-dir" value="${esc(g.dir || '')}" placeholder="vacío" autocomplete="off" spellcheck="false" autocapitalize="off">
+    ${msg ? `<div class="skg-err">${esc(msg)}</div>` : ''}
+    <div class="skg-row"><button class="pri" data-g="connect">${ghOk() ? 'Guardar cambios' : 'Conectar'}</button>${ghOk() ? '<button data-g="now">Sincronizar ahora</button><button class="dng" data-g="off">Desconectar este aparato</button>' : ''}<button data-g="close">Cerrar</button></div>
+    <details><summary>¿Cómo creo la llave?</summary><ol>
+      <li>En GitHub: tu foto → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+      <li>«Repository access»: Only select repositories → elige el repositorio de SKATE.</li>
+      <li>«Permissions» → Repository permissions → <b>Contents: Read and write</b>.</li>
+      <li>Generar, copiar la llave (empieza por github_pat_) y pegarla aquí. Hay que hacerlo en cada aparato.</li></ol>
+      <p>Las pizarras no se sincronizan: pásalas con ↓ exportar / ↑ importar.</p></details></div>`;
+  panel.classList.add('open'); setState(state);
+}
+function closeGh(){ panel.classList.remove('open'); panel.innerHTML = ''; }
+panel.addEventListener('click', async e=>{
+  if(e.target === panel) return closeGh();
+  const t = e.target.closest('[data-g]'); if(!t) return;
+  const a = t.dataset.g;
+  if(a === 'close') return closeGh();
+  if(a === 'now'){ closeGh(); sync(); return; }
+  if(a === 'off'){ gh = null; try{ localStorage.removeItem(CFG); localStorage.removeItem(BASEK); }catch(err){} clearTimeout(timer); setState('none'); closeGh(); toast('Este aparato ya no guarda en GitHub'); return; }
+  if(a === 'connect'){
+    const v = id=> $(id).value.trim();
+    const cand = { token: v('#skg-token'), owner: v('#skg-owner'), repo: v('#skg-repo').replace(/\.git$/, ''), dir: v('#skg-dir').replace(/^\/+|\/+$/g, '') };
+    if(gh && gh.api) cand.api = gh.api;
+    if(!cand.token || !cand.owner || !cand.repo) return openGh('Faltan la llave, el usuario o el repositorio.');
+    t.textContent = 'Comprobando…'; t.disabled = true;
+    try{
+      const base = cand.api || 'https://api.github.com';
+      const r = await fetch(`${base}/repos/${cand.owner}/${cand.repo}`, { headers: { Authorization: 'Bearer ' + cand.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' });
+      if(r.status === 401) return openGh('La llave no es válida. Cópiala otra vez entera (empieza por github_pat_).');
+      if(r.status === 404) return openGh('No encuentro ese repositorio, o la llave no tiene acceso a él. Revisa el usuario, el nombre del repositorio y que lo elegiste al crear la llave.');
+      if(!r.ok) return openGh('GitHub ha respondido con un error (' + r.status + '). Prueba otra vez en un momento.');
+      const j = await r.json();
+      if(j.permissions && !j.permissions.push) return openGh('La llave puede leer pero no escribir. En la llave, el permiso «Contents» tiene que estar en «Read and write».');
+      const same = gh && gh.owner === cand.owner && gh.repo === cand.repo && (gh.dir || '') === cand.dir;
+      gh = Object.assign({}, cand, { branch: j.default_branch || 'main' });
+      localStorage.setItem(CFG, S(gh));
+      if(!same) localStorage.removeItem(BASEK);
+      firstMode = null;
+      if(!loadBase()){
+        const fr = await ghApi('/contents/' + dirp() + FILE + '?ref=' + encodeURIComponent(gh.branch));
+        if(fr.ok) firstMode = confirm('En GitHub ya hay datos de SKATE guardados.\n\nAceptar: usar en este aparato los de GitHub (lo que haya aquí se sustituye).\nCancelar: juntar lo de este aparato con lo de GitHub.') ? 'replace' : 'merge';
+      }
+      closeGh(); toast('Conectado con GitHub'); setState('pending'); sync();
+    }catch(err){ openGh('No hay conexión con GitHub. Comprueba internet y vuelve a probar.'); }
+  }
+});
+cloud.addEventListener('click', ()=> openGh());
+setState(ghOk() ? 'pending' : 'none'); if(ghOk()) sync();
+window.skSync = { sync, openGh, state: ()=> state };
 })();
 
 </script>
