@@ -1,7 +1,7 @@
 {
  "format": "skate-datos",
  "version": 1,
- "updated": "2026-11-02T22:02:10.289Z",
+ "updated": "2026-11-02T22:02:29.054Z",
  "checks": {},
  "tecnica": [
   {
@@ -254,7 +254,7 @@
  ],
  "velocidad": [
   {
-   "id": "mvzt0wmgmmkv",
+   "id": "mvzt1b3wz9b7",
    "name": "1 · Estabilidad",
    "color": "#2979ff",
    "note": "Mirar hacia donde quieres ir, no al suelo. Postura aerodinámica (tuck) para aguantar rodando. Casco y muñequeras. Revisar la carretera de día y llevar luz.",
@@ -265,7 +265,7 @@
    "sources": {}
   },
   {
-   "id": "mvzt0wmgnqom",
+   "id": "mvzt1b3wasne",
    "name": "2 · Frenado",
    "color": "#ff1744",
    "note": "Empezar a velocidad baja y subir poco a poco, de una sesión a la siguiente. El freno de talón solo rueda el eje de atrás: mejor a velocidad baja o media; a más velocidad, foot braking.",
@@ -277,7 +277,7 @@
    "sources": {}
   },
   {
-   "id": "mvzt0wmgw783",
+   "id": "mvzt1b3w3314",
    "name": "3 · Control",
    "color": "#aa00ff",
    "note": "Subir la velocidad gradualmente. En el ollie, mirar dónde se aterriza: a velocidad se recorre mucha más distancia en el aire.",
