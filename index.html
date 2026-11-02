@@ -700,7 +700,7 @@ body.pz-open{overflow:hidden;}
 .vz-crumb{padding:0 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw;}
 .vz-crumb i{font-style:normal;opacity:.4;margin:0 5px;}
 .vz-crumb a{cursor:pointer;}
-.vz-search{display:flex;align-items:center;gap:4px;flex:1 1 150px;min-width:130px;max-width:360px;}
+.vz-search{display:flex;align-items:center;gap:4px;flex:1 1 150px;min-width:130px;}
 .vz-search input{flex:1;min-width:0;height:36px;padding:0 8px !important;font-size:16px;outline:none;cursor:text !important;}
 .vz-sp{flex:1;}
 .vz-tabs{display:flex;gap:6px;padding:0 10px 8px;flex-shrink:0;overflow-x:auto;}
@@ -717,7 +717,7 @@ body.pz-open{overflow:hidden;}
 .vz-root{position:absolute;border-radius:50%;background:#1c1c1e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.3);}
 :root.dark .vz-root{background:#ececec;color:#1c1c1e;}
 .vz-root small{font-weight:500;font-size:.5em;opacity:.8;margin-top:2px;}
-.vz-fam{max-width:1500px;margin:0 auto;padding:0 12px 80px;}
+.vz-fam{max-width:none;width:100%;margin:0;padding:0 12px 80px;box-sizing:border-box;}
 .vz-fh{border-radius:16px;padding:16px 18px;font-size:28px;font-weight:800;margin:6px 0 4px;}
 .vz-fd{opacity:.6;padding:0 4px 8px;}
 .vz-chips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px;}
@@ -6342,7 +6342,6 @@ function build(){
   el = document.createElement('div'); el.id = 'vz';
   el.innerHTML = `<div class="vz-top">
       <div class="vz-bar"><button class="vz-b" data-v="back" aria-label="Atrás">${ICO.back}</button><button class="vz-b" data-v="fwd" aria-label="Adelante">${ICO.fwd}</button><button class="vz-b" data-v="home" aria-label="Inicio">${ICO.home}</button><div class="vz-crumb"></div></div>
-      <div class="vz-bar vz-views"><button class="vz-b" data-vm="radial" title="Esquema">${IB}<circle cx="12" cy="12" r="2.5"/><path d="M12 9.5V4M14.2 13.3l4.8 2.7M9.8 13.3L5 16"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="19.5" cy="16.5" r="1.5"/><circle cx="4.5" cy="16.5" r="1.5"/></svg></button><button class="vz-b" data-vm="mosaic" title="Mosaico">${IB}<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button class="vz-b" data-vm="list" title="Lista">${IB}<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8"/><circle cx="4.5" cy="12" r=".8"/><circle cx="4.5" cy="18" r=".8"/></svg></button></div>
       <div class="vz-bar vz-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;opacity:.6;flex-shrink:0"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input type="search" placeholder="buscar truco…" autocomplete="off" spellcheck="false"></div>
       <div class="vz-bar"><button class="vz-b" data-v="pz" title="Pizarra" aria-label="Pizarra">${ICO.pz}</button><button class="vz-b" data-v="menu" title="Más" aria-label="Más opciones"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
     </div>
@@ -6382,7 +6381,7 @@ function crumb(){
     : s.t === 'pentry' ? ta('prog') + '<i>›</i>' + esc(s.name)
     : root + '<i>›</i>Búsqueda';
   const tb = { root: 'esquema', fam: 'esquema', search: 'esquema', ent: 'entrenamiento', cat: 'entrenamiento', prog: 'progresion', pentry: 'progresion' }[s.t];
-  $('.vz-views', el).style.display = isRoot(s.t) ? '' : 'none'; el.querySelectorAll('[data-vm]').forEach(b=> b.classList.toggle('on', b.dataset.vm === vmode));
+  
   el.querySelectorAll('.vz-tab').forEach(b=> b.classList.toggle('on', b.dataset.tab === tb));
   $('[data-v=back]', el).disabled = pos === 0; $('[data-v=fwd]', el).disabled = pos >= stack.length - 1;
 }
@@ -6395,13 +6394,12 @@ function render(anim){
 }
 
 /* --- pantalla inicial: SKATE en el centro y las familias alrededor --- */
-let vmode = 'radial';
-try{ vmode = localStorage.getItem('sk_vz_view') || 'radial'; }catch(e){}
+const vmode = 'list'; /* vista fija: lista */
 const isRoot = t=> ['root', 'ent', 'prog'].includes(t);
 const isRad = s=> isRoot(s.t) && vmode === 'radial' && !(s.t === 'prog' && progData.length > 14);
 function layout(center, sub, items){
   if(vmode === 'list'){
-    body.innerHTML = `<div class="vz-fam" style="max-width:760px;padding-top:6px"><div class="vz-lh">${esc(center)}<small>${esc(sub)}</small></div><div class="vz-list">${items.map(it=> `<button class="vz-row" ${it.attr}><span class="vz-sq" style="background:${it.color}"></span><span class="rn">${esc(it.label)}</span><span class="rs">${esc(it.sub)}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.35"><path d="M9 5l7 7-7 7"/></svg></button>`).join('')}</div></div>`;
+    body.innerHTML = `<div class="vz-fam" style="padding-top:6px"><div class="vz-lh">${esc(center)}<small>${esc(sub)}</small></div><div class="vz-list">${items.map(it=> `<button class="vz-row" ${it.attr}><span class="vz-sq" style="background:${it.color}"></span><span class="rn">${esc(it.label)}</span><span class="rs">${esc(it.sub)}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.35"><path d="M9 5l7 7-7 7"/></svg></button>`).join('')}</div></div>`;
   } else if(vmode === 'mosaic' || (vmode === 'radial' && items.length > 14)){
     body.innerHTML = `<div class="vz-fam"><div class="vz-lh">${esc(center)}<small>${esc(sub)}</small></div><div class="vz-mos">${items.map(it=> `<button class="vz-tile" ${it.attr} style="background:${it.color};color:${isDark(it.color) ? '#fff' : '#1c1c1e'}"><b>${esc(it.label)}</b><small>${esc(it.sub)}</small></button>`).join('')}</div></div>`;
   } else radial(center, sub, items);
@@ -6572,7 +6570,7 @@ function onClick(e){
   const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); if(a === 'pz' && window.pizarra) window.pizarra.open(); if(a === 'menu') openMenu(v); return; }
   const tab = t.closest('[data-tab]'); if(tab && tab.dataset.tab === 'pizarra'){ if(window.pizarra) window.pizarra.open(); return; }
   if(tab){ const m = { esquema: 'root', entrenamiento: 'ent', progresion: 'prog' }[tab.dataset.tab]; if(cur().t !== m) go({ t: m }); return; }
-  const vm = t.closest('[data-vm]'); if(vm){ vmode = vm.dataset.vm; try{ localStorage.setItem('sk_vz_view', vmode); }catch(err){} render(); return; }
+  
   const gg = t.closest('[data-go]'); if(gg){ go({ t: gg.dataset.go }); return; }
   const ct = t.closest('[data-cat]'); if(ct){ go({ t: 'cat', id: ct.dataset.cat }); return; }
   const pe = t.closest('[data-pe]'); if(pe){ go({ t: 'pentry', name: pe.dataset.pe }); return; }
