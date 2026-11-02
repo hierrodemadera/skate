@@ -834,6 +834,10 @@ body.pz-open #sk-cloud{display:none;}
 #sk-gh ol{margin:8px 0 0 18px;padding:0;}
 #sk-gh li{margin:3px 0;}
 
+#vz .vz-menu{position:fixed;z-index:8;display:none;min-width:236px;background:var(--vzpanel);border-radius:18px;padding:6px;box-shadow:0 8px 30px rgba(0,0,0,.22),0 0 0 .5px var(--vzb);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);}
+#vz .vz-menu.open{display:block;}
+#vz .vz-menu button{display:block;width:100%;text-align:left;padding:12px 14px;border:0;background:none;border-radius:12px;font:inherit;font-size:15px;color:inherit;cursor:pointer;}
+#vz .vz-menu button:hover,#vz .vz-menu button:active{background:var(--vzh);}
 </style>
 </head>
 <body>
@@ -6340,10 +6344,11 @@ function build(){
       <div class="vz-bar"><button class="vz-b" data-v="back" aria-label="Atrás">${ICO.back}</button><button class="vz-b" data-v="fwd" aria-label="Adelante">${ICO.fwd}</button><button class="vz-b" data-v="home" aria-label="Inicio">${ICO.home}</button><div class="vz-crumb"></div></div>
       <div class="vz-bar vz-views"><button class="vz-b" data-vm="radial" title="Esquema">${IB}<circle cx="12" cy="12" r="2.5"/><path d="M12 9.5V4M14.2 13.3l4.8 2.7M9.8 13.3L5 16"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="19.5" cy="16.5" r="1.5"/><circle cx="4.5" cy="16.5" r="1.5"/></svg></button><button class="vz-b" data-vm="mosaic" title="Mosaico">${IB}<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button class="vz-b" data-vm="list" title="Lista">${IB}<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8"/><circle cx="4.5" cy="12" r=".8"/><circle cx="4.5" cy="18" r=".8"/></svg></button></div>
       <div class="vz-bar vz-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;opacity:.6;flex-shrink:0"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input type="search" placeholder="buscar truco…" autocomplete="off" spellcheck="false"></div>
-      <div class="vz-bar"><button class="vz-b" data-v="pz" title="Pizarra" aria-label="Pizarra">${ICO.pz}</button></div>
+      <div class="vz-bar"><button class="vz-b" data-v="pz" title="Pizarra" aria-label="Pizarra">${ICO.pz}</button><button class="vz-b" data-v="menu" title="Más" aria-label="Más opciones"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
     </div>
     <div class="vz-tabs"><button class="vz-tab on" data-tab="esquema">Esquema</button><button class="vz-tab" data-tab="entrenamiento">Entrenamiento</button><button class="vz-tab" data-tab="progresion">Progresión</button></div>
     <div class="vz-body"></div>`;
+  const mn = document.createElement('div'); mn.className = 'vz-menu'; el.appendChild(mn);
   document.body.appendChild(el);
   body = $('.vz-body', el);
   el.addEventListener('click', onClick);
@@ -6365,7 +6370,7 @@ function go(s){ stack = stack.slice(0, pos + 1); stack.push(s); pos++; render(tr
 function back(){ if(pos > 0){ pos--; render(true); } }
 function fwd(){ if(pos < stack.length - 1){ pos++; render(true); } }
 function open(){ if(!el) build(); el.classList.add('open'); document.body.classList.add('vz-on'); setTog(); document.body.style.overflow = 'hidden'; render(true); }
-function close(){ if(el) el.classList.remove('open'); document.body.classList.remove('vz-on'); setTog(); document.body.style.overflow = ''; }
+function close(){ if(el){ el.classList.remove('open'); closeMenu(); } document.body.classList.remove('vz-on'); setTog(); document.body.style.overflow = ''; }
 
 function crumb(){
   const s = cur(), c = $('.vz-crumb', el);
@@ -6544,9 +6549,27 @@ function toggleCheck(name){
   document.querySelectorAll(`.trick[data-fullname="${CSS.escape(name)}"] .tchk`).forEach(x=> x.classList.toggle('done', checked.has(name)));
   return checked.has(name);
 }
+function closeMenu(){ const m = $('.vz-menu', el); if(m) m.classList.remove('open'); }
+function openMenu(btn){
+  const m = $('.vz-menu', el); if(m.classList.contains('open')){ closeMenu(); return; }
+  const th = document.getElementById('theme-toggle'), dark = document.documentElement.classList.contains('dark');
+  m.innerHTML = `<button data-mi="export">↓ Guardar copia (exportar)</button><button data-mi="import">↑ Cargar copia (importar)</button><button data-mi="theme">${dark ? '☀ Tema claro' : '☾ Tema oscuro'}</button><button data-mi="cloud">☁ Guardar en GitHub</button><button data-mi="classic">Ver la web clásica</button>`;
+  const r = btn.getBoundingClientRect(); m.classList.add('open');
+  const w = m.offsetWidth; m.style.top = Math.round(r.bottom + 8) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+}
+function menuAct(a){
+  closeMenu();
+  if(a === 'export'){ const b = document.getElementById('btn-export'); if(b) b.click(); }
+  if(a === 'import'){ const i = document.getElementById('btn-import'); if(i) i.click(); }
+  if(a === 'theme'){ const b = document.getElementById('theme-toggle'); if(b) b.click(); }
+  if(a === 'cloud' && window.skSync) window.skSync.openGh();
+  if(a === 'classic'){ try{ localStorage.setItem('sk_face', 'classic'); }catch(err){} close(); }
+}
 function onClick(e){
   const t = e.target;
-  const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); if(a === 'pz' && window.pizarra) window.pizarra.open(); return; }
+  const mi = t.closest('[data-mi]'); if(mi){ menuAct(mi.dataset.mi); return; }
+  if(!t.closest('.vz-menu') && !t.closest('[data-v=menu]')) closeMenu();
+  const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); if(a === 'pz' && window.pizarra) window.pizarra.open(); if(a === 'menu') openMenu(v); return; }
   const tab = t.closest('[data-tab]'); if(tab && tab.dataset.tab === 'pizarra'){ if(window.pizarra) window.pizarra.open(); return; }
   if(tab){ const m = { esquema: 'root', entrenamiento: 'ent', progresion: 'prog' }[tab.dataset.tab]; if(cur().t !== m) go({ t: m }); return; }
   const vm = t.closest('[data-vm]'); if(vm){ vmode = vm.dataset.vm; try{ localStorage.setItem('sk_vz_view', vmode); }catch(err){} render(); return; }
@@ -6590,10 +6613,12 @@ function onClick(e){
   const _rc = renderCat; renderCat = function(m){ const r = _rc.apply(this, arguments); if(el && el.classList.contains('open') && cur().t === 'cat' && !document.activeElement.matches('.vz-bn,.vz-note')) render(); return r; };
 const tog = document.createElement('button'); tog.id = 'vz-toggle'; document.body.appendChild(tog);
 function setTog(){ const on = !!(el && el.classList.contains('open')); tog.className = on ? 'on' : ''; tog.innerHTML = on ? '<b></b>' : ''; tog.title = tog.setAttribute('aria-label', on ? 'Volver a la web clásica' : 'Abrir la cara visual') || (on ? 'Volver a la clásica' : 'Cara visual'); }
-tog.addEventListener('click', ()=>{ if(el && el.classList.contains('open')) close(); else open(); });
+tog.addEventListener('click', ()=>{ const on = !!(el && el.classList.contains('open')); try{ localStorage.setItem('sk_face', on ? 'classic' : 'vz'); }catch(err){} if(on) close(); else open(); });
 setTog();
 window.vista = { open, close, refresh(){ if(el && el.classList.contains('open')) render(); } };
 
+/* la cara visual es la principal: se abre sola salvo que hayas elegido volver a la clásica */
+{ let f = null; try{ f = localStorage.getItem('sk_face'); }catch(err){} if(f !== 'classic') open(); }
 /* arranque: se muestra la página solo cuando ya está montada, para que no se vea el salto inicial */
 const bh = document.getElementById('boot-hide');
 if(bh){ requestAnimationFrame(()=> requestAnimationFrame(()=>{ bh.remove(); })); }
