@@ -1,7 +1,7 @@
 {
  "format": "skate-datos",
  "version": 1,
- "updated": "2026-11-02T22:14:48.735Z",
+ "updated": "2026-11-02T22:32:30.091Z",
  "checks": {},
  "tecnica": [
   {
@@ -128,7 +128,7 @@
  ],
  "base": [
   {
-   "id": "mvtaklc3ngco",
+   "id": "mvtdnuu7sv9e",
    "name": "Día 1",
    "color": "#2ecc40",
    "note": "",
@@ -141,7 +141,7 @@
    "sources": {}
   },
   {
-   "id": "mvtaklc36303",
+   "id": "mvtdnuu79tbt",
    "name": "Día 2",
    "color": "#ffd400",
    "note": "",
@@ -154,7 +154,7 @@
    "sources": {}
   },
   {
-   "id": "mvtaklc37ez5",
+   "id": "mvtdnuu7vkvu",
    "name": "Día 3",
    "color": "#ff5722",
    "note": "",
@@ -168,7 +168,7 @@
    "sources": {}
   },
   {
-   "id": "mvtaklc4mpsq",
+   "id": "mvtdnuu8tgas",
    "name": "Power slides",
    "color": "#00bcd4",
    "note": "",
@@ -193,7 +193,7 @@
    }
   },
   {
-   "id": "mvtaklc4blqr",
+   "id": "mvtdnuu898f4",
    "name": "Hippie Jump",
    "color": "#e91e63",
    "note": "Ordenados de más fácil a más difícil. El hippie jump sencillo sigue también en Calentamiento.",
