@@ -1,7 +1,7 @@
 {
  "format": "skate-datos",
  "version": 1,
- "updated": "2026-11-08T08:46:43.283Z",
+ "updated": "2026-11-08T08:59:37.863Z",
  "checks": {},
  "tecnica": [
   {
@@ -206,6 +206,14 @@
     "Hippie Jump sobre bordillo bajo (bajar y subir)",
     "Hippie Jump con pop de cola corto (puente al ollie)"
    ],
+   "sources": {}
+  },
+  {
+   "id": "mw7lpd5ob8gn",
+   "name": "PRUMEROS",
+   "color": "",
+   "note": "",
+   "tricks": [],
    "sources": {}
   }
  ],
