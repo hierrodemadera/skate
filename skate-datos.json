@@ -1,7 +1,7 @@
 {
  "format": "skate-datos",
  "version": 1,
- "updated": "2026-11-08T08:59:37.863Z",
+ "updated": "2026-11-08T09:01:51.509Z",
  "checks": {},
  "tecnica": [
   {
@@ -213,8 +213,27 @@
    "name": "PRUMEROS",
    "color": "",
    "note": "",
-   "tricks": [],
-   "sources": {}
+   "tricks": [
+    "Ollie",
+    "Manual",
+    "Frontside 180",
+    "Kickflip",
+    "Ollie + Body Varial",
+    "Boneless",
+    "Frontside Powerslide",
+    "Backside Powerslide",
+    "Hippie Jump, rodillas al pecho (recoger las piernas, más altura)"
+   ],
+   "sources": {
+    "Frontside Powerslide": {
+     "v": "How to stop on a skateboard",
+     "n": 7
+    },
+    "Backside Powerslide": {
+     "v": "How to stop on a skateboard",
+     "n": 9
+    }
+   }
   }
  ],
  "calentamiento": [
