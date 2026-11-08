@@ -1,7 +1,7 @@
 {
  "format": "skate-datos",
  "version": 1,
- "updated": "2026-11-08T09:01:58.225Z",
+ "updated": "2026-11-08T09:02:50.224Z",
  "checks": {},
  "tecnica": [
   {
@@ -211,7 +211,7 @@
   {
    "id": "mw7lpd5ob8gn",
    "name": "PRUMEROS",
-   "color": "#e77518",
+   "color": "#f40b20",
    "note": "",
    "tricks": [
     "Ollie",
