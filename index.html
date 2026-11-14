@@ -838,6 +838,19 @@ body.pz-open #sk-cloud{display:none;}
 #vz .vz-menu.open{display:block;}
 #vz .vz-menu button{display:block;width:100%;text-align:left;padding:12px 14px;border:0;background:none;border-radius:12px;font:inherit;font-size:15px;color:inherit;cursor:pointer;}
 #vz .vz-menu button:hover,#vz .vz-menu button:active{background:var(--vzh);}
+#vz .vz-notebtn{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:6;width:52px;height:52px;border-radius:50%;border:0;background:#ffd400;color:#1c1c1e;box-shadow:0 4px 16px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+#vz .vz-lad{position:fixed;z-index:7;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100vw - 24px));max-height:min(70vh,640px);display:none;flex-direction:column;background:var(--vzpanel);color:inherit;border-radius:18px;box-shadow:0 10px 40px rgba(0,0,0,.3),0 0 0 .5px var(--vzb);overflow:hidden;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);}
+#vz .vz-lad.open{display:flex;}
+#vz .vz-lad .lh{display:flex;align-items:center;gap:8px;padding:12px 12px 12px 16px;font-weight:700;font-size:15px;background:#ffd400;color:#1c1c1e;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;}
+#vz .vz-lad .lh span{flex:1;}#vz .vz-lad .lh small{font-weight:600;opacity:.7;}
+#vz .vz-lad .lh button{border:0;background:rgba(0,0,0,.12);color:inherit;width:28px;height:28px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;}
+#vz .vz-lad .lb{overflow:auto;-webkit-overflow-scrolling:touch;padding:6px 14px 14px;}
+#vz .vz-lad .lt{font-weight:700;font-size:13px;margin:14px 0 4px;opacity:.65;}
+#vz .vz-lad .li{display:flex;gap:10px;padding:5px 0;font-size:15px;line-height:1.3;}
+#vz .vz-lad .li small{opacity:.6;font-size:13px;}
+#vz .vz-lad .li .lk{width:16px;flex-shrink:0;opacity:.55;}
+#vz .vz-lad .li.done b{opacity:.55;text-decoration:line-through;}#vz .vz-lad .li.done .lk{color:#34c759;opacity:1;}
+#vz .vz-lad .lf{margin-top:14px;font-size:12px;opacity:.5;}
 </style>
 </head>
 <body>
@@ -6369,7 +6382,7 @@ function go(s){ stack = stack.slice(0, pos + 1); stack.push(s); pos++; render(tr
 function back(){ if(pos > 0){ pos--; render(true); } }
 function fwd(){ if(pos < stack.length - 1){ pos++; render(true); } }
 function open(){ if(!el) build(); el.classList.add('open'); document.body.classList.add('vz-on'); setTog(); document.body.style.overflow = 'hidden'; render(true); }
-function close(){ if(el){ el.classList.remove('open'); closeMenu(); } document.body.classList.remove('vz-on'); setTog(); document.body.style.overflow = ''; }
+function close(){ if(el){ el.classList.remove('open'); closeMenu(); closeLad(); } document.body.classList.remove('vz-on'); setTog(); document.body.style.overflow = ''; }
 
 function crumb(){
   const s = cur(), c = $('.vz-crumb', el);
@@ -6389,6 +6402,7 @@ function render(anim){
   crumb(); body.scrollTop = 0;
   const s = cur();
   body.className = 'vz-body' + (isRad(s) ? ' root' : '');
+  { const w = lad(); if(w && !(s.t === 'cat' && s.id === 'base' && catView === 'all')) closeLad(); else if(w && w.classList.contains('open')) openLad(); }
   if(s.t === 'root') renderRoot(); else if(s.t === 'fam') renderFam(DATA.find(f=> f.id === s.id)); else if(s.t === 'ent') renderEnt(); else if(s.t === 'cat') renderCat2(s.id); else if(s.t === 'prog') renderProg(); else if(s.t === 'pentry') renderPEntry(s.name); else renderSearch();
   if(anim){ body.firstElementChild && body.firstElementChild.classList.add('vz-in'); }
 }
@@ -6444,6 +6458,41 @@ function trickCard(n, bc, src, extra){
   const c = clean(n), a = anno(n), d = checked.has(c);
   return `<div class="vz-card${d ? ' done' : ''}" data-name="${esc(c)}" style="background:${mix(bc, .3)}"><b>${esc(c)}</b>${a ? `<span class="an">${esc(a)}</span>` : ''}${src ? `<span class="sb">${esc(src)}</span>` : ''}<span class="ac">${extra || ''}<button class="ck${d ? ' on' : ''}" data-act="ck">✓</button><button data-act="prog" title="A progresión">P</button><button data-act="pz">▦</button></span></div>`;
 }
+/* --- nota flotante: escalera de progresión de Base --- */
+const LADDER = [
+  ['Peldaño 0 · antes de despegar la tabla', [['Hippie Jump, piernas estiradas'],['Hippie Jump, rodillas al pecho'],['Hippie Jump, aterrizar en puntos distintos'],['Hippie Jump sobre bordillo bajo'],['Hippie Jump con pop de cola corto','puente directo al ollie']]],
+  ['Aparte, sin depender del salto', [['Manual'],['Nose Manual'],['Hang Ten Manual'],['Frontside Powerslide'],['Backside Powerslide'],['Fakie Powerslide']]],
+  ['Peldaño 1 · el pop', [['Ollie','la base de casi todo lo siguiente']]],
+  ['Peldaño 2 · variantes directas del ollie', [['Nollie','espejo del ollie'],['No Comply'],['Boneless','tras el No Comply'],['Hippie Jump 180','prepara la rotación de cuerpo'],['Hippie Jump + Manual / Nose Manual','necesita el Manual y el Nose Manual']]],
+  ['Peldaño 3 · ollie + rotación de cuerpo', [['Ollie 180 (FS)'],['Ollie 180 (BS)'],['Ollie + Body Varial'],['Nollie + Body Varial','necesita el Nollie'],['Body Varial + Revert']]],
+  ['Peldaño 4 · la tabla gira por debajo', [['Kickflip'],['Heelflip','espejo del kickflip']]],
+  ['Peldaño 5 · combinaciones', [['Hardflip','Ollie 180 + Kickflip'],['Inward Heelflip','Ollie 180 + Heelflip, tras el Hardflip'],['M-80','Kickflip + Body Varial'],['Bigspin','Pop Shove-it (del Esquema, no está en Base) + Body Varial'],['Fakie Bigspin','el mismo, rodando hacia atrás']]],
+  ['Peldaño 6 · con obstáculo (en paralelo a los peldaños 3–5)', [['Rock to Fakie','solo rodar con confianza en quarter'],['Axle Stall (FS)'],['Axle Stall (BS)'],['50-50','ollie + equilibrio'],['Switch 50-50'],['Indy Grab','ollie con altura'],['Boardslide (FS)','pide Ollie 180, tras el 50-50'],['Boardslide (BS)']]]
+];
+function ladHTML(){
+  const find = n=>{ for(const g of BASE_AXES){ const a = g.axes.find(x=> x.name === n); if(a) return a; } return null; };
+  let n = 0, d = 0;
+  const body_ = LADDER.map(([t, its])=> `<div class="lt">${esc(t)}</div>` + its.map(([nm, note])=>{
+    const a = find(nm), done = a && checked.has(clean(a.trickName)); n++; if(done) d++;
+    return `<div class="li${done ? ' done' : ''}"><span class="lk">${done ? '✓' : '○'}</span><span><b>${esc(nm)}</b>${note ? `<small> — ${esc(note)}</small>` : ''}</span></div>`;
+  }).join('')).join('');
+  return { n, d, html: body_ };
+}
+function lad(){ return $('.vz-lad', el); }
+function closeLad(){ const w = lad(); if(w) w.classList.remove('open'); }
+function openLad(){
+  let w = lad();
+  if(!w){ w = document.createElement('div'); w.className = 'vz-lad'; el.appendChild(w); }
+  const r = ladHTML();
+  w.innerHTML = `<div class="lh"><span>Escalera de progresión · Base</span><small>${r.d}/${r.n}</small><button data-lad-x="1" aria-label="Cerrar">×</button></div><div class="lb">${r.html}<div class="lf">Cada peldaño necesita el anterior. Es un orden orientativo.</div></div>`;
+  w.classList.add('open');
+}
+(function(){ /* arrastrar la ventana desde su cabecera */
+  let drag = null;
+  document.addEventListener('pointerdown', e=>{ const h = e.target.closest && e.target.closest('.vz-lad .lh'); if(!h || e.target.closest('button')) return; const w = h.parentNode, r = w.getBoundingClientRect(); drag = { w, dx: e.clientX - r.left, dy: e.clientY - r.top }; w.style.right = 'auto'; w.style.bottom = 'auto'; w.style.left = r.left + 'px'; w.style.top = r.top + 'px'; try{ h.setPointerCapture(e.pointerId); }catch(err){} });
+  document.addEventListener('pointermove', e=>{ if(!drag) return; const W = drag.w; W.style.left = Math.max(0, Math.min(innerWidth - 60, e.clientX - drag.dx)) + 'px'; W.style.top = Math.max(0, Math.min(innerHeight - 40, e.clientY - drag.dy)) + 'px'; });
+  document.addEventListener('pointerup', ()=>{ drag = null; });
+})();
 function renderCat2(k){
   const bl = CATS[k].get().blocks, col = CATC[k], y = body.scrollTop;
   let h = `<div class="vz-fam"><div class="vz-fh" style="background:${col};color:${isDark(col) ? '#fff' : '#1c1c1e'}">${CATN[k]}</div>
@@ -6479,6 +6528,7 @@ function renderCat2(k){
     });
     h += `<button class="vz-chip" data-bnew="1" style="margin:12px 0;padding:10px 16px !important;font-weight:700">+ nueva rutina</button>`;
   }
+  if(k === 'base' && catView === 'all') h += `<button class="vz-notebtn" data-lad="1" title="Escalera de progresión" aria-label="Escalera de progresión"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-4h4v-4h4V8h4"/><path d="M4 20V4"/></svg></button>`;
   body.innerHTML = h + '</div>'; body.scrollTop = y;
 }
 /* --- progresión --- */
@@ -6565,6 +6615,8 @@ function menuAct(a){
 }
 function onClick(e){
   const t = e.target;
+  if(t.closest('[data-lad-x]')){ closeLad(); return; }
+  if(t.closest('[data-lad]')){ const w = lad(); if(w && w.classList.contains('open')) closeLad(); else openLad(); return; }
   const mi = t.closest('[data-mi]'); if(mi){ menuAct(mi.dataset.mi); return; }
   if(!t.closest('.vz-menu') && !t.closest('[data-v=menu]')) closeMenu();
   const v = t.closest('[data-v]'); if(v){ const a = v.dataset.v; if(a === 'back') back(); if(a === 'fwd') fwd(); if(a === 'home'){ q = ''; $('input', el).value = ''; stack = stack.slice(0, pos + 1); go({ t: 'root' }); } if(a === 'close') close(); if(a === 'pz' && window.pizarra) window.pizarra.open(); if(a === 'menu') openMenu(v); return; }
