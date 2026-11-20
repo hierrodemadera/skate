@@ -851,6 +851,19 @@ body.pz-open #sk-cloud{display:none;}
 #vz .vz-lad .li .lk{width:16px;flex-shrink:0;opacity:.55;}
 #vz .vz-lad .li.done b{opacity:.55;text-decoration:line-through;}#vz .vz-lad .li.done .lk{color:#34c759;opacity:1;}
 #vz .vz-lad .lf{margin-top:14px;font-size:12px;opacity:.5;}
+#vz .vz-indoor{background:var(--vzpanel);border-radius:14px;box-shadow:0 0 0 .5px var(--vzb);overflow:hidden;margin-bottom:80px;}
+#vz .vz-ihead{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px !important;text-align:left;background:none;border:0 !important;color:inherit;font:inherit;cursor:pointer;}
+#vz .vz-ihead .it{flex:1;display:flex;flex-direction:column;min-width:0;}
+#vz .vz-ihead .it b{font-size:16px;}#vz .vz-ihead .it small{opacity:.55;font-size:13px;}
+#vz .vz-ihead .ic{opacity:.5;font-size:13px;white-space:nowrap;}#vz .vz-ihead .ch{opacity:.5;}
+#vz .vz-ihead:hover{background:var(--vzh);}
+#vz .vz-ibody{border-top:.5px solid var(--vzb);padding:6px 16px 16px;}
+#vz .vz-inote{font-size:13px;opacity:.6;margin:10px 0 4px;}
+#vz .vz-ibody ol{margin:0;padding:0;list-style:none;counter-reset:ix;}
+#vz .vz-ibody li{counter-increment:ix;position:relative;padding:12px 0 12px 34px;border-bottom:.5px solid var(--vzb);display:flex;flex-direction:column;gap:3px;}
+#vz .vz-ibody li:last-child{border-bottom:0;}
+#vz .vz-ibody li::before{content:counter(ix);position:absolute;left:0;top:12px;width:24px;height:24px;border-radius:50%;background:#ffd400;color:#1c1c1e;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+#vz .vz-ibody li b{font-size:16px;}#vz .vz-ibody li span{font-size:14px;line-height:1.4;opacity:.75;}
 </style>
 </head>
 <body>
@@ -6433,9 +6446,29 @@ function radial(center, sub, items){
 }
 const CATN = { warmup: 'Calentamiento', base: 'Base', skate: 'Técnica', speed: 'Velocidad' };
 const CATC = { warmup: '#ffb300', base: '#2979ff', skate: '#aa00ff', speed: '#ff5722' };
+/* --- Indoor: ejercicios de manual en casa, sobre una esterilla de yoga --- */
+const INDOOR = [
+  ['Manual', 'Mantener el manual el tiempo marcado, con el equilibrio sobre las ruedas traseras.'],
+  ['Subida y bajada de nose · manda el pie trasero', 'Desde el manual, sube y baja el nose muy despacio, en todo el recorrido: de casi tocar el suelo con el nose a casi tocarlo con el tail, sin llegar a tocar nunca ni las ruedas delanteras ni el tail. Aquí manda el pie de atrás, el que está en el tail.'],
+  ['Subida y bajada de nose · manda el pie delantero', 'El mismo recorrido, lento y sin tocar, pero ahora manda el pie delantero, el del nose: es el que ofrece la resistencia tanto al subir como al bajar.'],
+  ['Toque lateral de rueda', 'Desde el manual, gira la tabla hacia un lado de la esterilla y toca el suelo solo con la rueda delantera de ese lado. Vuelve despacio al centro y repite hacia el otro lado, dibujando una curva suave. Todo lento y controlado.'],
+  ['Manual con sentadilla profunda', 'Sin salir del manual, baja a una sentadilla profunda y vuelve a subir.'],
+  ['Manual tocando el nose', 'Sin dejar de mantener el manual en ningún momento, lleva la mano hasta tocar el nose y vuelve a la posición.'],
+  ['Manual en posición de kickflip', 'Mantener el manual con el pie delantero colocado como para un kickflip: inclinado, no plano, como si fueras a rascar el borde de la tabla.'],
+  ['Impulso de piernas', 'Desde el manual con las rodillas algo flexionadas (sin llegar a sentadilla, que es muy inestable), extiende las piernas hasta dejarlas rectas con un impulso rápido, como un saltito sin saltar. Con toda la planta del pie apoyada, no de puntillas: parecido al ejercicio de gemelo en un escalón.'],
+  ['Hang Ten manual', 'Mantener el manual con ambos pies sobre el nose.'],
+  ['Hang Ten manual con sentadillas', 'En Hang Ten manual, hacer sentadillas sin salir de la posición.']
+];
+let indoorOpen = false;
+function indoorHTML(){
+  const items = INDOOR.map(([n, d], i)=> `<li><b>${esc(n)}</b><span>${esc(d)}</span></li>`).join('');
+  return `<div class="vz-indoor${indoorOpen ? ' open' : ''}"><button class="vz-ihead" data-indoor="1" aria-expanded="${indoorOpen}"><span class="it"><b>Indoor</b><small>manuals en casa · esterilla de yoga</small></span><span class="ic">${INDOOR.length} ejercicios</span><span class="ch">${indoorOpen ? '▾' : '▸'}</span></button>${indoorOpen ? `<div class="vz-ibody"><div class="vz-inote">Sesión: 15 min por pierna, 30 min en total. Todo despacio y controlado.</div><ol>${items}</ol></div>` : ''}</div>`;
+}
 function renderEnt(){
   const items = ['warmup', 'base', 'skate', 'speed'].map(k=>{ const bl = CATS[k].get().blocks; return { attr: `data-cat="${k}"`, label: CATN[k], sub: bl.length + ' bloques · ' + bl.reduce((a, b)=> a + b.tricks.length, 0) + ' trucos', color: CATC[k] }; });
   layout('ENTRENO', '4 categorías', items);
+  const l = body.querySelector('.vz-list');
+  if(l){ l.style.marginBottom = '14px'; l.parentNode.insertAdjacentHTML('beforeend', indoorHTML()); }
 }
 function mix(hex, a){ return typeof hexToMixedWhite === 'function' ? hexToMixedWhite(hex, a) : hex; }
 let catView = 'rut';
@@ -6615,6 +6648,7 @@ function menuAct(a){
 }
 function onClick(e){
   const t = e.target;
+  if(t.closest('[data-indoor]')){ indoorOpen = !indoorOpen; const y = body.scrollTop; renderEnt(); body.scrollTop = y; return; }
   if(t.closest('[data-lad-x]')){ closeLad(); return; }
   if(t.closest('[data-lad]')){ const w = lad(); if(w && w.classList.contains('open')) closeLad(); else openLad(); return; }
   const mi = t.closest('[data-mi]'); if(mi){ menuAct(mi.dataset.mi); return; }
